@@ -13,10 +13,13 @@ export const authService = {
 
 // Handwriting Analysis APIs
 export const handwritingService = {
-  uploadImage: (formData) => api.post('/handwriting/analyze', formData, {
+  upload: (formData) => api.post('/handwriting/upload', formData, {
     headers: { 'Content-Type': 'multipart/form-data' }
   }),
-  getResults: (assessmentId) => api.get(`/handwriting/results/${assessmentId}`),
+  analyze: (resultId) => api.post(`/handwriting/analyze/${resultId}`),
+  getResults: (resultId) => api.get(`/handwriting/results/${resultId}`),
+  getHistory: () => api.get('/handwriting/history'),
+  delete: (resultId) => api.delete(`/handwriting/${resultId}`),
 };
 
 // Keystroke Analysis APIs

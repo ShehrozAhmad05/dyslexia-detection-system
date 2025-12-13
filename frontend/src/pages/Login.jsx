@@ -61,8 +61,7 @@ function Login() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSubmit = async () => {
     setApiError('');
 
     if (!validateForm()) {
@@ -71,17 +70,22 @@ function Login() {
 
     setLoading(true);
 
-    const result = await login({
-      email: formData.email,
-      password: formData.password
-    });
+    try {
+      const result = await login({
+        email: formData.email,
+        password: formData.password
+      });
 
-    setLoading(false);
-
-    if (result.success) {
-      navigate('/dashboard');
-    } else {
-      setApiError(result.error);
+      if (result.success) {
+        navigate('/dashboard');
+      } else {
+        setApiError(result.error || 'Login failed. Please check your credentials.');
+        setLoading(false);
+      }
+    } catch (error) {
+      console.error('Login exception:', error);
+      setApiError('An unexpected error occurred. Please try again.');
+      setLoading(false);
     }
   };
 
@@ -102,7 +106,7 @@ function Login() {
             </Alert>
           )}
 
-          <form onSubmit={handleSubmit}>
+          <Box>
             <TextField
               fullWidth
               label="Email Address"
@@ -113,8 +117,13 @@ function Login() {
               error={!!errors.email}
               helperText={errors.email}
               margin="normal"
-              required
               autoComplete="email"
+              onKeyPress={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                  handleSubmit();
+                }
+              }}
             />
 
             <TextField
@@ -127,14 +136,21 @@ function Login() {
               error={!!errors.password}
               helperText={errors.password}
               margin="normal"
-              required
               autoComplete="current-password"
+              onKeyPress={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                  handleSubmit();
+                }
+              }}
               InputProps={{
                 endAdornment: (
                   <InputAdornment position="end">
                     <IconButton
                       onClick={() => setShowPassword(!showPassword)}
                       edge="end"
+                      tabIndex={-1}
+                      type="button"
                     >
                       {showPassword ? <VisibilityOff /> : <Visibility />}
                     </IconButton>
@@ -144,12 +160,22 @@ function Login() {
             />
 
             <Button
-              type="submit"
               fullWidth
               variant="contained"
               size="large"
               disabled={loading}
-              sx={{ mt: 3, mb: 2 }}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                handleSubmit();
+              }}
+              onMouseDown={(e) => {
+                e.preventDefault();
+              }}
+              sx={{ 
+                mt: 3, 
+                mb: 2
+              }}
             >
               {loading ? 'Logging in...' : 'Login'}
             </Button>
@@ -164,7 +190,7 @@ function Login() {
                 </Link>
               </Typography>
             </Box>
-          </form>
+          </Box>
         </Paper>
       </Box>
     </Container>

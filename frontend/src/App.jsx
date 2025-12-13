@@ -8,6 +8,8 @@ import Home from './pages/Home';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
+import HandwritingTest from './pages/HandwritingTest';
+import HandwritingResults from './pages/HandwritingResults';
 
 // Import components
 import Navbar from '@components/common/Navbar';
@@ -56,6 +58,25 @@ function App() {
                     </ProtectedRoute>
                   } 
                 />
+                {/* Handwriting Assessment Routes */}
+                <Route 
+                  path="/assessment/handwriting" 
+                  element={
+                    <ProtectedRoute>
+                      <HandwritingTest />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/assessment/handwriting/results/:id" 
+                  element={
+                    <ProtectedRoute>
+                      <HandwritingResults />
+                    </ProtectedRoute>
+                  } 
+                />
+                {/* Add more protected routes for other assessments */}
+                {/* <Route path="/assessment/keystroke" element={<ProtectedRoute><KeystrokeTest /></ProtectedRoute>} /> */}
                 {/* Add more protected routes for assessments */}
                 {/* <Route path="/assessment/handwriting" element={<ProtectedRoute><HandwritingTest /></ProtectedRoute>} /> */}
               </Routes>

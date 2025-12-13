@@ -4,12 +4,15 @@ const cors = require('cors');
 const helmet = require('helmet');
 const compression = require('compression');
 const morgan = require('morgan');
+const path = require('path');
 require('dotenv').config();
 
 const app = express();
 
 // Middleware
-app.use(helmet());
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: "cross-origin" }
+}));
 app.use(cors({
   origin: process.env.ALLOWED_ORIGINS?.split(',') || 'http://localhost:3000',
   credentials: true
@@ -18,6 +21,9 @@ app.use(compression());
 app.use(morgan('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Serve uploaded files statically
+app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
 // Database Connection
 mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/dyslexia_detection')
@@ -32,10 +38,12 @@ app.get('/api/health', (req, res) => {
 // Auth routes
 app.use('/api/auth', require('./routes/auth'));
 
+// Assessment routes
+app.use('/api/handwriting', require('./routes/handwriting'));
+
 // Import other routes (to be created)
 // app.use('/api/users', require('./routes/users'));
 // app.use('/api/assessments', require('./routes/assessments'));
-// app.use('/api/handwriting', require('./routes/handwriting'));
 // app.use('/api/keystroke', require('./routes/keystroke'));
 // app.use('/api/reading', require('./routes/reading'));
 

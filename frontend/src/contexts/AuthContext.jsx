@@ -14,7 +14,7 @@ export const AuthProvider = ({ children }) => {
       const token = localStorage.getItem('token');
       if (token) {
         try {
-          const response = await authService.getProfile();
+          const response = await authService.getCurrentUser();
           setUser(response.data.user);
         } catch (err) {
           console.error('Auth initialization error:', err);
@@ -50,6 +50,7 @@ export const AuthProvider = ({ children }) => {
     try {
       setError(null);
       const response = await authService.login(credentials);
+      
       const { token, user } = response.data;
       
       localStorage.setItem('token', token);
@@ -57,7 +58,7 @@ export const AuthProvider = ({ children }) => {
       
       return { success: true, user };
     } catch (err) {
-      const message = err.response?.data?.message || 'Login failed';
+      const message = err.response?.data?.message || 'Login failed. Please try again.';
       setError(message);
       return { success: false, error: message };
     }
