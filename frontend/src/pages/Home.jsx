@@ -1,4 +1,5 @@
 import { Container, Typography, Box, Grid, Card, CardContent, Button } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
 import { 
   Edit as EditIcon, 
   Keyboard as KeyboardIcon, 
@@ -9,8 +10,10 @@ import {
 } from '@mui/icons-material';
 
 function Home() {
+  const navigate = useNavigate();
+
   return (
-    <Box sx={{ minHeight: '100vh', bgcolor: '#f5f5f5' }}>
+    <Box sx={{ bgcolor: '#f5f5f5' }}>
       {/* Header */}
       <Box sx={{ bgcolor: 'primary.main', color: 'white', py: 6 }}>
         <Container maxWidth="lg">
@@ -91,10 +94,10 @@ function Home() {
             Create an account to begin your comprehensive dyslexia assessment
           </Typography>
           <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center' }}>
-            <Button variant="contained" size="large">
+            <Button variant="contained" size="large" onClick={() => navigate('/register')}>
               Register Now
             </Button>
-            <Button variant="outlined" size="large">
+            <Button variant="outlined" size="large" onClick={() => navigate('/login')}>
               Login
             </Button>
           </Box>

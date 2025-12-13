@@ -29,8 +29,10 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', message: 'Server is running' });
 });
 
-// Import routes (to be created)
-// app.use('/api/auth', require('./routes/auth'));
+// Auth routes
+app.use('/api/auth', require('./routes/auth'));
+
+// Import other routes (to be created)
 // app.use('/api/users', require('./routes/users'));
 // app.use('/api/assessments', require('./routes/assessments'));
 // app.use('/api/handwriting', require('./routes/handwriting'));
