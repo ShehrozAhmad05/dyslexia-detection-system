@@ -10,6 +10,8 @@ import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import HandwritingTest from './pages/HandwritingTest';
 import HandwritingResults from './pages/HandwritingResults';
+import ReadingTest from './pages/ReadingTest';
+import ReadingResults from './pages/ReadingResults';
 
 // Import components
 import Navbar from '@components/common/Navbar';
@@ -75,6 +77,25 @@ function App() {
                     </ProtectedRoute>
                   } 
                 />
+                
+                {/* Reading Assessment Routes */}
+                <Route 
+                  path="/reading-test" 
+                  element={
+                    <ProtectedRoute>
+                      <ReadingTest />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/reading-results/:id" 
+                  element={
+                    <ProtectedRoute>
+                      <ReadingResults />
+                    </ProtectedRoute>
+                  } 
+                />
+                
                 {/* Add more protected routes for other assessments */}
                 {/* <Route path="/assessment/keystroke" element={<ProtectedRoute><KeystrokeTest /></ProtectedRoute>} /> */}
                 {/* Add more protected routes for assessments */}

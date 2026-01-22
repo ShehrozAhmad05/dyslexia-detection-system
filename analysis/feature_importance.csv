@@ -1,0 +1,11 @@
+rank,feature,importance
+1,n_fix_trial,0.16688077972055843
+2,sum_fix_dur_trial,0.1480592241831993
+3,dwell_time_trial,0.13916012206756814
+4,n_sacc_trial,0.1379903049360498
+5,n_regress_trial,0.11819950167968915
+6,n_within_line_regress_trial,0.11512188276221136
+7,ratio_progress_regress_trial,0.07792773167207986
+8,mean_fix_dur_trial,0.051251314983999256
+9,mean_sacc_ampl_trial,0.045409137994644765
+10,n_between_line_regress_trial,0.0

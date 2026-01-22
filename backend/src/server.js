@@ -40,12 +40,12 @@ app.use('/api/auth', require('./routes/auth'));
 
 // Assessment routes
 app.use('/api/handwriting', require('./routes/handwriting'));
+app.use('/api/reading', require('./routes/reading'));
 
 // Import other routes (to be created)
 // app.use('/api/users', require('./routes/users'));
 // app.use('/api/assessments', require('./routes/assessments'));
 // app.use('/api/keystroke', require('./routes/keystroke'));
-// app.use('/api/reading', require('./routes/reading'));
 
 // Error handling middleware
 app.use((err, req, res, next) => {

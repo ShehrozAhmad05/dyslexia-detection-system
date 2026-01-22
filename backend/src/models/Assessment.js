@@ -96,8 +96,9 @@ assessmentSchema.methods.calculateOverallRisk = function() {
   if (this.keystrokeResult?.analysisResults?.riskScore) {
     scores.push(this.keystrokeResult.analysisResults.riskScore * weights.keystroke);
   }
-  if (this.readingResult?.analysisResults?.riskScore) {
-    scores.push(this.readingResult.analysisResults.riskScore * weights.reading);
+  // ReadingResult stores riskScore directly (0-100), convert to 0-1 scale
+  if (this.readingResult?.riskScore) {
+    scores.push((this.readingResult.riskScore / 100) * weights.reading);
   }
 
   if (scores.length === 0) return null;

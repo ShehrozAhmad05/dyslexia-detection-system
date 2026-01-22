@@ -30,8 +30,10 @@ export const keystrokeService = {
 
 // Reading Assessment APIs
 export const readingService = {
-  submitData: (readingData) => api.post('/reading/analyze', readingData),
-  getResults: (assessmentId) => api.get(`/reading/results/${assessmentId}`),
+  startTest: (options) => api.post('/reading/start', options),
+  submitTest: (testData) => api.post('/reading/submit', testData),
+  getResults: (resultId) => api.get(`/reading/results/${resultId}`),
+  getHistory: () => api.get('/reading/history'),
 };
 
 // Assessment APIs

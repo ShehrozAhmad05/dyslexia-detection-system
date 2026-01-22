@@ -1,0 +1,2 @@
+model,train_accuracy,test_accuracy,auc_roc,cv_accuracy_mean,cv_accuracy_std,logistic_regression_accuracy,n_samples,n_features
+Random Forest,0.9387755102040817,0.9523809523809523,0.9727272727272727,0.8,0.2607680962081059,0.9523809523809523,70,10

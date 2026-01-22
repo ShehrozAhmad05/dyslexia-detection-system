@@ -51,7 +51,7 @@ function Dashboard() {
         </Grid>
 
         <Grid item xs={12} md={4}>
-          <Card sx={{ height: '100%', cursor: 'pointer' }} onClick={() => navigate('/assessment/reading')}>
+          <Card sx={{ height: '100%', cursor: 'pointer' }} onClick={() => navigate('/reading-test')}>
             <CardContent>
               <Typography variant="h6" gutterBottom>
                 Reading Test
