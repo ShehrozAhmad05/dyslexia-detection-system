@@ -121,13 +121,17 @@ const ReadingTest = () => {
   
   /**
    * Submit entire test
+   * @param {Array} finalAnswers - Complete array of answers (optional, uses state if not provided)
    */
-  const handleSubmitTest = async () => {
+  const handleSubmitTest = async (finalAnswers = null) => {
     try {
       setSubmitting(true);
       
       const trackingData = tracker.getTrackingData();
       const timeToAnswerQuestions = Date.now() - questionStartTime;
+      
+      // Use provided answers or fall back to state
+      const answersToSubmit = finalAnswers || answers;
       
       const testData = {
         passageId: passage.passageId,
@@ -135,7 +139,7 @@ const ReadingTest = () => {
         passageTotalSegments: passage.segments.length,
         ...trackingData,
         timeToAnswerQuestions,
-        answers,
+        answers: answersToSubmit,
       };
       
       const response = await readingService.submitTest(testData);

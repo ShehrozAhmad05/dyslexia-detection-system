@@ -127,7 +127,6 @@ const readingResultSchema = new mongoose.Schema({
   },
   riskLevel: {
     type: String,
-    enum: ['LOW', 'MODERATE', 'HIGH'],
     description: 'Risk level classification'
   },
   featureScores: {
@@ -167,7 +166,13 @@ const readingResultSchema = new mongoose.Schema({
     description: 'Detailed breakdown of risk calculation'
   },
   recommendations: [{
-    type: String
+    metric: String,
+    severity: String,
+    message: String,
+    confidence: String,
+    citation: String,
+    experimental: Boolean,
+    actionable: Boolean
   }],
   
   status: {
@@ -181,60 +186,71 @@ const readingResultSchema = new mongoose.Schema({
 
 // Method to calculate risk score using validated algorithm
 readingResultSchema.methods.calculateRiskScore = function() {
-  // Prepare metrics for normalization
-  const readingTimeSeconds = this.totalReadingTime / 1000; // Convert ms to seconds
-  
-  const metrics = {
-    readingTime: readingTimeSeconds,
-    comprehensionScore: this.comprehensionScore,
-    revisitCount: this.totalRevisits,
-    pauseCount: this.pauseCount,
-    avgPauseDuration: this.averagePauseDuration || 0
-  };
-  
-  // Calculate risk score using validated normalizers
-  const result = calculateRiskScore(metrics);
-  
-  // Update model with calculated values
-  this.riskScore = result.riskScore;
-  this.riskLevel = result.riskLevel;
-  this.riskBreakdown = result;
-  
-  // Update feature scores with confidence levels
-  this.featureScores = {
-    readingTime: {
-      raw: readingTimeSeconds,
-      normalized: result.breakdown.readingTime.normalized,
-      weighted: result.breakdown.readingTime.weighted,
-      confidence: READING_TIME.confidence
-    },
-    comprehension: {
-      raw: this.comprehensionScore,
-      normalized: result.breakdown.comprehension.normalized,
-      weighted: result.breakdown.comprehension.weighted,
-      confidence: COMPREHENSION.confidence
-    },
-    revisitCount: {
-      raw: this.totalRevisits,
-      normalized: result.breakdown.revisitCount.normalized,
-      weighted: result.breakdown.revisitCount.weighted,
-      confidence: REVISIT_COUNT.confidence
-    },
-    pauseCount: {
-      raw: this.pauseCount,
-      normalized: result.breakdown.pauseCount.normalized,
-      weighted: result.breakdown.pauseCount.weighted,
-      confidence: PAUSE_COUNT.confidence
-    },
-    avgPauseDuration: {
-      raw: this.averagePauseDuration || 0,
-      normalized: result.breakdown.avgPauseDuration.normalized,
-      weighted: result.breakdown.avgPauseDuration.weighted,
-      confidence: AVG_PAUSE_DURATION.confidence
-    }
-  };
-  
-  return this.riskScore;
+  try {
+    // Prepare metrics for normalization
+    const readingTimeSeconds = this.totalReadingTime / 1000; // Convert ms to seconds
+    
+    const metrics = {
+      readingTime: readingTimeSeconds,
+      comprehensionScore: this.comprehensionScore,
+      revisitCount: this.totalRevisits,
+      pauseCount: this.pauseCount,
+      avgPauseDuration: this.averagePauseDuration || 0
+    };
+    
+    // Calculate risk score using validated normalizers
+    const result = calculateRiskScore(metrics);
+    
+    // Update model with calculated values
+    this.riskScore = result.riskScore;
+    this.riskBreakdown = result;
+    
+    // Mark fields as modified for Mongoose
+    this.markModified('riskScore');
+    this.markModified('riskBreakdown');
+    
+    // Update feature scores with confidence levels
+    this.featureScores = {
+      readingTime: {
+        raw: readingTimeSeconds,
+        normalized: result.breakdown.readingTime.normalized,
+        weighted: result.breakdown.readingTime.weighted,
+        confidence: READING_TIME.confidence
+      },
+      comprehension: {
+        raw: this.comprehensionScore,
+        normalized: result.breakdown.comprehension.normalized,
+        weighted: result.breakdown.comprehension.weighted,
+        confidence: COMPREHENSION.confidence
+      },
+      revisitCount: {
+        raw: this.totalRevisits,
+        normalized: result.breakdown.revisitCount.normalized,
+        weighted: result.breakdown.revisitCount.weighted,
+        confidence: REVISIT_COUNT.confidence
+      },
+      pauseCount: {
+        raw: this.pauseCount,
+        normalized: result.breakdown.pauseCount.normalized,
+        weighted: result.breakdown.pauseCount.weighted,
+        confidence: PAUSE_COUNT.confidence
+      },
+      avgPauseDuration: {
+        raw: this.averagePauseDuration || 0,
+        normalized: result.breakdown.avgPauseDuration.normalized,
+        weighted: result.breakdown.avgPauseDuration.weighted,
+        confidence: AVG_PAUSE_DURATION.confidence
+      }
+    };
+    
+    // Mark featureScores as modified
+    this.markModified('featureScores');
+    
+    return this.riskScore;
+  } catch (error) {
+    console.error('Error calculating risk score:', error);
+    throw error;
+  }
 };
 
 // Calculate derived metrics before saving

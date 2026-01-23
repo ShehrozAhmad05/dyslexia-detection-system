@@ -92,12 +92,14 @@ router.post('/submit', protect, async (req, res) => {
       return res.status(404).json({ message: 'Passage not found' });
     }
     
-    // Calculate comprehension score
-    let correctCount = 0;
+    // Calculate comprehension score - only count unique questions
+    const uniqueCorrectQuestions = new Set();
     const processedAnswers = answers.map(ans => {
       const question = passage.questions.find(q => q.questionId === ans.questionId);
       const isCorrect = question && ans.answer === question.correctAnswer;
-      if (isCorrect) correctCount++;
+      if (isCorrect) {
+        uniqueCorrectQuestions.add(ans.questionId);
+      }
       
       return {
         questionId: ans.questionId,
@@ -107,7 +109,10 @@ router.post('/submit', protect, async (req, res) => {
       };
     });
     
-    const comprehensionScore = Math.round((correctCount / answers.length) * 100);
+    // Calculate comprehension based on total questions in passage
+    const totalQuestions = passage.questions.length;
+    const correctCount = uniqueCorrectQuestions.size;
+    const comprehensionScore = Math.round((correctCount / totalQuestions) * 100);
     const incorrectQuestions = processedAnswers
       .filter(a => !a.correct)
       .map(a => a.questionId);
@@ -126,7 +131,7 @@ router.post('/submit', protect, async (req, res) => {
       reviewedTextAfterQuestions: reviewedTextAfterQuestions || false,
       pauseCount: pauseCount || 0,
       pauseDurations: pauseDurations || [],
-      totalQuestions: answers.length,
+      totalQuestions: totalQuestions,
       correctAnswers: correctCount,
       comprehensionScore,
       incorrectQuestions,
@@ -136,19 +141,30 @@ router.post('/submit', protect, async (req, res) => {
     // Save first to trigger pre-save hook (calculates derived metrics)
     await readingResult.save();
     
-    // Now calculate risk score and generate recommendations (needs derived metrics)
+    // Calculate risk score and generate recommendations (needs derived metrics)
     readingResult.calculateRiskScore();
+    
+    // Set riskLevel based on riskScore (using validated thresholds from config)
+    if (readingResult.riskScore >= RISK_SCORE_RANGES.high) {
+      readingResult.riskLevel = 'HIGH';
+    } else if (readingResult.riskScore >= RISK_SCORE_RANGES.moderate) {
+      readingResult.riskLevel = 'MODERATE';
+    } else {
+      readingResult.riskLevel = 'LOW';
+    }
+    readingResult.markModified('riskLevel');
+    
     readingResult.generateRecommendations();
     
-    // Save again with risk scores
-    await readingResult.save();
+    // Save again with risk scores and recommendations
+    const savedResult = await readingResult.save();
     
     res.json({
       success: true,
       message: 'Reading test submitted successfully',
-      resultId: readingResult._id,
-      riskScore: readingResult.riskScore,
-      riskLevel: readingResult.riskLevel
+      resultId: savedResult._id,
+      riskScore: savedResult.riskScore,
+      riskLevel: savedResult.riskLevel
     });
   } catch (error) {
     console.error('Error submitting reading test:', error);

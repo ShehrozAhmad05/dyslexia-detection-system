@@ -33,14 +33,12 @@ const ComprehensionQuestions = ({
   
   /**
    * Check if all questions are answered
-   * Include current selectedAnswer in the count
    */
   useEffect(() => {
+    // Only count questions that have been saved, not the current selection
     const answeredCount = Object.keys(answers).length;
-    const hasCurrentAnswer = selectedAnswer && !answers[currentQuestion?.questionId];
-    const totalAnswered = answeredCount + (hasCurrentAnswer ? 1 : 0);
-    setAllAnswered(totalAnswered === questions.length);
-  }, [answers, questions.length, selectedAnswer, currentQuestion]);
+    setAllAnswered(answeredCount === questions.length);
+  }, [answers, questions.length]);
   
   /**
    * Reset question timer when question changes
@@ -95,13 +93,34 @@ const ComprehensionQuestions = ({
    * Submit all answers
    */
   const handleSubmit = () => {
-    // If current question is answered but not submitted, submit it first
+    // Build complete answers array to pass to parent
+    const completeAnswers = [];
+    
+    // Add all previously saved answers
+    Object.keys(answers).forEach(questionId => {
+      const answer = answers[questionId];
+      completeAnswers.push({
+        questionId: parseInt(questionId),
+        answer: answer,
+        timeSpent: 0 // Already tracked when saved
+      });
+    });
+    
+    // If current question is answered but not saved yet, include it
     if (selectedAnswer && !answers[currentQuestion.questionId]) {
       const timeSpent = Date.now() - questionStartTime;
+      completeAnswers.push({
+        questionId: currentQuestion.questionId,
+        answer: selectedAnswer,
+        timeSpent
+      });
+      
+      // Also notify parent for state consistency
       onAnswerSubmit(currentQuestion.questionId, selectedAnswer, timeSpent);
     }
     
-    onComplete();
+    // Pass complete answers array to parent
+    onComplete(completeAnswers);
   };
   
   return (
@@ -189,7 +208,7 @@ const ComprehensionQuestions = ({
               color="success"
               startIcon={<CheckCircle />}
               onClick={handleSubmit}
-              disabled={!allAnswered || submitting}
+              disabled={(!allAnswered && !selectedAnswer) || submitting}
             >
               {submitting ? 'Submitting...' : 'Submit Test'}
             </Button>

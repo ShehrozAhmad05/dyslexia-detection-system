@@ -189,6 +189,290 @@ const passages = [
       }
     ],
     isActive: true
+  },
+  {
+    passageId: 'passage_003',
+    title: 'The Solar System Mystery',
+    difficulty: 'medium',
+    ageGroup: '10-12',
+    totalWords: 276,
+    segments: [
+      {
+        segmentIndex: 0,
+        content: `Jake had always dreamed of becoming an astronaut. Every night, he would gaze at the stars through his telescope, wondering about the mysteries of space. His bedroom walls were covered with posters of planets, galaxies, and space shuttles. When his science teacher announced a competition to design a mission to Mars, Jake knew this was his chance to shine.`,
+        wordCount: 60
+      },
+      {
+        segmentIndex: 1,
+        content: `Jake spent weeks researching everything about Mars: its atmosphere, temperature, gravity, and the challenges of landing there. He learned that Mars has only 38% of Earth's gravity and temperatures that can drop to minus 125 degrees Celsius. He designed a spacecraft with special heat shields and landing gear that could handle the rough Martian terrain. His presentation included detailed diagrams, calculations, and even a 3D model he built from recycled materials.`,
+        wordCount: 78
+      },
+      {
+        segmentIndex: 2,
+        content: `On presentation day, Jake confidently explained his mission plan to the judges. He proposed using solar panels for energy, growing vegetables in a greenhouse for food, and recycling water using advanced filtration systems. The judges were amazed by his thorough research and creative solutions. Jake won first prize and received a scholarship to space camp. More importantly, he learned that achieving your dreams requires dedication, research, and believing in yourself. His journey to becoming an astronaut had truly begun.`,
+        wordCount: 86
+      }
+    ],
+    questions: [
+      {
+        questionId: 1,
+        question: 'What was Jake\'s dream career?',
+        options: ['Scientist', 'Astronaut', 'Teacher', 'Engineer'],
+        correctAnswer: 'Astronaut',
+        type: 'multiple-choice'
+      },
+      {
+        questionId: 2,
+        question: 'What competition did the science teacher announce?',
+        options: [
+          'Design a telescope',
+          'Build a rocket',
+          'Design a mission to Mars',
+          'Study the moon'
+        ],
+        correctAnswer: 'Design a mission to Mars',
+        type: 'multiple-choice'
+      },
+      {
+        questionId: 3,
+        question: 'What percentage of Earth\'s gravity does Mars have?',
+        options: ['25%', '38%', '50%', '75%'],
+        correctAnswer: '38%',
+        type: 'multiple-choice'
+      },
+      {
+        questionId: 4,
+        question: 'How low can temperatures on Mars drop to?',
+        options: ['-50°C', '-75°C', '-100°C', '-125°C'],
+        correctAnswer: '-125°C',
+        type: 'multiple-choice'
+      },
+      {
+        questionId: 5,
+        question: 'What did Jake use to build his 3D model?',
+        options: ['Plastic blocks', 'Recycled materials', 'Clay', 'Metal parts'],
+        correctAnswer: 'Recycled materials',
+        type: 'multiple-choice'
+      },
+      {
+        questionId: 6,
+        question: 'What energy source did Jake propose for the Mars mission?',
+        options: ['Nuclear power', 'Wind turbines', 'Solar panels', 'Batteries'],
+        correctAnswer: 'Solar panels',
+        type: 'multiple-choice'
+      },
+      {
+        questionId: 7,
+        question: 'What prize did Jake win?',
+        options: [
+          'A new telescope',
+          'A scholarship to space camp',
+          'A trip to NASA',
+          'A science book'
+        ],
+        correctAnswer: 'A scholarship to space camp',
+        type: 'multiple-choice'
+      },
+      {
+        questionId: 8,
+        question: 'What lesson did Jake learn from this experience?',
+        options: [
+          'Space is too dangerous',
+          'Dreams require dedication and research',
+          'Competitions are easy to win',
+          'Mars is impossible to reach'
+        ],
+        correctAnswer: 'Dreams require dedication and research',
+        type: 'multiple-choice'
+      }
+    ],
+    isActive: true
+  },
+  {
+    passageId: 'passage_004',
+    title: 'The Community Garden',
+    difficulty: 'medium',
+    ageGroup: '10-12',
+    totalWords: 264,
+    segments: [
+      {
+        segmentIndex: 0,
+        content: `Lila noticed that her neighborhood had an empty lot filled with trash and weeds. Nobody used it, and it made the whole street look sad. One day, she had an idea: what if they could turn this lot into a beautiful community garden? She knew it would be a lot of work, but she was determined to try. First, she needed to convince her neighbors that it was a good idea.`,
+        wordCount: 73
+      },
+      {
+        segmentIndex: 1,
+        content: `Lila created colorful flyers and went door to door, explaining her vision. She showed drawings of vegetable beds, flower patches, and benches where people could sit and relax. Slowly, people started to get excited. Mr. Chen, who owned a hardware store, donated tools. Mrs. Johnson, a retired teacher, offered to help teach children about plants. Within two weeks, thirty volunteers signed up to help create the garden.`,
+        wordCount: 72
+      },
+      {
+        segmentIndex: 2,
+        content: `The transformation took three months of hard work. They cleared the trash, prepared the soil, and built raised beds for vegetables. They planted tomatoes, carrots, lettuce, and herbs. They even added a small playground for younger children. The once-empty lot became a vibrant gathering place where neighbors could meet, children could learn about nature, and families could grow fresh food together. Lila's simple idea had brought the entire community closer and made their neighborhood a better place to live.`,
+        wordCount: 84
+      }
+    ],
+    questions: [
+      {
+        questionId: 1,
+        question: 'What was wrong with the empty lot?',
+        options: [
+          'It was too small',
+          'It was filled with trash and weeds',
+          'It was privately owned',
+          'It was flooded'
+        ],
+        correctAnswer: 'It was filled with trash and weeds',
+        type: 'multiple-choice'
+      },
+      {
+        questionId: 2,
+        question: 'What was Lila\'s idea for the lot?',
+        options: [
+          'Build a playground',
+          'Create a parking lot',
+          'Turn it into a community garden',
+          'Build houses'
+        ],
+        correctAnswer: 'Turn it into a community garden',
+        type: 'multiple-choice'
+      },
+      {
+        questionId: 3,
+        question: 'How did Lila promote her idea?',
+        options: [
+          'Posted on social media',
+          'Made colorful flyers and went door to door',
+          'Called a neighborhood meeting',
+          'Put up posters'
+        ],
+        correctAnswer: 'Made colorful flyers and went door to door',
+        type: 'multiple-choice'
+      },
+      {
+        questionId: 4,
+        question: 'What did Mr. Chen donate?',
+        options: ['Money', 'Seeds', 'Tools', 'Wood'],
+        correctAnswer: 'Tools',
+        type: 'multiple-choice'
+      },
+      {
+        questionId: 5,
+        question: 'How many volunteers signed up?',
+        options: ['Ten', 'Twenty', 'Thirty', 'Forty'],
+        correctAnswer: 'Thirty',
+        type: 'multiple-choice'
+      },
+      {
+        questionId: 6,
+        question: 'How long did the transformation take?',
+        options: ['One month', 'Two months', 'Three months', 'Six months'],
+        correctAnswer: 'Three months',
+        type: 'multiple-choice'
+      },
+      {
+        questionId: 7,
+        question: 'Which vegetable was NOT mentioned in the garden?',
+        options: ['Tomatoes', 'Carrots', 'Lettuce', 'Potatoes'],
+        correctAnswer: 'Potatoes',
+        type: 'multiple-choice'
+      },
+      {
+        questionId: 8,
+        question: 'What additional feature did they add for younger children?',
+        options: ['A sandbox', 'A small playground', 'A fountain', 'A library'],
+        correctAnswer: 'A small playground',
+        type: 'multiple-choice'
+      }
+    ],
+    isActive: true
+  },
+  {
+    passageId: 'passage_005',
+    title: 'The Coding Champion',
+    difficulty: 'medium',
+    ageGroup: '10-12',
+    totalWords: 271,
+    segments: [
+      {
+        segmentIndex: 0,
+        content: `Emma discovered coding when she was ten years old. Her older brother was learning to make video games, and she was fascinated by how he could create entire worlds on the computer. She asked him to teach her, and soon she was writing her first lines of code. At first, the syntax was confusing and she made many mistakes, but Emma never gave up. She practiced every day after school.`,
+        wordCount: 71
+      },
+      {
+        segmentIndex: 1,
+        content: `After six months of practice, Emma decided to enter a regional coding competition. The challenge was to create a game that taught younger children about recycling. Emma spent three weeks designing her game, "Eco Warriors." Players had to sort different types of waste into the correct recycling bins while racing against time. She added colorful graphics, fun sound effects, and different difficulty levels. The game was both educational and entertaining.`,
+        wordCount: 73
+      },
+      {
+        segmentIndex: 2,
+        content: `At the competition, Emma presented her game to a panel of professional programmers and teachers. They were impressed by her creativity and the game's clear educational value. Emma won second place and received a laptop computer as her prize. But the best reward came later when local schools started using her game in their environmental education programs. Emma realized that coding wasn't just about technology; it was a powerful tool to solve real-world problems and help others learn.`,
+        wordCount: 82
+      }
+    ],
+    questions: [
+      {
+        questionId: 1,
+        question: 'How old was Emma when she discovered coding?',
+        options: ['Eight', 'Ten', 'Twelve', 'Fourteen'],
+        correctAnswer: 'Ten',
+        type: 'multiple-choice'
+      },
+      {
+        questionId: 2,
+        question: 'Who introduced Emma to coding?',
+        options: ['Her teacher', 'Her older brother', 'Her father', 'A friend'],
+        correctAnswer: 'Her older brother',
+        type: 'multiple-choice'
+      },
+      {
+        questionId: 3,
+        question: 'How long did Emma practice before entering the competition?',
+        options: ['Three months', 'Six months', 'One year', 'Two years'],
+        correctAnswer: 'Six months',
+        type: 'multiple-choice'
+      },
+      {
+        questionId: 4,
+        question: 'What was the game challenge about?',
+        options: [
+          'Teaching math',
+          'Teaching about recycling',
+          'Teaching languages',
+          'Teaching history'
+        ],
+        correctAnswer: 'Teaching about recycling',
+        type: 'multiple-choice'
+      },
+      {
+        questionId: 5,
+        question: 'What was Emma\'s game called?',
+        options: ['Recycle Master', 'Eco Warriors', 'Green Planet', 'Save Earth'],
+        correctAnswer: 'Eco Warriors',
+        type: 'multiple-choice'
+      },
+      {
+        questionId: 6,
+        question: 'What place did Emma win in the competition?',
+        options: ['First', 'Second', 'Third', 'Fourth'],
+        correctAnswer: 'Second',
+        type: 'multiple-choice'
+      },
+      {
+        questionId: 7,
+        question: 'What prize did Emma receive?',
+        options: ['A trophy', 'Money', 'A laptop computer', 'A coding course'],
+        correctAnswer: 'A laptop computer',
+        type: 'multiple-choice'
+      },
+      {
+        questionId: 8,
+        question: 'Who started using Emma\'s game later?',
+        options: ['Gaming companies', 'Local schools', 'Libraries', 'Hospitals'],
+        correctAnswer: 'Local schools',
+        type: 'multiple-choice'
+      }
+    ],
+    isActive: true
   }
 ];
 

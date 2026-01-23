@@ -101,3 +101,7 @@ $RECYCLE.BIN/
 *.pem
 *.key
 credentials.json
+
+# PDFs and extracted data files
+*.pdf
+nerusil_extracted.txt
