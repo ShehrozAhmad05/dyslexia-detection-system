@@ -50,6 +50,8 @@ frontend/coverage/
 # Backend
 backend/uploads/*
 !backend/uploads/.gitkeep
+backend/config/keystrokeThresholds.js
+backend/config/keystrokeThresholds_CMU_DERIVED.json
 
 # ML Models
 ml-models/saved_models/*
@@ -105,3 +107,4 @@ credentials.json
 # PDFs and extracted data files
 *.pdf
 nerusil_extracted.txt
+copilot-instructions.md
