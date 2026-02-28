@@ -26,7 +26,6 @@ function calculateKeystrokeRisk(metrics = {}, mlAnomalyScore = 0) {
     holdTimeRisk: calculateFeatureRisk(safeMetrics.cvHoldTime, 'cvHoldTime'),
     flightTimeRisk: calculateFeatureRisk(safeMetrics.cvFlightTime, 'cvFlightTime'),
     backspaceRisk: calculateFeatureRisk(safeMetrics.backspaceRate, 'backspaceRate'),
-    rhythmRisk: calculateFeatureRisk(safeMetrics.cvFlightTime, 'cvFlightTime'),
     pauseRisk: calculateFeatureRisk(safeMetrics.pauseFrequency, 'pauseFrequency'),
     speedRisk: calculateFeatureRisk(safeMetrics.wpm, 'wpm')
   };

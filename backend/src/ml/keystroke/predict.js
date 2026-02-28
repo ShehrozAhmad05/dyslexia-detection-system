@@ -4,7 +4,9 @@ const path = require('path');
 async function predictAnomaly(features) {
   return new Promise((resolve, reject) => {
     const script = path.resolve(__dirname, 'predict.py');
-    const python = spawn('python', [script]);
+    // Use virtual environment Python if available, fallback to system Python
+    const pythonPath = process.env.PYTHON_PATH || 'd:/FYP/Code/.venv/Scripts/python.exe';
+    const python = spawn(pythonPath, [script]);
 
     let output = '';
     let errorOutput = '';

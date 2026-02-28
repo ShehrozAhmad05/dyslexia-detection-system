@@ -40,7 +40,6 @@ const keystrokeSchema = new mongoose.Schema({
     holdTimeRisk: Number,
     flightTimeRisk: Number,
     backspaceRisk: Number,
-    rhythmRisk: Number,
     pauseRisk: Number,
     speedRisk: Number
   },

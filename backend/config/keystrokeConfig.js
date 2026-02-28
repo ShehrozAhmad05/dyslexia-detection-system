@@ -21,19 +21,22 @@
  * 1. Motor control literature (variability = key indicator)
  * 2. Typing disorder research (speed + errors)
  * 3. Empirical discriminative power
+ * 
+ * NOTE: Originally included rhythmConsistency (0.15) but it was unused.
+ * Weights redistributed proportionally among 5 active features to sum to 1.00
  */
 const FEATURE_WEIGHTS = {
   // Timing consistency (strongest indicators)
-  holdTimeVariability: 0.25,      // CV% of hold times - motor control consistency
-  flightTimeVariability: 0.20,    // CV% of flight times - processing rhythm
+  holdTimeVariability: 0.294,     // CV% of hold times - motor control consistency
+  flightTimeVariability: 0.235,   // CV% of flight times - processing rhythm
   
   // Error patterns (behavioral indicators)
-  backspaceRate: 0.20,            // Correction frequency - letter confusion
-  rhythmConsistency: 0.15,        // Overall typing rhythm stability
+  backspaceRate: 0.235,           // Correction frequency - letter confusion
   
   // Secondary indicators
-  pauseFrequency: 0.10,           // Hesitation/processing delays
-  overallSpeed: 0.10              // Raw WPM (context-dependent)
+  pauseFrequency: 0.118,          // Hesitation/processing delays
+  overallSpeed: 0.118             // Raw WPM (context-dependent)
+  // Total: 1.000 (100%)
 };
 
 // ===================================================================

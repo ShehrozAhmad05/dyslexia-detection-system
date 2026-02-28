@@ -26,7 +26,6 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
 // Database Connection
-console.log(process.env.MONGO_URI)
 mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/dyslexia_detection')
   .then(() => console.log('✓ MongoDB Connected'))
   .catch(err => console.error('MongoDB Connection Error:', err));
