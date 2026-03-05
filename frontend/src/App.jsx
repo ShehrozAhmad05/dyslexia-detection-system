@@ -13,6 +13,12 @@ import HandwritingResults from './pages/HandwritingResults';
 import ReadingTest from './pages/ReadingTest';
 import ReadingResults from './pages/ReadingResults';
 
+// Import Memory Module components
+import SequenceMemoryTest from './components/MemoryModule/SequenceMemoryTest';
+import WordMemoryTest from './components/MemoryModule/WordMemoryTest';
+import MemoryResults from './components/MemoryModule/MemoryResults';
+import MemoryTestFlow from './components/MemoryModule/MemoryTestFlow';
+
 // Import components
 import Navbar from '@components/common/Navbar';
 import ProtectedRoute from '@components/common/ProtectedRoute';
@@ -92,6 +98,40 @@ function App() {
                   element={
                     <ProtectedRoute>
                       <ReadingResults />
+                    </ProtectedRoute>
+                  } 
+                />
+                
+                {/* Memory Assessment Routes */}
+                <Route 
+                  path="/memory-test" 
+                  element={
+                    <ProtectedRoute>
+                      <MemoryTestFlow />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/memory/sequence" 
+                  element={
+                    <ProtectedRoute>
+                      <SequenceMemoryTest />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/memory/word" 
+                  element={
+                    <ProtectedRoute>
+                      <WordMemoryTest />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/memory-results" 
+                  element={
+                    <ProtectedRoute>
+                      <MemoryResults />
                     </ProtectedRoute>
                   } 
                 />

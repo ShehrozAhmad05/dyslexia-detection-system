@@ -1,0 +1,697 @@
+/* =====================================================
+   WORD MEMORY TEST - CUTE & CHILD-FRIENDLY STYLES
+   ===================================================== */
+
+.word-test-container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+/* =====================================================
+   CUTE CARD BASE STYLES
+   ===================================================== */
+.cute-card {
+  background: white;
+  border-radius: 25px;
+  padding: 3rem;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  max-width: 800px;
+  width: 100%;
+  animation: slideUp 0.5s ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* =====================================================
+   INTRO SCREEN
+   ===================================================== */
+.intro-card {
+  text-align: center;
+}
+
+.game-icon {
+  font-size: 5rem;
+  margin-bottom: 1rem;
+  animation: bounce 1s infinite;
+}
+
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
+}
+
+.game-title {
+  font-size: 2.5rem;
+  color: #f5576c;
+  margin-bottom: 0.5rem;
+  font-weight: 800;
+}
+
+.game-description {
+  font-size: 1.2rem;
+  color: #666;
+  margin-bottom: 2rem;
+}
+
+.instructions-box {
+  background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+  border-radius: 15px;
+  padding: 2rem;
+  margin-bottom: 2rem;
+  text-align: left;
+}
+
+.instructions-box h3 {
+  color: #f5576c;
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+.instructions-list {
+  list-style: none;
+  padding: 0;
+}
+
+.instructions-list li {
+  margin-bottom: 1rem;
+  font-size: 1.1rem;
+  color: #333;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.step-icon {
+  font-size: 1.8rem;
+  min-width: 40px;
+}
+
+/* Levels Info */
+.levels-info {
+  margin-bottom: 2rem;
+}
+
+.levels-info h4 {
+  color: #f5576c;
+  font-size: 1.3rem;
+  margin-bottom: 1rem;
+}
+
+.level-boxes {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.level-box {
+  background: linear-gradient(135deg, #fff 0%, #f8f9fa 100%);
+  border: 3px solid #f5576c;
+  border-radius: 15px;
+  padding: 1.5rem;
+  text-align: center;
+  min-width: 150px;
+  transition: transform 0.3s ease;
+}
+
+.level-box:hover {
+  transform: scale(1.05);
+}
+
+.level-star {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+}
+
+.level-box p {
+  margin: 0.3rem 0;
+  font-weight: 600;
+  color: #333;
+}
+
+.level-detail {
+  font-size: 0.9rem;
+  color: #666;
+}
+
+/* =====================================================
+   BUTTONS
+   ===================================================== */
+.cute-button {
+  padding: 1rem 2rem;
+  font-size: 1.2rem;
+  font-weight: 700;
+  border: none;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.start-button {
+  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+  color: white;
+}
+
+.start-button:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 20px rgba(79, 172, 254, 0.4);
+}
+
+.submit-button {
+  background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+  color: white;
+}
+
+.submit-button:hover:not(:disabled) {
+  transform: scale(1.05);
+  box-shadow: 0 6px 20px rgba(67, 233, 123, 0.4);
+}
+
+.submit-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.secondary-button {
+  background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+  color: #333;
+}
+
+.secondary-button:hover {
+  transform: scale(1.05);
+}
+
+/* =====================================================
+   GAME HEADER
+   ===================================================== */
+.game-header {
+  width: 100%;
+  max-width: 800px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  color: white;
+  font-weight: 600;
+}
+
+.level-indicator {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.level-number {
+  font-size: 1.3rem;
+}
+
+.level-stars {
+  font-size: 1.5rem;
+}
+
+.score-display {
+  font-size: 1.5rem;
+  background: rgba(255, 255, 255, 0.2);
+  padding: 0.5rem 1.5rem;
+  border-radius: 50px;
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+}
+
+/* =====================================================
+   LOADING SCREEN
+   ===================================================== */
+.loading-card {
+  text-align: center;
+}
+
+.loading-spinner {
+  font-size: 5rem;
+  animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* =====================================================
+   WORDS DISPLAY (Study Phase)
+   ===================================================== */
+.words-display-card {
+  text-align: center;
+}
+
+.instruction-text {
+  font-size: 1.8rem;
+  color: #f5576c;
+  margin-bottom: 2rem;
+  font-weight: 700;
+}
+
+.words-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1.5rem;
+  margin: 3rem 0;
+}
+
+.word-card {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  font-size: 1.8rem;
+  font-weight: 700;
+  padding: 2rem;
+  border-radius: 15px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-transform: lowercase;
+}
+
+.animate-pop {
+  animation: popIn 0.5s ease-out backwards;
+}
+
+@keyframes popIn {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* =====================================================
+   TIMER
+   ===================================================== */
+.timer-display {
+  margin-top: 2rem;
+}
+
+.timer-circle {
+  width: 100px;
+  height: 100px;
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  color: white;
+  font-size: 3rem;
+  font-weight: 900;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1rem;
+  box-shadow: 0 5px 20px rgba(245, 87, 108, 0.4);
+  animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
+.timer-display p {
+  color: #666;
+  font-size: 1rem;
+}
+
+.hint-text {
+  color: #999;
+  font-size: 1rem;
+  font-style: italic;
+  margin-top: 1.5rem;
+}
+
+/* =====================================================
+   WORD SELECTION (Click Phase)
+   ===================================================== */
+.selection-card {
+  text-align: center;
+}
+
+.selected-count {
+  font-size: 1.3rem;
+  color: #f5576c;
+  font-weight: 600;
+  margin-bottom: 2rem;
+  padding: 1rem;
+  background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+  border-radius: 15px;
+}
+
+.mixed-words-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 1rem;
+  margin: 2rem 0;
+}
+
+.word-choice {
+  background: white;
+  border: 3px solid #ddd;
+  color: #333;
+  font-size: 1.3rem;
+  font-weight: 600;
+  padding: 1.5rem;
+  border-radius: 15px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  text-transform: lowercase;
+}
+
+.word-choice:hover {
+  transform: scale(1.05);
+  border-color: #f5576c;
+}
+
+.word-choice.selected {
+  background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+  border-color: #43e97b;
+  color: white;
+  transform: scale(1.05);
+}
+
+.check-mark {
+  position: absolute;
+  top: 5px;
+  right: 10px;
+  font-size: 1.5rem;
+  animation: checkPop 0.3s ease-out;
+}
+
+@keyframes checkPop {
+  0% {
+    transform: scale(0);
+  }
+  50% {
+    transform: scale(1.3);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.button-group {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 2rem;
+}
+
+/* =====================================================
+   FEEDBACK SCREEN
+   ===================================================== */
+.feedback-card {
+  text-align: center;
+}
+
+.feedback-icon {
+  font-size: 6rem;
+  margin-bottom: 1rem;
+  animation: feedbackPop 0.5s ease-out;
+}
+
+@keyframes feedbackPop {
+  0% {
+    transform: scale(0) rotate(-180deg);
+  }
+  50% {
+    transform: scale(1.3) rotate(10deg);
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+  }
+}
+
+.feedback-message {
+  font-size: 2rem;
+  margin-bottom: 2rem;
+  font-weight: 700;
+  color: #f5576c;
+}
+
+.feedback-stats {
+  display: flex;
+  gap: 2rem;
+  justify-content: center;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+}
+
+.stat-box {
+  background: #f8f9fa;
+  border-radius: 15px;
+  padding: 1.5rem 2rem;
+  min-width: 120px;
+}
+
+.stat-icon {
+  font-size: 2.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.stat-value {
+  font-size: 2.5rem;
+  font-weight: 900;
+  margin-bottom: 0.3rem;
+}
+
+.correct-stat .stat-value {
+  color: #43e97b;
+}
+
+.incorrect-stat .stat-value {
+  color: #ff6b6b;
+}
+
+.missed-stat .stat-value {
+  color: #ffa502;
+}
+
+.stat-label {
+  font-size: 1rem;
+  color: #666;
+  font-weight: 600;
+}
+
+.next-level-text {
+  color: #666;
+  font-size: 1.2rem;
+  animation: blink 1.5s infinite;
+}
+
+@keyframes blink {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* =====================================================
+   COMPLETE SCREEN
+   ===================================================== */
+.complete-card {
+  text-align: center;
+}
+
+.celebration-icon {
+  font-size: 6rem;
+  margin-bottom: 1rem;
+  animation: celebrate 1s ease-out;
+}
+
+@keyframes celebrate {
+  0% {
+    transform: scale(0) rotate(-360deg);
+  }
+  50% {
+    transform: scale(1.3) rotate(20deg);
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+  }
+}
+
+.complete-title {
+  font-size: 3rem;
+  color: #f5576c;
+  margin-bottom: 2rem;
+  font-weight: 900;
+}
+
+.final-score-box {
+  background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+  border-radius: 20px;
+  padding: 3rem;
+  margin-bottom: 2rem;
+}
+
+.final-score-box h2 {
+  color: #f5576c;
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.score-big {
+  font-size: 4rem;
+  font-weight: 900;
+  color: #f5576c;
+  margin-bottom: 0.5rem;
+}
+
+.accuracy-text {
+  font-size: 1.5rem;
+  color: #666;
+  margin-bottom: 1.5rem;
+}
+
+.stars-earned {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  font-size: 2.5rem;
+}
+
+.star-big {
+  color: #ffd700;
+  animation: starPop 0.5s ease-out;
+}
+
+.star-gray {
+  color: #ddd;
+}
+
+@keyframes starPop {
+  0% {
+    transform: scale(0);
+  }
+  50% {
+    transform: scale(1.3);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* Level Breakdown */
+.level-breakdown {
+  background: #f8f9fa;
+  border-radius: 15px;
+  padding: 2rem;
+  margin-bottom: 2rem;
+}
+
+.level-breakdown h3 {
+  color: #f5576c;
+  margin-bottom: 1rem;
+}
+
+.level-result {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  margin: 0.5rem 0;
+  background: white;
+  border-radius: 10px;
+  font-size: 1.1rem;
+}
+
+.level-name {
+  font-weight: 600;
+  color: #333;
+  flex: 1;
+}
+
+.level-score {
+  font-weight: 900;
+  color: #f5576c;
+  margin: 0 1rem;
+}
+
+.level-accuracy {
+  color: #666;
+}
+
+/* =====================================================
+   RESPONSIVE DESIGN
+   ===================================================== */
+@media (max-width: 768px) {
+  .cute-card {
+    padding: 2rem;
+  }
+
+  .game-title {
+    font-size: 2rem;
+  }
+
+  .words-grid {
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 1rem;
+  }
+
+  .word-card {
+    font-size: 1.4rem;
+    padding: 1.5rem;
+  }
+
+  .mixed-words-grid {
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+  }
+
+  .word-choice {
+    font-size: 1.1rem;
+    padding: 1rem;
+  }
+
+  .score-big {
+    font-size: 3rem;
+  }
+
+  .level-boxes {
+    flex-direction: column;
+  }
+
+  .feedback-stats {
+    flex-direction: column;
+    gap: 1rem;
+  }
+}

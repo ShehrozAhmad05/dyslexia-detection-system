@@ -66,6 +66,22 @@ function Dashboard() {
           </Card>
         </Grid>
 
+        <Grid item xs={12} md={4}>
+          <Card sx={{ height: '100%', cursor: 'pointer' }} onClick={() => navigate('/memory-test')}>
+            <CardContent>
+              <Typography variant="h6" gutterBottom>
+                Memory Test
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                Complete sequence and word recall assessment
+              </Typography>
+              <Button variant="contained" sx={{ mt: 2 }}>
+                Start Test
+              </Button>
+            </CardContent>
+          </Card>
+        </Grid>
+
         <Grid item xs={12}>
           <Card>
             <CardContent>
