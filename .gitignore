@@ -85,6 +85,18 @@ htmlcov/
 .pytest_cache/
 .hypothesis/
 
+# Memory Module - Test files (development/debugging only)
+backend/test-*.js
+backend/test-*.ps1
+backend/tests/memory*.test.js
+
+# Memory Module - Documentation (kept locally, not in repo)
+backend/*_MEMORY*.md
+backend/API_REFERENCE_MEMORY.md
+docs/MEMORY_*.md
+docs/PHASE4_*.md
+MEMORY_MODULE_*.md
+
 # OS
 Thumbs.db
 ehthumbs.db
