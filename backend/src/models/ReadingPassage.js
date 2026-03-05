@@ -4,7 +4,8 @@ const readingPassageSchema = new mongoose.Schema({
   passageId: {
     type: String,
     required: true,
-    unique: true
+    unique: true,
+    index: false  // Remove duplicate index warning (defined in schema.index below)
   },
   title: {
     type: String,

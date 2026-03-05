@@ -42,6 +42,7 @@ app.use('/api/auth', require('./routes/auth'));
 app.use('/api/handwriting', require('./routes/handwriting'));
 app.use('/api/reading', require('./routes/reading'));
 app.use('/api/keystroke', require('./routes/keystroke'));
+app.use('/api/memory', require('./routes/memory'));
 
 // Import other routes (to be created)
 // app.use('/api/users', require('./routes/users'));
