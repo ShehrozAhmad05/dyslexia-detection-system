@@ -4,7 +4,7 @@ const {
   DYSLEXIC_RANGES,
   calculateFeatureRisk,
   calculateCombinedRiskScore
-} = require('../../config/keystrokeConfig');
+} = require('../../config/keystrokeConfig_Aalto');
 
 /**
  * Legacy wrapper so existing code can keep calling calculateKeystrokeRisk().
@@ -19,22 +19,24 @@ function calculateKeystrokeRisk(metrics = {}, mlAnomalyScore = 0) {
     cvFlightTime: Number(metrics.cvFlightTime) || 0,
     backspaceRate: Number(metrics.backspaceRate) || 0,
     pauseFrequency: Number(metrics.pauseFrequency) || 0,
-    wpm: Number(metrics.wpm) || 0
+    wpm: Number(metrics.wpm) || 0,
+    errorRate: Number(metrics.errorRate) || 0
   };
 
-  const breakdown = {
-    holdTimeRisk: calculateFeatureRisk(safeMetrics.cvHoldTime, 'cvHoldTime'),
-    flightTimeRisk: calculateFeatureRisk(safeMetrics.cvFlightTime, 'cvFlightTime'),
-    backspaceRisk: calculateFeatureRisk(safeMetrics.backspaceRate, 'backspaceRate'),
-    pauseRisk: calculateFeatureRisk(safeMetrics.pauseFrequency, 'pauseFrequency'),
-    speedRisk: calculateFeatureRisk(safeMetrics.wpm, 'wpm')
+  const combined = calculateCombinedRiskScore(safeMetrics, mlAnomalyScore);
+  const riskScore = Number(combined.riskScore) || 0;
+  const riskLevel = combined.riskLevel || (riskScore >= 70 ? 'HIGH' : riskScore >= 40 ? 'MODERATE' : 'LOW');
+  const breakdown = combined.breakdown || {
+    holdTimeRisk: 0,
+    flightTimeRisk: 0,
+    backspaceRisk: 0,
+    pauseRisk: 0,
+    speedRisk: 0,
+    errorRateRisk: 0
   };
-
-  const riskScore = calculateCombinedRiskScore(safeMetrics, mlAnomalyScore);
-  const riskLevel = riskScore >= 70 ? 'HIGH' : riskScore >= 40 ? 'MODERATE' : 'LOW';
 
   return {
-    riskScore: Math.round(riskScore),
+    riskScore,
     riskLevel,
     breakdown
   };

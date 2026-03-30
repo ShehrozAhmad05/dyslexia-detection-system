@@ -1,0 +1,18 @@
+{
+  "features": [
+    "avgHoldTime",
+    "cvHoldTime",
+    "avgFlightTime",
+    "cvFlightTime",
+    "wpm",
+    "pauseFrequency",
+    "pauseDuration",
+    "backspaceRate"
+  ],
+  "mlScoreCalibration": {
+    "minScore": -0.5483867296669218,
+    "maxScore": -0.35989629351189534,
+    "method": "percentile",
+    "source": "trainModel.py score_samples on training set"
+  }
+}

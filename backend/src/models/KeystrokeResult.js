@@ -2,6 +2,8 @@ const mongoose = require('mongoose');
 const { mean, standardDeviation, coefficientOfVariation, calculateAccuracy } = require('../utils/statistics');
 const { calculateKeystrokeRisk } = require('../utils/keystrokeScoring');
 
+const PAUSE_THRESHOLD_MS = 2000;
+
 const keystrokeSchema = new mongoose.Schema({
   user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   testType: { type: String, enum: ['typing', 'password'], default: 'typing' },
@@ -33,6 +35,7 @@ const keystrokeSchema = new mongoose.Schema({
   backspaceRate: Number,
   pauseCount: Number,
   pauseFrequency: Number,
+  pauseDuration: Number,
 
   riskScore: { type: Number, min: 0, max: 100 },
   riskLevel: { type: String, enum: ['LOW', 'MODERATE', 'HIGH'] },
@@ -41,7 +44,8 @@ const keystrokeSchema = new mongoose.Schema({
     flightTimeRisk: Number,
     backspaceRisk: Number,
     pauseRisk: Number,
-    speedRisk: Number
+    speedRisk: Number,
+    errorRateRisk: Number
   },
 
   anomalyScore: Number,
@@ -62,34 +66,47 @@ const keystrokeSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 keystrokeSchema.methods.calculateMetrics = function calculateMetrics() {
-  const holdTimes = (this.keystrokes || []).map(k => k.holdTime || 0).filter(v => v > 0);
-  const flightTimes = (this.keystrokes || []).map(k => k.flightTime || 0).filter(v => v > 0);
+  const rows = this.keystrokes || [];
+
+  // Keep hold-time bounds aligned with training extraction logic.
+  const holdTimes = rows
+    .map(k => Number(k.holdTime))
+    .filter(v => Number.isFinite(v) && v > 0 && v < 5000);
+
+  const allFlightTimes = rows
+    .map(k => Number(k.flightTime))
+    .filter(v => Number.isFinite(v));
+
+  // Motor rhythm only for avg/cv flight metrics: exclude rollover negatives and long pauses.
+  const motorFlightTimes = allFlightTimes
+    .filter(v => v >= 0 && v <= PAUSE_THRESHOLD_MS);
 
   this.avgHoldTime = mean(holdTimes);
   this.stdHoldTime = standardDeviation(holdTimes);
   this.cvHoldTime = coefficientOfVariation(holdTimes);
 
-  this.avgFlightTime = mean(flightTimes);
-  this.stdFlightTime = standardDeviation(flightTimes);
-  this.cvFlightTime = coefficientOfVariation(flightTimes);
+  this.avgFlightTime = mean(motorFlightTimes);
+  this.stdFlightTime = standardDeviation(motorFlightTimes);
+  this.cvFlightTime = coefficientOfVariation(motorFlightTimes);
 
   const durationMs = this.endTime && this.startTime ? (new Date(this.endTime) - new Date(this.startTime)) : this.duration;
   const minutes = durationMs > 0 ? durationMs / 60000 : 0;
-  const wordCount = this.typedText ? this.typedText.trim().split(/\s+/).filter(Boolean).length : 0;
+  // Use prompt word count to match training definition based on target sentence length.
+  const wordCount = this.prompt
+    ? this.prompt.trim().split(/\s+/).filter(Boolean).length
+    : (this.typedText ? this.typedText.trim().split(/\s+/).filter(Boolean).length : 0);
   this.wpm = minutes > 0 ? wordCount / minutes : 0;
 
   this.accuracy = calculateAccuracy(this.prompt, this.typedText);
   this.errorRate = 100 - this.accuracy;
 
-  this.backspaceCount = (this.keystrokes || []).filter(k => k.key === 'Backspace').length;
-  this.backspaceRate = this.typedText && this.typedText.length > 0
-    ? (this.backspaceCount / this.typedText.length) * 100
-    : 0;
+  this.backspaceCount = rows.filter(k => ['Backspace', 'BKSP', 'Delete', 'DEL'].includes(k.key)).length;
+  this.backspaceRate = rows.length > 0 ? this.backspaceCount / rows.length : 0;
 
-  this.pauseCount = flightTimes.filter(ft => ft > 1000).length;
-  this.pauseFrequency = this.typedText && this.typedText.length > 0
-    ? (this.pauseCount / this.typedText.length) * 100
-    : 0;
+  const pauseDurations = allFlightTimes.filter(ft => ft > PAUSE_THRESHOLD_MS);
+  this.pauseCount = pauseDurations.length;
+  this.pauseFrequency = wordCount > 0 ? this.pauseCount / wordCount : 0;
+  this.pauseDuration = pauseDurations.length > 0 ? mean(pauseDurations) : 0;
 
   this.duration = durationMs;
 };
@@ -100,7 +117,8 @@ keystrokeSchema.methods.calculateRiskScore = function calculateRiskScore(mlAnoma
     cvFlightTime: this.cvFlightTime,
     backspaceRate: this.backspaceRate,
     pauseFrequency: this.pauseFrequency,
-    wpm: this.wpm
+    wpm: this.wpm,
+    errorRate: this.errorRate
   }, mlAnomalyScore);
 
   this.riskScore = riskScore;

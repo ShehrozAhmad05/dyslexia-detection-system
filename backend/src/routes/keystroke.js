@@ -7,7 +7,7 @@ const {
   NORMAL_RANGES,
   DYSLEXIC_RANGES,
   METADATA
-} = require('../../config/keystrokeConfig');
+} = require('../../config/keystrokeConfig_Aalto');
 
 // @route   POST /api/keystroke/start
 // @desc    Get a random typing prompt
@@ -50,11 +50,13 @@ router.post('/submit', protect, async (req, res) => {
     const { predictAnomaly } = require('../ml/keystroke/predict');
     const ml = await predictAnomaly({
       avgHoldTime: result.avgHoldTime,
-      stdHoldTime: result.stdHoldTime,
       cvHoldTime: result.cvHoldTime,
       avgFlightTime: result.avgFlightTime,
-      stdFlightTime: result.stdFlightTime,
-      cvFlightTime: result.cvFlightTime
+      cvFlightTime: result.cvFlightTime,
+      wpm: result.wpm,
+      pauseFrequency: result.pauseFrequency,
+      pauseDuration: result.pauseDuration,
+      backspaceRate: result.backspaceRate
     });
 
     result.anomalyScore = ml.anomalyScore;
@@ -68,6 +70,8 @@ router.post('/submit', protect, async (req, res) => {
       resultId: result._id,
       riskScore: result.riskScore,
       riskLevel: result.riskLevel,
+      accuracy: result.accuracy,
+      errorRate: result.errorRate,
       anomalyScore: result.anomalyScore,
       isAnomalous: result.isAnomalous,
       riskBreakdown: result.riskBreakdown,
