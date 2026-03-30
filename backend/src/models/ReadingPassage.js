@@ -4,8 +4,7 @@ const readingPassageSchema = new mongoose.Schema({
   passageId: {
     type: String,
     required: true,
-    unique: true,
-    index: false  // Remove duplicate index warning (defined in schema.index below)
+    unique: true
   },
   title: {
     type: String,
@@ -70,7 +69,7 @@ const readingPassageSchema = new mongoose.Schema({
 });
 
 // Create indexes
-readingPassageSchema.index({ passageId: 1 });
+readingPassageSchema.index({ passageId: 1 }, { unique: true });
 readingPassageSchema.index({ difficulty: 1, ageGroup: 1 });
 
 module.exports = mongoose.model('ReadingPassage', readingPassageSchema);

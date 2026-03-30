@@ -15,6 +15,7 @@ const {
  */
 function calculateKeystrokeRisk(metrics = {}, mlAnomalyScore = 0) {
   const safeMetrics = {
+    avgFlightTime: Number(metrics.avgFlightTime) || 0,
     cvHoldTime: Number(metrics.cvHoldTime) || 0,
     cvFlightTime: Number(metrics.cvFlightTime) || 0,
     backspaceRate: Number(metrics.backspaceRate) || 0,

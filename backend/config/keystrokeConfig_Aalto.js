@@ -282,10 +282,12 @@ function calculateErrorRateRisk(errorRatePercent) {
  * Fusion: 60% rule-based + 40% ML  (Aalto revision, March 2026).
  */
 function calculateCombinedRiskScore(metrics, mlScore = null) {
-  const { cvHoldTime, cvFlightTime, backspaceRate, pauseFrequency, wpm, errorRate } = metrics;
+  const { avgFlightTime, cvHoldTime, cvFlightTime, backspaceRate, pauseFrequency, wpm, errorRate } = metrics;
 
-  const holdTimeRisk   = calculateFeatureRisk(cvHoldTime,          NORMAL_RANGES.cvHoldTime,   DYSLEXIC_RANGES.cvHoldTime);
-  const flightTimeRisk = calculateFeatureRisk(cvFlightTime,        NORMAL_RANGES.cvFlightTime, DYSLEXIC_RANGES.cvFlightTime);
+  const holdTimeRisk    = calculateFeatureRisk(cvHoldTime,          NORMAL_RANGES.cvHoldTime,    DYSLEXIC_RANGES.cvHoldTime);
+  const avgFlightRisk   = calculateFeatureRisk(avgFlightTime,       NORMAL_RANGES.avgFlightTime, DYSLEXIC_RANGES.avgFlightTime);
+  const cvFlightRisk    = calculateFeatureRisk(cvFlightTime,        NORMAL_RANGES.cvFlightTime,  DYSLEXIC_RANGES.cvFlightTime);
+  const flightTimeRisk  = 0.7 * cvFlightRisk + 0.3 * avgFlightRisk;
   const backspaceRisk  = calculateFeatureRisk(backspaceRate, { max: NORMAL_RANGES.backspaceRate.max },  { threshold: DYSLEXIC_RANGES.backspaceRate.min });
   const pauseRisk      = calculateFeatureRisk(pauseFrequency,      { max: NORMAL_RANGES.pauseFrequency.p95 }, { threshold: DYSLEXIC_RANGES.pauseFrequency.min });
   const speedRisk      = calculateLowerIsWorseRisk(wpm, DYSLEXIC_RANGES.wpm.max, DYSLEXIC_RANGES.wpm.threshold);

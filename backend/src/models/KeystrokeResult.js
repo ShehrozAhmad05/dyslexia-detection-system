@@ -113,6 +113,7 @@ keystrokeSchema.methods.calculateMetrics = function calculateMetrics() {
 
 keystrokeSchema.methods.calculateRiskScore = function calculateRiskScore(mlAnomalyScore = 0) {
   const { riskScore, riskLevel, breakdown } = calculateKeystrokeRisk({
+    avgFlightTime: this.avgFlightTime,
     cvHoldTime: this.cvHoldTime,
     cvFlightTime: this.cvFlightTime,
     backspaceRate: this.backspaceRate,
