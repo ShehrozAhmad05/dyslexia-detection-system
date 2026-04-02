@@ -12,6 +12,8 @@ import HandwritingTest from './pages/HandwritingTest';
 import HandwritingResults from './pages/HandwritingResults';
 import ReadingTest from './pages/ReadingTest';
 import ReadingResults from './pages/ReadingResults';
+import KeystrokeTest from './pages/KeystrokeTest';
+import KeystrokeResults from './pages/KeystrokeResults';
 
 // Import Memory Module components
 import SequenceMemoryTest from './components/MemoryModule/SequenceMemoryTest';
@@ -134,6 +136,22 @@ function App() {
                       <MemoryResults />
                     </ProtectedRoute>
                   } 
+                />
+                <Route
+                  path="/assessment/keystroke"
+                  element={
+                    <ProtectedRoute>
+                      <KeystrokeTest />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/assessment/keystroke/results/:id"
+                  element={
+                    <ProtectedRoute>
+                      <KeystrokeResults />
+                    </ProtectedRoute>
+                  }
                 />
                 
                 {/* Add more protected routes for other assessments */}

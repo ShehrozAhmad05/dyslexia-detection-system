@@ -24,7 +24,8 @@ export const handwritingService = {
 
 // Keystroke Analysis APIs
 export const keystrokeService = {
-  submitData: (keystrokeData) => api.post('/keystroke/analyze', keystrokeData),
+  startTest: () => api.post('/keystroke/start', {}),
+  submitData: (keystrokeData) => api.post('/keystroke/submit', keystrokeData),
   getResults: (assessmentId) => api.get(`/keystroke/results/${assessmentId}`),
 };
 
