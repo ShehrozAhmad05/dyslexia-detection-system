@@ -5,6 +5,7 @@
 
 import { useState, useEffect } from 'react';
 import './SequenceMemoryTest.css';
+import { memoryService } from '@services';
 
 const SequenceMemoryTest = ({ onComplete, onSkipToNext }) => {
   
@@ -228,23 +229,14 @@ const SequenceMemoryTest = ({ onComplete, onSkipToNext }) => {
   // =====================================================
   const submitToBackend = async () => {
     try {
-      const token = localStorage.getItem('token');
-      
-      const response = await fetch('http://localhost:5000/api/memory/submit', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          testType: 'sequence',
-          taskData: {
-            sequences: results
-          }
-        })
+      const response = await memoryService.submitTest({
+        testType: 'sequence',
+        taskData: {
+          sequences: results
+        }
       });
-      
-      const data = await response.json();
+
+      const data = response.data;
       
       if (data.success) {
         const resultsData = {

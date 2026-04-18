@@ -37,6 +37,14 @@ export const readingService = {
   getHistory: () => api.get('/reading/history'),
 };
 
+// Memory Assessment APIs
+export const memoryService = {
+  startTest: (payload) => api.post('/memory/start', payload),
+  submitTest: (payload) => api.post('/memory/submit', payload),
+  getResults: (resultId) => api.get(`/memory/results/${resultId}`),
+  getHistory: (params) => api.get('/memory/history', { params }),
+};
+
 // Assessment APIs
 export const assessmentService = {
   getAll: () => api.get('/assessments'),

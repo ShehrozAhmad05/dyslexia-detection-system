@@ -5,6 +5,7 @@
 
 import { useState, useEffect } from 'react';
 import './WordMemoryTest.css';
+import { memoryService } from '@services';
 
 const WordMemoryTest = ({ onComplete, onSkipToDetailed }) => {
   
@@ -39,21 +40,12 @@ const WordMemoryTest = ({ onComplete, onSkipToDetailed }) => {
   // =====================================================
   const loadLevel = async (level) => {
     try {
-      const token = localStorage.getItem('token');
-      
-      const response = await fetch('http://localhost:5000/api/memory/start', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          taskType: 'word',
-          level: level
-        })
+      const response = await memoryService.startTest({
+        taskType: 'word',
+        level: level
       });
-      
-      const data = await response.json();
+
+      const data = response.data;
       
       if (data.success) {
         setWordsToShow(data.config.wordsToShow);
@@ -171,8 +163,6 @@ const WordMemoryTest = ({ onComplete, onSkipToDetailed }) => {
   // =====================================================
   const submitToBackend = async () => {
     try {
-      const token = localStorage.getItem('token');
-      
       // Combine all levels into submission format
       const allWordsShown = results.flatMap(r => r.wordsShown);
       const allWordsRecalled = results.flatMap(r => r.wordsRecalled);
@@ -182,28 +172,21 @@ const WordMemoryTest = ({ onComplete, onSkipToDetailed }) => {
       // Calculate actual recall time across all levels (in ms)
       const totalRecallTime = recallStartTime ? Date.now() - recallStartTime : 60000;
       
-      const response = await fetch('http://localhost:5000/api/memory/submit', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          testType: 'word',
-          taskData: {
-            words: {
-              shown: allWordsShown,
-              recalled: allWordsRecalled,
-              correct: allCorrect,
-              incorrect: allIncorrect,
-              displayDuration: displayDuration * 1000,
-              recallTime: totalRecallTime  // Actual tracked time
-            }
+      const response = await memoryService.submitTest({
+        testType: 'word',
+        taskData: {
+          words: {
+            shown: allWordsShown,
+            recalled: allWordsRecalled,
+            correct: allCorrect,
+            incorrect: allIncorrect,
+            displayDuration: displayDuration * 1000,
+            recallTime: totalRecallTime  // Actual tracked time
           }
-        })
+        }
       });
-      
-      const data = await response.json();
+
+      const data = response.data;
       
       if (data.success) {
         const resultsData = {

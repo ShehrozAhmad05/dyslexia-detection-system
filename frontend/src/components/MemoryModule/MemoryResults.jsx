@@ -6,6 +6,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import './MemoryResults.css';
+import { memoryService } from '@services';
 
 const MemoryResults = () => {
   const navigate = useNavigate();
@@ -45,16 +46,8 @@ const MemoryResults = () => {
   // =====================================================
   const fetchResultsById = async (resultId) => {
     try {
-      const token = localStorage.getItem('token');
-      
-      const response = await fetch(`http://localhost:5000/api/memory/results/${resultId}`, {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-      
-      const data = await response.json();
+      const response = await memoryService.getResults(resultId);
+      const data = response.data;
       
       if (data.success) {
         setResults(data);
