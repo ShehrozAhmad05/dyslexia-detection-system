@@ -58,6 +58,10 @@ ml-models/saved_models/*
 !ml-models/saved_models/.gitkeep
 ml-models/logs/*
 !ml-models/logs/.gitkeep
+ml-models/scripts/run_preprocessing.py
+ml-models/scripts/preprocess_roboflow_robust.py
+ml-models/scripts/preprocess_lightweight.py
+ml-models/scripts/preprocess_memory_safe.py
 *.h5
 *.pkl
 *.pth
@@ -97,6 +101,12 @@ docs/MEMORY_*.md
 docs/PHASE4_*.md
 MEMORY_MODULE_*.md
 
+#Keystroke md files
+backend/scripts/AALTO_SETUP_GUIDE.md
+backend/scripts/KEYSTROKE_MODULE_DEVELOPMENT_SUMMARY.md
+backend/scripts/training_data_aalto.json
+backend/src/ml/keystroke/training_data_aalto.json
+
 # OS
 Thumbs.db
 ehthumbs.db
@@ -120,3 +130,10 @@ credentials.json
 *.pdf
 nerusil_extracted.txt
 copilot-instructions.md
+
+# md files
+COMPLETE_PROJECT_CHAT_HISTORY.md
+PROJECT_CONTEXT.md
+MANUAL_BATCH_GUIDE.md
+README_preprocessing.md
+STEP_1.1_COMPLETE.md
