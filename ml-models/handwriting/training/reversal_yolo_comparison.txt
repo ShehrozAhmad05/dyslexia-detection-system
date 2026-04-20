@@ -1,0 +1,29 @@
+============================================
+MODEL COMPARISON: V1 vs V2
+============================================
+Metric          V1 (Synthetic)   V2 (Real+Words)
+--------------------------------------------
+mAP@50               0.103378         0.994227
+mAP@50-95            0.018754         0.994213
+Precision            0.213116         0.984873
+Recall               0.265058         0.984276
+--------------------------------------------
+Per-class mAP@50:
+  Normal             0.059636         0.993546
+  Reversal           0.097052         0.994442
+  Corrected          0.153445         0.994694
+============================================
+Training data:
+  V1: Synthdata 2,739 images (synthetic isolated letters)
+  V2: Kaggle real letters assembled into 15,000 synthetic words
+============================================
+Conclusion:
+  Better overall mAP@50: V2
+  Better Reversal detection: V2
+  Recommended for production: V2
+  Reason: V2 trained on real handwriting data in word context,
+          reducing domain shift for real user inputs.
+============================================
+Date and time of comparison: 2026-04-20 03:06:36
+V1 path: ml-models/handwriting/models/reversal_yolo_v1.pt
+V2 path: ml-models/handwriting/models/reversal_yolo_v2.pt

@@ -1,0 +1,9 @@
+Date and time of training: 2026-04-20 00:38:23
+Model: yolov8n.pt
+Dataset: synthetic_words (12,000 train / 3,000 val)
+Classes: Normal, Reversal, Corrected
+Epochs trained: 86
+Final mAP@50: 0.992900
+Final mAP@50-95: 0.992890
+Path to saved model: ml-models/handwriting/models/reversal_yolo_v2.pt
+FYP target met (>80% mAP@50): YES

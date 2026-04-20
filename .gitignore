@@ -131,6 +131,15 @@ credentials.json
 nerusil_extracted.txt
 copilot-instructions.md
 
+# YOLO run outputs
+runs/
+
+# downloaded base checkpoint
+yolov8n.pt
+
+# Handwriting testing artifacts
+ml-models/handwriting/testing/*.png
+
 # md files
 COMPLETE_PROJECT_CHAT_HISTORY.md
 PROJECT_CONTEXT.md

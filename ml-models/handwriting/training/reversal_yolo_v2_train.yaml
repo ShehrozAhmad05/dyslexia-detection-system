@@ -1,0 +1,14 @@
+task: detect
+model: yolov8n.pt
+data: D:/FYP/Code/dyslexia-detection-system/data/processed/handwriting/synthetic_words/data.yaml
+imgsz: 640
+epochs: 100
+batch: 16
+device: 0
+workers: 2
+patience: 30
+project: D:/FYP/Code/dyslexia-detection-system/ml-models/logs/yolo_reversal_v2
+name: reversal_detector_v2
+exist_ok: true
+verbose: true
+seed: 42
