@@ -139,6 +139,8 @@ yolov8n.pt
 
 # Handwriting testing artifacts
 ml-models/handwriting/testing/*.png
+ml-models/credentials/*.json
+ml-models/.env
 
 # md files
 COMPLETE_PROJECT_CHAT_HISTORY.md

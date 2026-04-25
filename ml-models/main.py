@@ -3,12 +3,18 @@ FastAPI server for ML model inference
 Handles requests from Node.js backend for dyslexia detection
 """
 
-from fastapi import FastAPI, File, UploadFile, HTTPException
+from fastapi import FastAPI, File, UploadFile, Form, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
+from pathlib import Path
 import uvicorn
 import numpy as np
+from dotenv import load_dotenv
+import os
 from typing import Dict, List
+
+# Load environment variables
+load_dotenv(Path(__file__).parent / ".env")
 
 app = FastAPI(
     title="Dyslexia Detection ML API",
@@ -26,11 +32,36 @@ app.add_middleware(
 )
 
 # Request/Response models
+class WordResult(BaseModel):
+    position: int
+    expected_word: str
+    written_word: str
+    error_type: str
+    detail: str | None
+
+
+class FeatureScores(BaseModel):
+    reversal_score: float
+    error_score: float
+
+
 class HandwritingResponse(BaseModel):
-    risk_score: float
-    features: Dict
-    reversals_detected: int
-    confidence: float
+    expected_sentence: str
+    detected_sentence: str
+    total_words: int
+    word_results: List[WordResult]
+    reversal_count: int
+    substitution_count: int
+    multi_error_count: int
+    correct_count: int
+    reversal_rate: float
+    error_rate: float
+    feature_scores: FeatureScores
+    overall_score: float
+    risk_level: str
+    override_applied: bool
+    unable_to_assess: bool
+    disclaimer: str
 
 class KeystrokeRequest(BaseModel):
     timings: List[Dict]
@@ -61,25 +92,89 @@ async def root():
 async def health_check():
     return {"status": "healthy", "models_loaded": True}
 
-# Handwriting analysis endpoint
-@app.post("/api/ml/handwriting/analyze", response_model=HandwritingResponse)
-async def analyze_handwriting(file: UploadFile = File(...)):
+
+@app.get("/api/ml/handwriting/sentence")
+async def get_screening_sentence():
     """
-    Analyze handwriting image for dyslexia indicators
+    Returns a randomly selected screening sentence.
+    Called when handwriting page loads.
+    Frontend displays this sentence to the user.
     """
     try:
-        # TODO: Load image, preprocess, run through models
-        # Placeholder response
+        import sys
+
+        sys.path.insert(0, str(Path(__file__).parent))
+        from handwriting import get_random_sentence
+
+        sentence = get_random_sentence()
+        return {
+            "sentence": sentence,
+            "word_count": len(sentence.split()),
+            "instruction": "Please write this sentence in print style",
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+# Handwriting analysis endpoint
+@app.post("/api/ml/handwriting/analyze", response_model=HandwritingResponse)
+async def analyze_handwriting(
+    file: UploadFile = File(...),
+    expected_sentence: str = Form(...),
+):
+    """
+    Analyze handwriting image for dyslexia indicators.
+
+    Args:
+        file: uploaded handwriting image.
+        expected_sentence: the sentence user was asked to write.
+
+    Returns:
+        HandwritingResponse with risk score and analysis.
+    """
+    try:
+        import sys
+
+        sys.path.insert(0, str(Path(__file__).parent))
+        from handwriting import OCRService, SentenceComparator, RiskCalculator
+
+        image_bytes = await file.read()
+        if not image_bytes:
+            raise HTTPException(status_code=400, detail="Empty image file")
+
+        ocr = OCRService()
+        detected_text = ocr.extract_and_normalize(image_bytes)
+        normalized_expected = ocr.normalize_text(expected_sentence)
+
+        comparator = SentenceComparator()
+        comparison = comparator.compare(normalized_expected, detected_text)
+
+        calculator = RiskCalculator()
+        risk = calculator.calculate(comparison)
+
         return HandwritingResponse(
-            risk_score=0.65,
-            features={
-                "reversal_count": 3,
-                "spacing_score": 0.7,
-                "alignment_score": 0.6
-            },
-            reversals_detected=3,
-            confidence=0.85
+            expected_sentence=normalized_expected,
+            detected_sentence=detected_text,
+            total_words=comparison["total_words"],
+            word_results=[WordResult(**wr) for wr in comparison["word_results"]],
+            reversal_count=comparison["reversal_count"],
+            substitution_count=comparison["substitution_count"],
+            multi_error_count=comparison["multi_error_count"],
+            correct_count=comparison["correct_count"],
+            reversal_rate=risk["reversal_rate"],
+            error_rate=risk["error_rate"],
+            feature_scores=FeatureScores(
+                reversal_score=risk["feature_scores"]["reversal_score"],
+                error_score=risk["feature_scores"]["error_score"],
+            ),
+            overall_score=risk["overall_score"],
+            risk_level=risk["risk_level"],
+            override_applied=risk["override_applied"],
+            unable_to_assess=risk["unable_to_assess"],
+            disclaimer=risk["disclaimer"],
         )
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
