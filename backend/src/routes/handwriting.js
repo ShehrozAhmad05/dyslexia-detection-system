@@ -47,6 +47,28 @@ const upload = multer({
   fileFilter: fileFilter
 });
 
+// @route   GET /api/handwriting/sentence
+// @desc    Get random screening sentence for handwriting test
+// @access  Private
+router.get('/sentence', protect, async (req, res) => {
+  try {
+    const mlClient = require('../utils/mlClient');
+    const sentence = await mlClient.getScreeningSentence();
+    res.status(200).json({
+      success: true,
+      sentence,
+      instruction: 'Please write this sentence in print style'
+    });
+  } catch (error) {
+    console.error('Get sentence error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to get screening sentence',
+      error: error.message
+    });
+  }
+});
+
 // @route   POST /api/handwriting/upload
 // @desc    Upload handwriting image
 // @access  Private
@@ -66,7 +88,8 @@ router.post('/upload', protect, upload.single('image'), async (req, res) => {
       originalFileName: req.file.originalname,
       fileSize: req.file.size,
       mimeType: req.file.mimetype,
-      status: 'pending'
+      status: 'pending',
+      expectedSentence: req.body.expectedSentence || null
     });
 
     // Create or update assessment record
@@ -93,7 +116,8 @@ router.post('/upload', protect, upload.single('image'), async (req, res) => {
         fileName: req.file.originalname,
         fileSize: req.file.size,
         status: handwritingResult.status,
-        imagePath: handwritingResult.imagePath
+        imagePath: handwritingResult.imagePath,
+        expectedSentence: handwritingResult.expectedSentence
       }
     });
   } catch (error) {
@@ -112,10 +136,14 @@ router.post('/upload', protect, upload.single('image'), async (req, res) => {
 });
 
 // @route   POST /api/handwriting/analyze/:id
-// @desc    Analyze handwriting (MOCK - returns fake data)
+// @desc    Analyze handwriting using Google Vision ML pipeline
 // @access  Private
 router.post('/analyze/:id', protect, async (req, res) => {
+  const path = require('path');
+  const mlClient = require('../utils/mlClient');
+
   try {
+    // Step 1: Find handwriting result
     const handwritingResult = await HandwritingResult.findOne({
       _id: req.params.id,
       user: req.user.id
@@ -135,67 +163,127 @@ router.post('/analyze/:id', protect, async (req, res) => {
       });
     }
 
-    // Update status to analyzing
+    // Step 2: Check expected sentence exists
+    if (!handwritingResult.expectedSentence) {
+      return res.status(400).json({
+        success: false,
+        message: 'No expected sentence found for this result. Please restart the test.'
+      });
+    }
+
+    // Step 3: Update status to analyzing
     handwritingResult.status = 'analyzing';
     await handwritingResult.save();
 
-    // Simulate analysis delay (500ms)
-    await new Promise(resolve => setTimeout(resolve, 500));
+    // Step 4: Build absolute image path
+    const imagePath = path.join(
+      __dirname,
+      '../../',
+      handwritingResult.imagePath
+    );
 
-    // MOCK ANALYSIS RESULTS (Replace this with real ML API call later)
-    const mockResults = {
-      riskScore: Math.random() * 0.4 + 0.3, // Random score between 0.3 and 0.7
-      detectedIssues: [
-        {
-          type: 'letter_reversal',
-          count: Math.floor(Math.random() * 5) + 1,
-          severity: ['low', 'moderate', 'high'][Math.floor(Math.random() * 3)],
-          examples: ['b/d confusion', 'p/q reversal']
-        },
-        {
-          type: 'irregular_spacing',
-          count: Math.floor(Math.random() * 8) + 2,
-          severity: ['moderate', 'high'][Math.floor(Math.random() * 2)],
-          examples: ['uneven word spacing', 'crowded letters']
-        },
-        {
-          type: 'inconsistent_size',
-          count: Math.floor(Math.random() * 4) + 1,
-          severity: 'low',
-          examples: ['varying letter heights']
-        }
-      ],
-      recommendations: [
-        'Practice letter formation with guided worksheets',
-        'Use lined paper with spacing guides',
-        'Perform daily handwriting exercises for 10-15 minutes',
-        'Work on letter recognition activities'
-      ],
-      confidence: 0.85,
-      processingTime: 487
+    // Step 5: Check ML service is available
+    const mlAvailable = await mlClient.isAvailable();
+    if (!mlAvailable) {
+      handwritingResult.status = 'failed';
+      await handwritingResult.save();
+      return res.status(503).json({
+        success: false,
+        message: 'ML service is unavailable. Please ensure the ML server is running.'
+      });
+    }
+
+    // Step 6: Call ML service
+    const mlResult = await mlClient.analyzeHandwriting(
+      imagePath,
+      handwritingResult.expectedSentence
+    );
+
+    if (!mlResult.success) {
+      handwritingResult.status = 'failed';
+      await handwritingResult.save();
+      return res.status(500).json({
+        success: false,
+        message: 'ML analysis failed',
+        error: mlResult.error
+      });
+    }
+
+    const mlData = mlResult.data;
+
+    // Step 7: Map ML response to database fields
+    const analysisResults = {
+      // New ML fields
+      overallScore: mlData.overall_score,
+      reversalCount: mlData.reversal_count,
+      substitutionCount: mlData.substitution_count,
+      multiErrorCount: mlData.multi_error_count,
+      correctCount: mlData.correct_count,
+      reversalRate: mlData.reversal_rate,
+      errorRate: mlData.error_rate,
+      wordResults: mlData.word_results.map(wr => ({
+        position: wr.position,
+        expectedWord: wr.expected_word,
+        writtenWord: wr.written_word,
+        errorType: wr.error_type,
+        detail: wr.detail || null
+      })),
+      overrideApplied: mlData.override_applied,
+      unableToAssess: mlData.unable_to_assess,
+      featureScores: {
+        reversalScore: mlData.feature_scores?.reversal_score,
+        errorScore: mlData.feature_scores?.error_score
+      },
+      // Map to existing fields for backward compatibility
+      riskScore: mlData.overall_score / 100,
+      recommendations: buildRecommendations(mlData),
+      confidence: 0.90,
+      processingTime: mlResult.processingTime
     };
 
-    // Update handwriting result with mock analysis
+    // Step 8: Save results
     handwritingResult.status = 'completed';
-    handwritingResult.analysisResults = mockResults;
+    handwritingResult.analysisResults = analysisResults;
+    handwritingResult.detectedSentence = mlData.detected_sentence;
+    handwritingResult.mlModelVersion = 'google-vision-v1.0';
     handwritingResult.analyzedAt = new Date();
     await handwritingResult.save();
 
+    // Step 9: Return response
     res.status(200).json({
       success: true,
       message: 'Analysis completed successfully',
       result: {
         id: handwritingResult._id,
         status: handwritingResult.status,
-        riskScore: mockResults.riskScore,
+        expectedSentence: handwritingResult.expectedSentence,
+        detectedSentence: handwritingResult.detectedSentence,
+        overallScore: mlData.overall_score,
         riskLevel: handwritingResult.riskLevel,
-        detectedIssues: mockResults.detectedIssues,
-        recommendations: mockResults.recommendations,
-        confidence: mockResults.confidence,
-        analyzedAt: handwritingResult.analyzedAt
+        reversalCount: mlData.reversal_count,
+        substitutionCount: mlData.substitution_count,
+        multiErrorCount: mlData.multi_error_count,
+        correctCount: mlData.correct_count,
+        reversalRate: mlData.reversal_rate,
+        errorRate: mlData.error_rate,
+        wordResults: analysisResults.wordResults,
+        featureScores: analysisResults.featureScores,
+        overrideApplied: mlData.override_applied,
+        unableToAssess: mlData.unable_to_assess,
+        recommendations: analysisResults.recommendations,
+        disclaimer: mlData.disclaimer,
+        analyzedAt: handwritingResult.analyzedAt,
+        processingTime: mlResult.processingTime
       }
     });
   } catch (error) {
+    // If error occurs after status set to analyzing, reset to failed
+    try {
+      await HandwritingResult.findByIdAndUpdate(
+        req.params.id,
+        { status: 'failed' }
+      );
+    } catch {}
     console.error('Analysis error:', error);
     res.status(500).json({
       success: false,
@@ -204,6 +292,62 @@ router.post('/analyze/:id', protect, async (req, res) => {
     });
   }
 });
+
+// Helper function to build recommendations from ML results
+function buildRecommendations(mlData) {
+  const recommendations = [];
+
+  if (mlData.unable_to_assess) {
+    recommendations.push(
+      'Image could not be read clearly. Please retake with better lighting.'
+    );
+    return recommendations;
+  }
+
+  if (mlData.reversal_count > 0) {
+    recommendations.push(
+      `${mlData.reversal_count} letter reversal(s) detected. ` +
+      'Practice writing b/d, p/q pairs with guided worksheets.'
+    );
+  }
+
+  if (mlData.substitution_count > 0) {
+    recommendations.push(
+      'Some letters were written incorrectly. ' +
+      'Review letter formation with a teacher or therapist.'
+    );
+  }
+
+  if (mlData.multi_error_count > 0) {
+    recommendations.push(
+      'Some words contained multiple errors or were skipped. ' +
+      'Practice copying short sentences daily.'
+    );
+  }
+
+  if (mlData.overall_score >= 67) {
+    recommendations.push(
+      'High risk indicators detected. ' +
+      'A formal dyslexia assessment by a qualified professional is recommended.'
+    );
+  } else if (mlData.overall_score >= 34) {
+    recommendations.push(
+      'Moderate risk indicators detected. ' +
+      'Monitor handwriting progress and consider further screening.'
+    );
+  } else {
+    recommendations.push(
+      'Low risk indicators. Continue regular handwriting practice.'
+    );
+  }
+
+  recommendations.push(
+    'This is a screening tool only. ' +
+    'Results do not constitute a clinical diagnosis.'
+  );
+
+  return recommendations;
+}
 
 // @route   GET /api/handwriting/results/:id
 // @desc    Get handwriting analysis results
@@ -229,8 +373,23 @@ router.get('/results/:id', protect, async (req, res) => {
         status: handwritingResult.status,
         imagePath: handwritingResult.imagePath,
         originalFileName: handwritingResult.originalFileName,
-        riskScore: handwritingResult.analysisResults?.riskScore || null,
+        expectedSentence: handwritingResult.expectedSentence || null,
+        detectedSentence: handwritingResult.detectedSentence || null,
+        // New ML fields
+        overallScore: handwritingResult.analysisResults?.overallScore || null,
         riskLevel: handwritingResult.riskLevel,
+        reversalCount: handwritingResult.analysisResults?.reversalCount || null,
+        substitutionCount: handwritingResult.analysisResults?.substitutionCount || null,
+        multiErrorCount: handwritingResult.analysisResults?.multiErrorCount || null,
+        correctCount: handwritingResult.analysisResults?.correctCount || null,
+        reversalRate: handwritingResult.analysisResults?.reversalRate || null,
+        errorRate: handwritingResult.analysisResults?.errorRate || null,
+        wordResults: handwritingResult.analysisResults?.wordResults || [],
+        featureScores: handwritingResult.analysisResults?.featureScores || null,
+        overrideApplied: handwritingResult.analysisResults?.overrideApplied || false,
+        unableToAssess: handwritingResult.analysisResults?.unableToAssess || false,
+        // Existing fields kept for backward compatibility
+        riskScore: handwritingResult.analysisResults?.riskScore || null,
         detectedIssues: handwritingResult.analysisResults?.detectedIssues || [],
         recommendations: handwritingResult.analysisResults?.recommendations || [],
         confidence: handwritingResult.analysisResults?.confidence || null,
