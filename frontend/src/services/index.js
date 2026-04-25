@@ -13,12 +13,26 @@ export const authService = {
 
 // Handwriting Analysis APIs
 export const handwritingService = {
+  // Get random screening sentence
+  // Called when handwriting test page loads
+  getSentence: () => api.get('/handwriting/sentence'),
+
+  // Upload image with expected sentence
+  // formData must include: image file + expectedSentence string
   upload: (formData) => api.post('/handwriting/upload', formData, {
     headers: { 'Content-Type': 'multipart/form-data' }
   }),
+
+  // Trigger analysis for uploaded result
   analyze: (resultId) => api.post(`/handwriting/analyze/${resultId}`),
+
+  // Get analysis results
   getResults: (resultId) => api.get(`/handwriting/results/${resultId}`),
+
+  // Get test history
   getHistory: () => api.get('/handwriting/history'),
+
+  // Delete result
   delete: (resultId) => api.delete(`/handwriting/${resultId}`),
 };
 

@@ -1,210 +1,275 @@
-import { Box, Paper, Typography, Grid, Chip, Button, Divider, List, ListItem, ListItemIcon, ListItemText } from '@mui/material';
-import { CheckCircle, ArrowForward, Lightbulb } from '@mui/icons-material';
-import RiskScoreGauge from './RiskScoreGauge';
+import { useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
+import {
+  Paper,
+  Typography,
+  Box,
+  Chip,
+  LinearProgress,
+  Alert,
+  Button,
+  Divider
+} from '@mui/material';
+
+function formatDate(value) {
+  if (!value) return 'Date unavailable';
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return 'Date unavailable';
+  return date.toLocaleString();
+}
+
+function getRiskChipConfig(riskLevel, unableToAssess) {
+  if (unableToAssess) {
+    return {
+      label: 'Unable to Assess',
+      sx: { bgcolor: 'grey.500', color: 'common.white' }
+    };
+  }
+
+  switch (riskLevel) {
+    case 'high':
+      return { label: 'High Risk', sx: { bgcolor: 'error.main', color: 'common.white' } };
+    case 'moderate':
+      return { label: 'Moderate Risk', sx: { bgcolor: 'warning.main', color: 'common.white' } };
+    case 'low':
+      return { label: 'Low Risk', sx: { bgcolor: 'success.main', color: 'common.white' } };
+    default:
+      return { label: 'Unable to Assess', sx: { bgcolor: 'grey.500', color: 'common.white' } };
+  }
+}
+
+function getWordChipStyle(errorType) {
+  switch (errorType) {
+    case 'correct':
+      return { bgcolor: 'success.main', color: 'common.white' };
+    case 'reversal':
+      return { bgcolor: 'error.main', color: 'common.white' };
+    case 'substitution':
+      return { bgcolor: 'warning.main', color: 'common.white' };
+    case 'multi_error':
+    case 'deleted':
+      return { bgcolor: 'secondary.main', color: 'common.white' };
+    default:
+      return { bgcolor: 'grey.500', color: 'common.white' };
+  }
+}
+
+function getScoreColor(value) {
+  if (value > 50) return 'error';
+  if (value > 25) return 'warning';
+  return 'success';
+}
+
+function toPercent(value) {
+  if (value === null || value === undefined) return null;
+  return Math.max(0, Math.min(100, Number(value)));
+}
 
 function ResultsDisplay({ result, onTakeAnotherTest }) {
-  const BASE_URL = import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5000';
-  // imagePath already starts with /uploads/handwriting/filename
-  const imageUrl = `${BASE_URL}${result.imagePath}`;
+  const navigate = useNavigate();
 
-  const getSeverityColor = (severity) => {
-    switch (severity) {
-      case 'high': return 'error';
-      case 'moderate': return 'warning';
-      case 'low': return 'success';
-      default: return 'default';
-    }
-  };
+  const overallScore =
+    result?.overallScore !== null && result?.overallScore !== undefined
+      ? Number(result.overallScore)
+      : result?.riskScore !== null && result?.riskScore !== undefined
+        ? Number(result.riskScore) * 100
+        : null;
 
-  const formatIssueType = (type) => {
-    return type.split('_').map(word => 
-      word.charAt(0).toUpperCase() + word.slice(1)
-    ).join(' ');
-  };
+  const riskLevel = result?.riskLevel || 'unknown';
+  const unableToAssess = Boolean(result?.unableToAssess);
+  const overrideApplied = Boolean(result?.overrideApplied);
+  const riskChip = getRiskChipConfig(riskLevel, unableToAssess);
+
+  const wordResults = useMemo(
+    () => (Array.isArray(result?.wordResults) ? result.wordResults : []),
+    [result]
+  );
+
+  const recommendations = Array.isArray(result?.recommendations)
+    ? result.recommendations
+    : [];
+
+  const reversalScore = toPercent(result?.featureScores?.reversalScore);
+  const errorScore = toPercent(result?.featureScores?.errorScore);
 
   return (
     <Box>
-      {/* Header */}
-      <Paper sx={{ p: 3, mb: 3, bgcolor: 'primary.main', color: 'white' }}>
-        <Typography variant="h5" gutterBottom>
+      {/* SECTION 1 — Header */}
+      <Paper sx={{ p: 3, mb: 3, bgcolor: 'primary.main', color: 'common.white' }}>
+        <Typography variant="h4" gutterBottom>
           Handwriting Analysis Results
         </Typography>
         <Typography variant="body2" sx={{ opacity: 0.9 }}>
-          Analyzed on {new Date(result.analyzedAt).toLocaleString()}
+          Analyzed on {formatDate(result?.analyzedAt)}
         </Typography>
       </Paper>
 
-      <Grid container spacing={3}>
-        {/* Left Column - Image */}
-        <Grid item xs={12} md={6}>
-          <Paper sx={{ p: 2 }}>
-            <Typography variant="h6" gutterBottom>
-              Uploaded Image
-            </Typography>
-            <Box
-              component="img"
-              src={imageUrl}
-              alt="Handwriting sample"
-              onError={(e) => {
-                console.error('Image failed to load:', imageUrl);
-                console.error('Error:', e);
-              }}
-              sx={{
-                width: '100%',
-                height: 'auto',
-                maxHeight: 400,
-                objectFit: 'contain',
-                borderRadius: 1,
-                border: '1px solid',
-                borderColor: 'divider'
-              }}
-            />
-            <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: 'block' }}>
-              {result.originalFileName}
-            </Typography>
-          </Paper>
-        </Grid>
+      {/* SECTION 2 — Risk Score Card */}
+      <Paper sx={{ p: 3, mb: 3, textAlign: 'center' }}>
+        <Typography variant="h6" gutterBottom>
+          Risk Score
+        </Typography>
+        {overallScore === null || Number.isNaN(overallScore) ? (
+          <Typography variant="h6" color="text.secondary">
+            Analysis pending or unavailable
+          </Typography>
+        ) : (
+          <Typography variant="h2" sx={{ fontWeight: 'bold', mb: 1 }}>
+            {Math.round(overallScore)}
+          </Typography>
+        )}
+        <Chip label={riskChip.label} sx={{ ...riskChip.sx, mb: 2 }} />
 
-        {/* Right Column - Risk Score */}
-        <Grid item xs={12} md={6}>
-          <Paper sx={{ p: 3, mb: 2 }}>
-            <Typography variant="h6" gutterBottom>
-              Risk Assessment
-            </Typography>
-            {result.riskScore !== null && result.riskScore !== undefined ? (
-              <Box sx={{ mt: 3 }}>
-                <RiskScoreGauge score={result.riskScore} label="Dyslexia Indicators" />
-              </Box>
-            ) : (
-              <Box sx={{ mt: 3, textAlign: 'center', py: 3 }}>
-                <Typography variant="body2" color="text.secondary">
-                  Analysis not yet completed
-                </Typography>
-              </Box>
-            )}
-            <Divider sx={{ my: 2 }} />
-            <Typography variant="body2" color="text.secondary">
-              This score indicates the likelihood of dyslexia-related handwriting patterns based on AI analysis.
-            </Typography>
-          </Paper>
+        {unableToAssess && (
+          <Alert severity="warning" sx={{ textAlign: 'left' }}>
+            The handwriting image could not be read clearly.
+            Please retake the photo with better lighting
+            and resubmit.
+          </Alert>
+        )}
 
-          {result.confidence && (
-            <Paper sx={{ p: 2, bgcolor: 'info.lighter' }}>
-              <Typography variant="body2" color="info.dark">
-                <strong>Analysis Confidence:</strong> {Math.round(result.confidence * 100)}%
-              </Typography>
-            </Paper>
+        {overrideApplied && (
+          <Typography variant="body2" color="info.main" sx={{ mt: 2 }}>
+            Risk elevated due to significant reversal pattern detected
+          </Typography>
+        )}
+      </Paper>
+
+      {/* SECTION 3 — Sentence Comparison */}
+      <Paper sx={{ p: 3, mb: 3 }}>
+        <Typography variant="h6" gutterBottom>
+          Sentence Analysis
+        </Typography>
+        <Box sx={{ mb: 1 }}>
+          <Typography variant="body2" color="text.secondary">
+            Expected:
+          </Typography>
+          <Typography variant="body1" sx={{ fontWeight: 'bold' }}>
+            {result?.expectedSentence || 'Not available'}
+          </Typography>
+        </Box>
+        <Box>
+          <Typography variant="body2" color="text.secondary">
+            Detected:
+          </Typography>
+          {result?.detectedSentence ? (
+            <Typography variant="body1" sx={{ fontWeight: 'bold' }}>
+              {result.detectedSentence}
+            </Typography>
+          ) : (
+            <Typography variant="body1" sx={{ color: 'text.disabled', fontStyle: 'italic' }}>
+              Could not detect text
+            </Typography>
           )}
-        </Grid>
+        </Box>
+      </Paper>
 
-        {/* Detected Issues */}
-        <Grid item xs={12}>
-          <Paper sx={{ p: 3 }}>
-            <Typography variant="h6" gutterBottom>
-              Detected Issues
-            </Typography>
-            <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-              The following patterns were identified in your handwriting sample:
-            </Typography>
-            
-            <Grid container spacing={2}>
-              {result.detectedIssues && result.detectedIssues.length > 0 ? (
-                result.detectedIssues.map((issue, index) => (
-                  <Grid item xs={12} sm={6} md={4} key={index}>
-                    <Box
-                      sx={{
-                        p: 2,
-                        border: '1px solid',
-                        borderColor: 'divider',
-                        borderRadius: 1,
-                        height: '100%'
-                      }}
-                    >
-                      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
-                        <Typography variant="subtitle2">
-                          {formatIssueType(issue.type)}
-                        </Typography>
-                        <Chip
-                          label={issue.severity}
-                          size="small"
-                          color={getSeverityColor(issue.severity)}
-                        />
-                      </Box>
-                      <Typography variant="body2" color="text.secondary">
-                        Count: {issue.count}
-                      </Typography>
-                      {issue.examples && issue.examples.length > 0 && (
-                        <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: 'block' }}>
-                          e.g., {issue.examples.join(', ')}
-                        </Typography>
-                      )}
-                    </Box>
-                  </Grid>
-                ))
-              ) : (
-                <Grid item xs={12}>
-                  <Typography variant="body2" color="text.secondary">
-                    No issues detected
+      {/* SECTION 4 — Word-by-Word Breakdown */}
+      <Paper sx={{ p: 3, mb: 3 }}>
+        <Typography variant="h6" gutterBottom>
+          Word Analysis
+        </Typography>
+
+        {wordResults.length === 0 ? (
+          <Typography variant="body2" color="text.secondary">
+            Word-by-word breakdown not available.
+          </Typography>
+        ) : (
+          <Box sx={{ display: 'grid', gap: 1.5 }}>
+            {wordResults.map((word, index) => {
+              const label = word?.errorType || 'unknown';
+              return (
+                <Box
+                  key={`${word?.position || index}-${word?.expectedWord || ''}`}
+                  sx={{ p: 1.5, border: '1px solid', borderColor: 'divider', borderRadius: 1 }}
+                >
+                  <Chip label={label} size="small" sx={getWordChipStyle(label)} />
+                  <Typography variant="body2" sx={{ mt: 1 }}>
+                    [{word?.expectedWord || '-'}] → [{word?.writtenWord || '-'}]
+                    {word?.detail ? ` (${word.detail} ${label})` : ''}
                   </Typography>
-                </Grid>
-              )}
-            </Grid>
-          </Paper>
-        </Grid>
-
-        {/* Recommendations */}
-        <Grid item xs={12}>
-          <Paper sx={{ p: 3 }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
-              <Lightbulb sx={{ color: 'warning.main' }} />
-              <Typography variant="h6">
-                Recommendations
-              </Typography>
-            </Box>
-            
-            {result.recommendations && result.recommendations.length > 0 ? (
-              <List>
-                {result.recommendations.map((recommendation, index) => (
-                  <ListItem key={index} sx={{ pl: 0 }}>
-                    <ListItemIcon sx={{ minWidth: 36 }}>
-                      <CheckCircle color="success" />
-                    </ListItemIcon>
-                    <ListItemText
-                      primary={recommendation}
-                      primaryTypographyProps={{ variant: 'body2' }}
-                    />
-                  </ListItem>
-                ))}
-              </List>
-            ) : (
-              <Typography variant="body2" color="text.secondary">
-                No recommendations available
-              </Typography>
-            )}
-          </Paper>
-        </Grid>
-
-        {/* Actions */}
-        <Grid item xs={12}>
-          <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center' }}>
-            <Button
-              variant="contained"
-              size="large"
-              endIcon={<ArrowForward />}
-              onClick={onTakeAnotherTest}
-            >
-              Take Another Test
-            </Button>
-            <Button
-              variant="outlined"
-              size="large"
-              href="/dashboard"
-            >
-              Back to Dashboard
-            </Button>
+                </Box>
+              );
+            })}
           </Box>
-        </Grid>
-      </Grid>
+        )}
+      </Paper>
+
+      {/* SECTION 5 — Feature Scores */}
+      <Paper sx={{ p: 3, mb: 3 }}>
+        <Typography variant="h6" gutterBottom>
+          Risk Indicators
+        </Typography>
+
+        <Box sx={{ mb: 2 }}>
+          <Typography variant="body2" gutterBottom>
+            Reversal Score {reversalScore !== null ? `(${Math.round(reversalScore)}/100)` : '(N/A)'}
+          </Typography>
+          <LinearProgress
+            variant="determinate"
+            value={reversalScore ?? 0}
+            color={getScoreColor(reversalScore ?? 0)}
+            sx={{ height: 8, borderRadius: 4 }}
+          />
+        </Box>
+
+        <Box sx={{ mb: 2 }}>
+          <Typography variant="body2" gutterBottom>
+            Error Score {errorScore !== null ? `(${Math.round(errorScore)}/100)` : '(N/A)'}
+          </Typography>
+          <LinearProgress
+            variant="determinate"
+            value={errorScore ?? 0}
+            color={getScoreColor(errorScore ?? 0)}
+            sx={{ height: 8, borderRadius: 4 }}
+          />
+        </Box>
+
+        <Divider sx={{ my: 2 }} />
+
+        <Typography variant="body2">Reversals detected: {result?.reversalCount ?? '-'}</Typography>
+        <Typography variant="body2">Substitutions: {result?.substitutionCount ?? '-'}</Typography>
+        <Typography variant="body2">Multi-character errors: {result?.multiErrorCount ?? '-'}</Typography>
+        <Typography variant="body2">Correct words: {result?.correctCount ?? '-'}</Typography>
+      </Paper>
+
+      {/* SECTION 6 — Recommendations */}
+      <Paper sx={{ p: 3, mb: 3 }}>
+        <Typography variant="h6" gutterBottom>
+          Recommendations
+        </Typography>
+
+        {recommendations.length === 0 ? (
+          <Typography variant="body2" color="text.secondary">
+            No recommendations available.
+          </Typography>
+        ) : (
+          <Box component="ul" sx={{ pl: 3, m: 0 }}>
+            {recommendations.map((item, index) => (
+              <Typography component="li" key={`${item}-${index}`} variant="body2" sx={{ mb: 0.75 }}>
+                {item}
+              </Typography>
+            ))}
+          </Box>
+        )}
+      </Paper>
+
+      {/* SECTION 7 — Disclaimer */}
+      <Box sx={{ mb: 3 }}>
+        <Typography variant="caption" color="text.secondary">
+          {result?.disclaimer || 'This is a screening tool only. Results do not constitute a clinical diagnosis.'}
+        </Typography>
+      </Box>
+
+      {/* SECTION 8 — Actions */}
+      <Box sx={{ display: 'flex', justifyContent: 'center', gap: 2, flexWrap: 'wrap' }}>
+        <Button variant="contained" onClick={onTakeAnotherTest}>
+          Take Another Test
+        </Button>
+        <Button variant="outlined" onClick={() => navigate('/dashboard')}>
+          Back to Dashboard
+        </Button>
+      </Box>
     </Box>
   );
 }
