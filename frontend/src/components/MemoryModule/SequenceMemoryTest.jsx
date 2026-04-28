@@ -6,6 +6,9 @@
 import { useState, useEffect } from 'react';
 import './SequenceMemoryTest.css';
 import { memoryService } from '@services';
+import introVideo from '../../assets/vdo.mp4';
+import sequenceBg from '../../assets/bkg.png';
+import sequenceCartoon from '../../assets/cartoon.png';
 
 const SequenceMemoryTest = ({ onComplete, onSkipToNext }) => {
   
@@ -19,16 +22,61 @@ const SequenceMemoryTest = ({ onComplete, onSkipToNext }) => {
   const [userInput, setUserInput] = useState('');
   const [timer, setTimer] = useState(3);
   const [results, setResults] = useState([]);  // Store all attempts
-  const [feedback, setFeedback] = useState({ show: false, correct: false, message: '' });
+  const [feedback, setFeedback] = useState({ correct: false, message: '' });
   const [sequenceLength, setSequenceLength] = useState(3);  // Start with 3 items
   const [score, setScore] = useState(0);
   const [resultsSubmitted, setResultsSubmitted] = useState(false);
   const [submittedData, setSubmittedData] = useState(null);
   const [inputStartTime, setInputStartTime] = useState(null);
+  const [showStartButton, setShowStartButton] = useState(false);
+  const [timerValue, setTimerValue] = useState(0);
+  const [timerProgress, setTimerProgress] = useState(100);
 
-  // =====================================================
-  // START THE GAME
-  // =====================================================
+
+  useEffect(() => {
+    // Lock scrolling when the intro, showing, input, feedback, or complete screen is active
+    if (['intro', 'showing', 'input', 'feedback', 'complete'].includes(gameState)) {
+      document.body.classList.add('memory-intro-lock');
+    } else {
+      document.body.classList.remove('memory-intro-lock');
+    }
+
+    // Cleanup function to remove the class when the component unmounts
+    return () => {
+      document.body.classList.remove('memory-intro-lock');
+    };
+  }, [gameState]);
+
+  useEffect(() => {
+    if (gameState === 'showing') {
+      const sequenceShowTime = 1500 + currentSequence.length * 500;
+      setTimerValue(Math.ceil(sequenceShowTime / 1000));
+      setTimerProgress(100); // Reset to full
+
+      // Countdown for the number
+      const numberInterval = setInterval(() => {
+        setTimerValue(prev => (prev > 1 ? prev - 1 : 0));
+      }, 1000);
+
+      // Smooth animation for the circle
+      const startTime = Date.now();
+      const progressInterval = setInterval(() => {
+        const elapsedTime = Date.now() - startTime;
+        const progress = Math.max(0, 100 - (elapsedTime / sequenceShowTime) * 100);
+        setTimerProgress(progress);
+
+        if (progress === 0) {
+          clearInterval(progressInterval);
+        }
+      }, 30); // Update smoothly
+
+      return () => {
+        clearInterval(numberInterval);
+        clearInterval(progressInterval);
+      };
+    }
+  }, [gameState, currentSequence]);
+
   const startGame = () => {
     setGameState('showing');
     generateNewSequence(3);  // Start with 3-item sequence
@@ -229,12 +277,18 @@ const SequenceMemoryTest = ({ onComplete, onSkipToNext }) => {
   // =====================================================
   const submitToBackend = async () => {
     try {
-      const response = await memoryService.submitTest({
+      const payload = {
         testType: 'sequence',
         taskData: {
           sequences: results
         }
-      });
+      };
+      const assessmentId = localStorage.getItem('currentAssessmentId');
+      const submitPayload = {
+        ...payload,
+        ...(assessmentId && { assessmentId })
+      };
+      const response = await memoryService.submitTest(submitPayload);
 
       const data = response.data;
       
@@ -304,39 +358,28 @@ const SequenceMemoryTest = ({ onComplete, onSkipToNext }) => {
   // =====================================================
   if (gameState === 'intro') {
     return (
-      <div className="sequence-test-container">
-        <div className="intro-card cute-card">
-          <div className="game-icon">🧠</div>
-          <h1 className="game-title">Memory Sequence Game</h1>
-          <p className="game-description">
-            Let's play a fun memory game! 🎮
-          </p>
-          
-          <div className="instructions-box">
-            <h3>How to Play:</h3>
-            <ol className="instructions-list">
-              <li>
-                <span className="step-icon">👀</span>
-                Watch the sequence carefully (like: <strong>A - 5 - D</strong>)
-              </li>
-              <li>
-                <span className="step-icon">⏱️</span>
-                You'll have 5 seconds to remember it
-              </li>
-              <li>
-                <span className="step-icon">✍️</span>
-                Type what you remember (use spaces or hyphens)
-              </li>
-              <li>
-                <span className="step-icon">🎯</span>
-                Complete 6 rounds and see your score!
-              </li>
-            </ol>
+      <div className="sequence-test-container intro-screen">
+        <video className="intro-video" autoPlay muted loop playsInline>
+          <source src={introVideo} type="video/mp4" />
+        </video>
+
+        <div className="intro-content">
+          <div className="intro-left">
+            <h1 className="intro-title">Sequence Memory Test</h1>
+
+            <div className="intro-steps">
+              <h3>How to play</h3>
+              <ul>
+                <li>Watch the sequence carefully for a few seconds.</li>
+                <li>When it disappears, type the sequence in the same order.</li>
+                <li>Complete 6 rounds to finish the game.</li>
+              </ul>
+            </div>
+
+            <button className="start-button video-button" onClick={startGame}>
+              Start Game
+            </button>
           </div>
-          
-          <button className="start-button cute-button" onClick={startGame}>
-            🚀 Start Game!
-          </button>
         </div>
       </div>
     );
@@ -347,37 +390,62 @@ const SequenceMemoryTest = ({ onComplete, onSkipToNext }) => {
   // =====================================================
   if (gameState === 'showing') {
     return (
-      <div className="sequence-test-container">
-        <div className="game-header">
-          <div className="progress-bar">
-            <span>Round {currentRound} of {maxRounds}</span>
-            <div className="stars">
-              {Array.from({ length: maxRounds }).map((_, i) => (
-                <span key={i} className={i < currentRound - 1 ? 'star-filled' : 'star-empty'}>
-                  {i < currentRound - 1 ? '⭐' : '☆'}
-                </span>
-              ))}
-            </div>
+      <div
+        className="sequence-test-container sequence-showing"
+        style={{ backgroundImage: `url(${sequenceBg})` }}
+      >
+        <div className="sequence-top">
+          <div className="circular-timer">
+            <svg width="60" height="60" viewBox="0 0 60 60">
+              <circle
+                className="timer-bg"
+                cx="30" cy="30" r="25"
+              />
+              <circle
+                className="timer-progress"
+                cx="30" cy="30" r="25"
+                strokeDasharray="157"
+                strokeDashoffset={157 - (157 * timerProgress) / 100}
+              />
+            </svg>
+            <span className="timer-text">{timerValue}s</span>
           </div>
-          <div className="score-display">Score: {score}/{currentRound - 1}</div>
-        </div>
-        
-        <div className="sequence-display-card cute-card">
-          <h2 className="instruction-text">Remember this sequence! 👀</h2>
-          
-          <div className="sequence-display">
-            {currentSequence.split('-').map((item, index) => (
-              <div key={index} className="sequence-item animate-pop">
-                {item}
-              </div>
+          <div className="round-dots">
+            {Array.from({ length: maxRounds }).map((_, i) => (
+              <span
+                key={i}
+                className={`round-dot ${i < currentRound - 1 ? 'completed' : ''} ${i === currentRound - 1 ? 'active' : ''}`}
+              />
             ))}
           </div>
-          
-          <div className="timer-display">
-            <div className="timer-circle">{timer}</div>
-            <p>seconds remaining</p>
+        </div>
+
+        <div className="sequence-stage">
+          <div className="sequence-dialog">
+            <div className="dialog-bubble float-bubble">
+              <h3>Watch the sequence carefully</h3>
+              <p>Remember the letters in the same order!</p>
+            </div>
+          </div>
+
+          <div className="sequence-character">
+            <img src={sequenceCartoon} alt="Cartoon guide" />
           </div>
         </div>
+
+        <div className="sequence-display">
+          {currentSequence.split('-').map((item, index) => (
+            <div
+              key={index}
+              className={`sequence-item animate-pop color-${index % 5}`}
+            >
+              {item}
+            </div>
+          ))}
+        </div>
+
+        <div className="boy-side-bubble float-bubble">I believe in you! </div>
+
       </div>
     );
   }
@@ -387,75 +455,65 @@ const SequenceMemoryTest = ({ onComplete, onSkipToNext }) => {
   // =====================================================
   if (gameState === 'input') {
     return (
-      <div className="sequence-test-container">
+      <div className="sequence-input-screen">
         <div className="game-header">
           <div className="progress-bar">
-            <span>Round {currentRound} of {maxRounds}</span>
-            <div className="stars">
-              {Array.from({ length: maxRounds }).map((_, i) => (
-                <span key={i} className={i < currentRound - 1 ? 'star-filled' : 'star-empty'}>
-                  {i < currentRound - 1 ? '⭐' : '☆'}
-                </span>
-              ))}
-            </div>
+            {Array.from({ length: maxRounds }).map((_, index) => (
+              <span
+                key={index}
+                className={`progress-dot ${index < currentRound - 1 ? 'completed' : ''}`}
+              ></span>
+            ))}
           </div>
-          <div className="score-display">Score: {score}/{currentRound - 1}</div>
+          <div className="score-display">
+            <p>Score: {score}</p>
+          </div>
         </div>
-        
-        <div className="input-card cute-card">
-          <h2 className="instruction-text">What was the sequence? 🤔</h2>
-          
-          <form onSubmit={handleSubmit} className="input-form">
-            <input
-              type="text"
-              value={userInput}
-              onChange={(e) => setUserInput(e.target.value)}
-              placeholder="Type here (e.g., A-5-D or A 5 D)"
-              className="sequence-input cute-input"
-              autoFocus
-            />
-            
-            <div className="button-group">
+        <div className="input-content">
+          <div className="input-card cute-card">
+            <h2 className="instruction-text">What was the sequence? 🤔</h2>
+            <form onSubmit={handleSubmit} className="input-form">
+              <input
+                type="text"
+                value={userInput}
+                onChange={(e) => setUserInput(e.target.value)}
+                className="sequence-input"
+                placeholder="Type the sequence here"
+                autoFocus
+                disabled={gameState !== 'input'}
+              />
               <button type="submit" className="submit-button cute-button">
                 ✅ Submit Answer
               </button>
-            </div>
-          </form>
-          
-          <p className="hint-text">
-            💡 Tip: You can use spaces or hyphens between items
-          </p>
+            </form>
+          </div>
         </div>
       </div>
     );
   }
 
-  // =====================================================
-  // RENDER: FEEDBACK SCREEN
-  // =====================================================
   if (gameState === 'feedback') {
     return (
-      <div className="sequence-test-container">
-        <div className="feedback-card cute-card">
-          <div className={`feedback-icon ${feedback.correct ? 'correct' : 'incorrect'}`}>
-            {feedback.correct ? '✅' : '❌'}
+      <div className="sequence-feedback-screen">
+        <div className="feedback-content">
+          <div className="feedback-card cute-card">
+            <h2 className={`feedback-message ${feedback.correct ? 'correct' : 'incorrect'}`}>
+              {feedback.message}
+            </h2>
+            
+            <div className="feedback-details">
+              <p className="detail-row">
+                <strong>Original Sequence:</strong> 
+                <span className="sequence-highlight original">{currentSequence}</span>
+              </p>
+              <p className="detail-row">
+                <strong>Your Answer:</strong> 
+                <span className={`sequence-highlight ${feedback.correct ? 'user-correct' : 'user-incorrect'}`}>{userInput}</span>
+              </p>
+            </div>
+            
+            <p className="next-round-text">Moving to the next round...</p>
           </div>
-          <h2 className={`feedback-message ${feedback.correct ? 'correct' : 'incorrect'}`}>
-            {feedback.message}
-          </h2>
-          
-          <div className="feedback-details">
-            <p className="detail-row">
-              <strong>Original:</strong> 
-              <span className="sequence-highlight">{currentSequence}</span>
-            </p>
-            <p className="detail-row">
-              <strong>Your answer:</strong> 
-              <span className="sequence-highlight">{userInput}</span>
-            </p>
-          </div>
-          
-          <p className="next-round-text">Moving to next round... 🎯</p>
         </div>
       </div>
     );
@@ -468,32 +526,25 @@ const SequenceMemoryTest = ({ onComplete, onSkipToNext }) => {
     const accuracy = Math.round((score / maxRounds) * 100);
     
     return (
-      <div className="sequence-test-container">
-        <div className="complete-card cute-card">
-          <div className="celebration-icon">🎉</div>
-          <h1 className="complete-title">Test Complete!</h1>
-          
-          <div className="final-score-box">
-            <h2>Your Score</h2>
-            <div className="score-big">{score} / {maxRounds}</div>
-            <div className="accuracy-text">{accuracy}% Correct</div>
+      <div className="sequence-complete-screen">
+        <div className="complete-content">
+          <div className="complete-card cute-card">
+            <h1 className="complete-title">Test Complete!</h1>
             
-            <div className="stars-earned">
-              {Array.from({ length: 5 }).map((_, i) => (
-                <span key={i} className={i < Math.floor(accuracy / 20) ? 'star-big' : 'star-gray'}>
-                  {i < Math.floor(accuracy / 20) ? '⭐' : '☆'}
-                </span>
-              ))}
+            <div className="final-score-box">
+              <h2>Your Final Score</h2>
+              <div className="score-big">{score} / {maxRounds}</div>
+              <div className="accuracy-text">{accuracy}% Correct</div>
             </div>
-          </div>
-          
-          <div className="button-group">
-            <button className="submit-button cute-button" onClick={submitAndShowResults}>
-              📊 View My Results
-            </button>
-            <button className="secondary-button cute-button" onClick={submitAndSkipToNext}>
-              ➡️ Next Test
-            </button>
+            
+            <div className="button-group">
+              <button className="submit-button cute-button" onClick={submitAndShowResults}>
+                View My Results
+              </button>
+              <button className="secondary-button cute-button" onClick={submitAndSkipToNext}>
+                Next Test
+              </button>
+            </div>
           </div>
         </div>
       </div>
