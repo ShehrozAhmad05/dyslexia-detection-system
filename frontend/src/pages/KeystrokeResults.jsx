@@ -21,6 +21,7 @@ import {
 } from '@mui/material';
 import {
   Assessment,
+  ArrowForward,
   Home,
   Keyboard,
   Lightbulb,
@@ -116,6 +117,8 @@ const KeystrokeResults = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [result, setResult] = useState(null);
+  const assessmentId = localStorage.getItem('currentAssessmentId');
+  const isInAssessment = Boolean(assessmentId);
 
   useEffect(() => {
     const loadResult = async () => {
@@ -360,6 +363,20 @@ const KeystrokeResults = () => {
           Take Another Keystroke Test
         </Button>
       </Box>
+
+      {isInAssessment && (
+        <Box sx={{ mt: 4, display: 'flex', justifyContent: 'center' }}>
+          <Button
+            variant="contained"
+            size="large"
+            color="success"
+            onClick={() => navigate('/assessment/instructions/memory')}
+            endIcon={<ArrowForward />}
+          >
+            Continue to Memory Test
+          </Button>
+        </Box>
+      )}
     </Container>
   );
 };

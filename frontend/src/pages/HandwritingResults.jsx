@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Container, Box, CircularProgress, Alert, Typography } from '@mui/material';
+import { Container, Box, CircularProgress, Alert, Typography, Button } from '@mui/material';
+import { ArrowForward } from '@mui/icons-material';
 import ResultsDisplay from '@components/HandwritingModule/ResultsDisplay';
 import { handwritingService } from '@services';
 
@@ -10,6 +11,9 @@ function HandwritingResults() {
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  // Check if in sequential assessment flow
+  const assessmentId = localStorage.getItem('currentAssessmentId');
+  const isInAssessment = Boolean(assessmentId);
 
   useEffect(() => {
     fetchResults();
@@ -108,6 +112,19 @@ function HandwritingResults() {
           result={result}
           onTakeAnotherTest={handleTakeAnotherTest}
         />
+        {isInAssessment && (
+          <Box sx={{ mt: 4, display: 'flex', justifyContent: 'center' }}>
+            <Button
+              variant="contained"
+              size="large"
+              color="success"
+              onClick={() => navigate('/assessment/instructions/reading')}
+              endIcon={<ArrowForward />}
+            >
+              Continue to Reading Test
+            </Button>
+          </Box>
+        )}
       </Box>
     </Container>
   );

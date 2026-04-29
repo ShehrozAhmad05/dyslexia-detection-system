@@ -199,6 +199,12 @@ function KeystrokeTest() {
         testType: 'typing',
       };
 
+      const assessmentId = localStorage.getItem('currentAssessmentId');
+      const submitPayload = {
+        ...payload,
+        ...(assessmentId && { assessmentId })
+      };
+
       console.group('[KeystrokeTest] Submitting Payload');
       console.log('Payload summary:', {
         promptLength: prompt.length,
@@ -210,7 +216,7 @@ function KeystrokeTest() {
       console.log('Computed debug metrics:', calculateDebugMetrics({ keystrokes, startTime, endTime, prompt, typedText }));
       console.groupEnd();
 
-      const response = await keystrokeService.submitData(payload);
+      const response = await keystrokeService.submitData(submitPayload);
 
       const submitResult = response?.data || null;
       setResult(submitResult);

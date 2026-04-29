@@ -5,6 +5,8 @@
 
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { Box, Button } from '@mui/material';
+import { ArrowForward } from '@mui/icons-material';
 import './MemoryResults.css';
 import { memoryService } from '@services';
 
@@ -17,6 +19,8 @@ const MemoryResults = () => {
   const [isCombined, setIsCombined] = useState(false);
   const [sequenceData, setSequenceData] = useState(null);
   const [wordData, setWordData] = useState(null);
+  const assessmentId = localStorage.getItem('currentAssessmentId');
+  const isInAssessment = Boolean(assessmentId);
 
   // =====================================================
   // FETCH RESULTS ON MOUNT
@@ -288,6 +292,23 @@ const MemoryResults = () => {
             🔄 Take Test Again
           </button>
         </div>
+
+        {isInAssessment && (
+          <Box sx={{ mt: 4, display: 'flex', justifyContent: 'center' }}>
+            <Button
+              variant="contained"
+              size="large"
+              color="success"
+              onClick={() => {
+                const id = localStorage.getItem('currentAssessmentId');
+                navigate(`/assessment/overall/${id}`);
+              }}
+              endIcon={<ArrowForward />}
+            >
+              View Overall Results
+            </Button>
+          </Box>
+        )}
       </div>
     );
   }
@@ -476,6 +497,23 @@ const MemoryResults = () => {
           🔄 Take Another Test
         </button>
       </div>
+
+      {isInAssessment && (
+        <Box sx={{ mt: 4, display: 'flex', justifyContent: 'center' }}>
+          <Button
+            variant="contained"
+            size="large"
+            color="success"
+            onClick={() => {
+              const id = localStorage.getItem('currentAssessmentId');
+              navigate(`/assessment/overall/${id}`);
+            }}
+            endIcon={<ArrowForward />}
+          >
+            View Overall Results
+          </Button>
+        </Box>
+      )}
     </div>
   );
 };

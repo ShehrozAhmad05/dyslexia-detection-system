@@ -141,8 +141,14 @@ const ReadingTest = () => {
         timeToAnswerQuestions,
         answers: answersToSubmit,
       };
-      
-      const response = await readingService.submitTest(testData);
+
+      const assessmentId = localStorage.getItem('currentAssessmentId');
+      const submitPayload = {
+        ...testData,
+        ...(assessmentId && { assessmentId })
+      };
+
+      const response = await readingService.submitTest(submitPayload);
       
       if (response.data.success) {
         // Navigate to results page

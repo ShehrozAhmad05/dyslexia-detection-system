@@ -172,7 +172,7 @@ const WordMemoryTest = ({ onComplete, onSkipToDetailed }) => {
       // Calculate actual recall time across all levels (in ms)
       const totalRecallTime = recallStartTime ? Date.now() - recallStartTime : 60000;
       
-      const response = await memoryService.submitTest({
+      const payload = {
         testType: 'word',
         taskData: {
           words: {
@@ -184,7 +184,13 @@ const WordMemoryTest = ({ onComplete, onSkipToDetailed }) => {
             recallTime: totalRecallTime  // Actual tracked time
           }
         }
-      });
+      };
+      const assessmentId = localStorage.getItem('currentAssessmentId');
+      const submitPayload = {
+        ...payload,
+        ...(assessmentId && { assessmentId })
+      };
+      const response = await memoryService.submitTest(submitPayload);
 
       const data = response.data;
       

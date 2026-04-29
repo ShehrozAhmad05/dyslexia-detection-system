@@ -8,12 +8,18 @@ import Home from './pages/Home';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
+import AssessmentStart from './pages/AssessmentStart';
 import HandwritingTest from './pages/HandwritingTest';
 import HandwritingResults from './pages/HandwritingResults';
 import ReadingTest from './pages/ReadingTest';
 import ReadingResults from './pages/ReadingResults';
 import KeystrokeTest from './pages/KeystrokeTest';
 import KeystrokeResults from './pages/KeystrokeResults';
+import HandwritingInstructions from './pages/instructions/HandwritingInstructions';
+import ReadingInstructions from './pages/instructions/ReadingInstructions';
+import KeystrokeInstructions from './pages/instructions/KeystrokeInstructions';
+import MemoryInstructions from './pages/instructions/MemoryInstructions';
+import OverallResults from './pages/OverallResults';
 
 // Import Memory Module components
 import SequenceMemoryTest from './components/MemoryModule/SequenceMemoryTest';
@@ -67,6 +73,64 @@ function App() {
                       <Dashboard />
                     </ProtectedRoute>
                   } 
+                />
+
+                {/* Assessment Flow Routes */}
+                <Route
+                  path="/assessment/start"
+                  element={
+                    <ProtectedRoute>
+                      <AssessmentStart />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/assessment/instructions/handwriting"
+                  element={
+                    <ProtectedRoute>
+                      <HandwritingInstructions />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/assessment/instructions/reading"
+                  element={
+                    <ProtectedRoute>
+                      <ReadingInstructions />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/assessment/instructions/keystroke"
+                  element={
+                    <ProtectedRoute>
+                      <KeystrokeInstructions />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/assessment/instructions/memory"
+                  element={
+                    <ProtectedRoute>
+                      <MemoryInstructions />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/assessment/overall/:id"
+                  element={
+                    <ProtectedRoute>
+                      <OverallResults />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/assessment/overall"
+                  element={
+                    <ProtectedRoute>
+                      <OverallResults />
+                    </ProtectedRoute>
+                  }
                 />
                 {/* Handwriting Assessment Routes */}
                 <Route 

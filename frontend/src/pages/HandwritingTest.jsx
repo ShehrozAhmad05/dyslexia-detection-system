@@ -96,6 +96,10 @@ function HandwritingTest() {
       const formData = new FormData();
       formData.append('image', selectedImage.file);
       formData.append('expectedSentence', screeningSentence);
+      const assessmentId = localStorage.getItem('currentAssessmentId');
+      if (assessmentId) {
+        formData.append('assessmentId', assessmentId);
+      }
 
       const uploadResponse = await handwritingService.upload(formData);
       const resultId = uploadResponse.data.result.id;

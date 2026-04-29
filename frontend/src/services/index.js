@@ -36,6 +36,34 @@ export const handwritingService = {
   delete: (resultId) => api.delete(`/handwriting/${resultId}`),
 };
 
+// Assessment Flow APIs
+export const assessmentService = {
+
+  // Start new assessment or resume existing
+  start: () => api.post('/assessment/start'),
+
+  // Get current in-progress assessment
+  getCurrent: () => api.get('/assessment/current'),
+
+  // Get full fusion result for completed assessment
+  getFusion: (assessmentId) =>
+    api.get(`/assessment/${assessmentId}/fusion`),
+
+  // Get assessment history
+  getHistory: () => api.get('/assessment/history'),
+
+  // Download PDF report
+  downloadPDF: (assessmentId) =>
+    api.get(`/assessment/${assessmentId}/pdf`, {
+      responseType: 'blob'
+    }),
+
+  // Legacy assessment endpoints (kept for compatibility)
+  getAll: () => api.get('/assessments'),
+  getById: (id) => api.get(`/assessments/${id}`),
+  getFinalScore: (id) => api.get(`/assessments/${id}/final-score`),
+};
+
 // Keystroke Analysis APIs
 export const keystrokeService = {
   startTest: () => api.post('/keystroke/start', {}),
@@ -57,13 +85,6 @@ export const memoryService = {
   submitTest: (payload) => api.post('/memory/submit', payload),
   getResults: (resultId) => api.get(`/memory/results/${resultId}`),
   getHistory: (params) => api.get('/memory/history', { params }),
-};
-
-// Assessment APIs
-export const assessmentService = {
-  getAll: () => api.get('/assessments'),
-  getById: (id) => api.get(`/assessments/${id}`),
-  getFinalScore: (id) => api.get(`/assessments/${id}/final-score`),
 };
 
 // User APIs

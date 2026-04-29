@@ -24,6 +24,7 @@ import {
   Cancel,
   Speed,
   Refresh,
+  ArrowForward,
   Pause,
   Timer,
   Lightbulb,
@@ -44,6 +45,8 @@ const ReadingResults = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [result, setResult] = useState(null);
+  const assessmentId = localStorage.getItem('currentAssessmentId');
+  const isInAssessment = Boolean(assessmentId);
   
   /**
    * Load result on mount
@@ -417,8 +420,10 @@ const ReadingResults = () => {
           <List>
             {result.recommendations.map((recommendation, index) => {
               // Handle both old string format and new object format
-              const isObject = typeof recommendation === 'object';
-              const message = isObject ? recommendation.message : recommendation;
+              const isObject = recommendation && typeof recommendation === 'object' && !Array.isArray(recommendation);
+              const message = isObject
+                ? (recommendation.message || recommendation.metric || JSON.stringify(recommendation))
+                : recommendation;
               const severity = isObject ? recommendation.severity : null;
               const confidence = isObject ? recommendation.confidence : null;
               const citation = isObject ? recommendation.citation : null;
@@ -439,7 +444,7 @@ const ReadingResults = () => {
                       {getIcon()}
                     </ListItemIcon>
                     <ListItemText 
-                      primary={message}
+                      primary={String(message || '')}
                       secondary={
                         <Box sx={{ mt: 0.5 }}>
                           {confidence && (
@@ -467,6 +472,7 @@ const ReadingResults = () => {
                           )}
                         </Box>
                       }
+                      secondaryTypographyProps={{ component: 'div' }}
                     />
                   </Box>
                 </ListItem>
@@ -475,7 +481,7 @@ const ReadingResults = () => {
           </List>
           
           {/* Disclaimer for experimental metrics */}
-          {result.recommendations.some(r => r.experimental) && (
+          {result.recommendations.some((r) => r && typeof r === 'object' && r.experimental) && (
             <Alert severity="info" sx={{ mt: 2 }}>
               <Typography variant="caption">
                 <strong>Note:</strong> Recommendations marked as "Experimental" are based on novel web-based metrics 
@@ -503,6 +509,20 @@ const ReadingResults = () => {
           Take Another Test
         </Button>
       </Box>
+
+      {isInAssessment && (
+        <Box sx={{ mt: 4, display: 'flex', justifyContent: 'center' }}>
+          <Button
+            variant="contained"
+            size="large"
+            color="success"
+            onClick={() => navigate('/assessment/instructions/keystroke')}
+            endIcon={<ArrowForward />}
+          >
+            Continue to Keystroke Test
+          </Button>
+        </Box>
+      )}
     </Container>
   );
 };
