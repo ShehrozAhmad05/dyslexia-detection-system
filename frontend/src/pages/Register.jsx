@@ -1,18 +1,10 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import {
-  Container,
-  Box,
-  Paper,
-  Typography,
-  TextField,
-  Button,
-  Alert,
-  InputAdornment,
-  IconButton
-} from '@mui/material';
-import { Visibility, VisibilityOff } from '@mui/icons-material';
+import { Visibility, VisibilityOff, PersonOutline, EmailOutlined, LockOutlined } from '@mui/icons-material';
 import { useAuth } from '@contexts/AuthContext';
+import AuthLayout from '@components/auth/AuthLayout';
+import AuthInput from '@components/auth/AuthInput';
+import loginBackgroundImage from '../assets/bglogin.png';
 
 function Register() {
   const navigate = useNavigate();
@@ -106,121 +98,123 @@ function Register() {
   };
 
   return (
-    <Container maxWidth="sm">
-      <Box sx={{ mt: 8, mb: 4 }}>
-        <Paper elevation={3} sx={{ p: 4 }}>
-          <Typography variant="h4" component="h1" gutterBottom align="center">
-            Create Account
-          </Typography>
-          <Typography variant="body2" color="text.secondary" align="center" sx={{ mb: 3 }}>
-            Register for dyslexia assessment
-          </Typography>
+    <AuthLayout
+      title="Create Account"
+      subtitle="Register for dyslexia assessment"
+      backgroundImage={loginBackgroundImage}
+      hideLeftPanel
+      centerHeader
+      titleClassName="!text-kid-sky !font-kids text-4xl tracking-wide"
+      titleStyle={{
+        fontFamily: '"Comic Sans MS", "Chalkboard SE", "Marker Felt", "Baloo 2", cursive'
+      }}
+      subtitleStyle={{
+        fontFamily: '"Comic Sans MS", "Chalkboard SE", "Baloo 2", cursive',
+        fontSize: '1rem'
+      }}
+      contentStyle={{
+        fontFamily: '"Comic Sans MS", "Chalkboard SE", "Nunito", sans-serif'
+      }}
+    >
+      <div className="space-y-8">
+        {apiError && (
+          <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700">
+            {apiError}
+          </div>
+        )}
 
-          {apiError && (
-            <Alert severity="error" sx={{ mb: 2 }}>
-              {apiError}
-            </Alert>
-          )}
+        <form onSubmit={handleSubmit} className="space-y-5">
+          <AuthInput
+            id="name"
+            name="name"
+            type="text"
+            value={formData.name}
+            onChange={handleChange}
+            error={!!errors.name}
+            helperText={errors.name}
+            autoComplete="name"
+            placeholder="Full name"
+            leftAdornment={<PersonOutline fontSize="small" className="text-kid-sky" />}
+          />
 
-          <form onSubmit={handleSubmit}>
-            <TextField
-              fullWidth
-              label="Full Name"
-              name="name"
-              value={formData.name}
-              onChange={handleChange}
-              error={!!errors.name}
-              helperText={errors.name}
-              margin="normal"
-              required
-            />
+          <AuthInput
+            id="email"
+            name="email"
+            type="email"
+            value={formData.email}
+            onChange={handleChange}
+            error={!!errors.email}
+            helperText={errors.email}
+            autoComplete="email"
+            placeholder="you@example.com"
+            leftAdornment={<EmailOutlined fontSize="small" className="text-kid-sky" />}
+          />
 
-            <TextField
-              fullWidth
-              label="Email Address"
-              name="email"
-              type="email"
-              value={formData.email}
-              onChange={handleChange}
-              error={!!errors.email}
-              helperText={errors.email}
-              margin="normal"
-              required
-            />
+          <AuthInput
+            id="password"
+            name="password"
+            type={showPassword ? 'text' : 'password'}
+            value={formData.password}
+            onChange={handleChange}
+            error={!!errors.password}
+            helperText={errors.password}
+            autoComplete="new-password"
+            placeholder="Create password"
+            leftAdornment={<LockOutlined fontSize="small" className="text-kid-sky" />}
+            rightAdornment={(
+              <button
+                onClick={() => setShowPassword(!showPassword)}
+                tabIndex={-1}
+                type="button"
+                className="rounded-md p-1 text-kid-sky transition hover:bg-slate-100 hover:text-[#4B7CFA]"
+                aria-label={showPassword ? 'Hide password' : 'Show password'}
+              >
+                {showPassword ? <VisibilityOff fontSize="small" /> : <Visibility fontSize="small" />}
+              </button>
+            )}
+          />
 
-            <TextField
-              fullWidth
-              label="Password"
-              name="password"
-              type={showPassword ? 'text' : 'password'}
-              value={formData.password}
-              onChange={handleChange}
-              error={!!errors.password}
-              helperText={errors.password}
-              margin="normal"
-              required
-              InputProps={{
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <IconButton
-                      onClick={() => setShowPassword(!showPassword)}
-                      edge="end"
-                    >
-                      {showPassword ? <VisibilityOff /> : <Visibility />}
-                    </IconButton>
-                  </InputAdornment>
-                )
-              }}
-            />
+          <AuthInput
+            id="confirmPassword"
+            name="confirmPassword"
+            type={showConfirmPassword ? 'text' : 'password'}
+            value={formData.confirmPassword}
+            onChange={handleChange}
+            error={!!errors.confirmPassword}
+            helperText={errors.confirmPassword}
+            autoComplete="new-password"
+            placeholder="Confirm password"
+            leftAdornment={<LockOutlined fontSize="small" className="text-kid-sky" />}
+            rightAdornment={(
+              <button
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                tabIndex={-1}
+                type="button"
+                className="rounded-md p-1 text-kid-sky transition hover:bg-slate-100 hover:text-[#4B7CFA]"
+                aria-label={showConfirmPassword ? 'Hide confirm password' : 'Show confirm password'}
+              >
+                {showConfirmPassword ? <VisibilityOff fontSize="small" /> : <Visibility fontSize="small" />}
+              </button>
+            )}
+          />
 
-            <TextField
-              fullWidth
-              label="Confirm Password"
-              name="confirmPassword"
-              type={showConfirmPassword ? 'text' : 'password'}
-              value={formData.confirmPassword}
-              onChange={handleChange}
-              error={!!errors.confirmPassword}
-              helperText={errors.confirmPassword}
-              margin="normal"
-              required
-              InputProps={{
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <IconButton
-                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                      edge="end"
-                    >
-                      {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
-                    </IconButton>
-                  </InputAdornment>
-                )
-              }}
-            />
+          <button
+            type="submit"
+            disabled={loading}
+            className="mt-2 inline-flex h-12 w-full items-center justify-center rounded-xl bg-kid-sky px-4 text-sm font-semibold text-white shadow-lg shadow-kid-sky/30 transition hover:translate-y-[-1px] hover:bg-[#4B7CFA] disabled:cursor-not-allowed disabled:bg-slate-300 disabled:shadow-none"
+          >
+            {loading ? 'Creating Account...' : 'Register'}
+          </button>
 
-            <Button
-              type="submit"
-              fullWidth
-              variant="contained"
-              size="large"
-              disabled={loading}
-              sx={{ mt: 3, mb: 2 }}
-            >
-              {loading ? 'Creating Account...' : 'Register'}
-            </Button>
-
-            <Box sx={{ textAlign: 'center' }}>
-              <Typography variant="body2">
-                Already have an account?{' '}
-                <Link to="/login" style={{ color: '#1976d2', textDecoration: 'none' }}>
-                  Login here
-                </Link>
-              </Typography>
-            </Box>
-          </form>
-        </Paper>
-      </Box>
-    </Container>
+          <p className="text-center text-sm text-slate-600">
+            Already have an account?{' '}
+            <Link to="/login" className="font-semibold text-kid-sky transition hover:text-[#4B7CFA] hover:underline">
+              Login here
+            </Link>
+          </p>
+        </form>
+      </div>
+    </AuthLayout>
   );
 }
 

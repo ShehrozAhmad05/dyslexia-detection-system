@@ -1,19 +1,10 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import {
-  Container,
-  Box,
-  Paper,
-  Typography,
-  TextField,
-  Button,
-  Alert,
-  InputAdornment,
-  IconButton,
-  Divider
-} from '@mui/material';
-import { Visibility, VisibilityOff } from '@mui/icons-material';
+import { Visibility, VisibilityOff, EmailOutlined, LockOutlined } from '@mui/icons-material';
 import { useAuth } from '@contexts/AuthContext';
+import AuthLayout from '@components/auth/AuthLayout';
+import AuthInput from '@components/auth/AuthInput';
+import loginBackgroundImage from '../assets/bglogin.png';
 
 function Login() {
   const navigate = useNavigate();
@@ -90,110 +81,110 @@ function Login() {
   };
 
   return (
-    <Container maxWidth="sm">
-      <Box sx={{ mt: 8, mb: 4 }}>
-        <Paper elevation={3} sx={{ p: 4 }}>
-          <Typography variant="h4" component="h1" gutterBottom align="center">
-            Welcome Back
-          </Typography>
-          <Typography variant="body2" color="text.secondary" align="center" sx={{ mb: 3 }}>
-            Login to continue your dyslexia assessment
-          </Typography>
+    <AuthLayout
+      title="Welcome Back"
+      subtitle="Login to continue your dyslexia assessment"
+      backgroundImage={loginBackgroundImage}
+      hideLeftPanel
+      centerHeader
+      titleClassName="!text-kid-sky !font-kids text-4xl tracking-wide"
+      titleStyle={{
+        fontFamily: '"Comic Sans MS", "Chalkboard SE", "Marker Felt", "Baloo 2", cursive'
+      }}
+      subtitleStyle={{
+        fontFamily: '"Comic Sans MS", "Chalkboard SE", "Baloo 2", cursive',
+        fontSize: '1rem'
+      }}
+      contentStyle={{
+        fontFamily: '"Comic Sans MS", "Chalkboard SE", "Nunito", sans-serif'
+      }}
+    >
+      <div className="space-y-8">
+        {apiError && (
+          <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700">
+            {apiError}
+          </div>
+        )}
 
-          {apiError && (
-            <Alert severity="error" sx={{ mb: 2 }}>
-              {apiError}
-            </Alert>
-          )}
+        <AuthInput
+          id="email"
+          name="email"
+          type="email"
+          value={formData.email}
+          onChange={handleChange}
+          error={!!errors.email}
+          helperText={errors.email}
+          autoComplete="email"
+          placeholder="you@example.com"
+          leftAdornment={<EmailOutlined fontSize="small" className="text-kid-sky" />}
+          onKeyPress={(e) => {
+            if (e.key === 'Enter') {
+              e.preventDefault();
+              handleSubmit();
+            }
+          }}
+        />
 
-          <Box>
-            <TextField
-              fullWidth
-              label="Email Address"
-              name="email"
-              type="email"
-              value={formData.email}
-              onChange={handleChange}
-              error={!!errors.email}
-              helperText={errors.email}
-              margin="normal"
-              autoComplete="email"
-              onKeyPress={(e) => {
-                if (e.key === 'Enter') {
-                  e.preventDefault();
-                  handleSubmit();
-                }
-              }}
-            />
-
-            <TextField
-              fullWidth
-              label="Password"
-              name="password"
-              type={showPassword ? 'text' : 'password'}
-              value={formData.password}
-              onChange={handleChange}
-              error={!!errors.password}
-              helperText={errors.password}
-              margin="normal"
-              autoComplete="current-password"
-              onKeyPress={(e) => {
-                if (e.key === 'Enter') {
-                  e.preventDefault();
-                  handleSubmit();
-                }
-              }}
-              InputProps={{
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <IconButton
-                      onClick={() => setShowPassword(!showPassword)}
-                      edge="end"
-                      tabIndex={-1}
-                      type="button"
-                    >
-                      {showPassword ? <VisibilityOff /> : <Visibility />}
-                    </IconButton>
-                  </InputAdornment>
-                )
-              }}
-            />
-
-            <Button
-              fullWidth
-              variant="contained"
-              size="large"
-              disabled={loading}
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                handleSubmit();
-              }}
-              onMouseDown={(e) => {
-                e.preventDefault();
-              }}
-              sx={{ 
-                mt: 3, 
-                mb: 2
-              }}
+        <AuthInput
+          id="password"
+          name="password"
+          type={showPassword ? 'text' : 'password'}
+          value={formData.password}
+          onChange={handleChange}
+          error={!!errors.password}
+          helperText={errors.password}
+          autoComplete="current-password"
+          placeholder="Enter your password"
+          leftAdornment={<LockOutlined fontSize="small" className="text-kid-sky" />}
+          onKeyPress={(e) => {
+            if (e.key === 'Enter') {
+              e.preventDefault();
+              handleSubmit();
+            }
+          }}
+          rightAdornment={(
+            <button
+              onClick={() => setShowPassword(!showPassword)}
+              tabIndex={-1}
+              type="button"
+              className="rounded-md p-1 text-kid-sky transition hover:bg-slate-100 hover:text-[#4B7CFA]"
+              aria-label={showPassword ? 'Hide password' : 'Show password'}
             >
-              {loading ? 'Logging in...' : 'Login'}
-            </Button>
+              {showPassword ? <VisibilityOff fontSize="small" /> : <Visibility fontSize="small" />}
+            </button>
+          )}
+        />
 
-            <Divider sx={{ my: 2 }} />
+        <button
+          disabled={loading}
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            handleSubmit();
+          }}
+          onMouseDown={(e) => {
+            e.preventDefault();
+          }}
+          type="button"
+          className="mt-2 inline-flex h-12 w-full items-center justify-center rounded-xl bg-kid-sky px-4 text-sm font-semibold text-white shadow-lg shadow-kid-sky/30 transition hover:translate-y-[-1px] hover:bg-[#4B7CFA] disabled:cursor-not-allowed disabled:bg-slate-300 disabled:shadow-none"
+        >
+          {loading ? 'Logging in...' : 'Login'}
+        </button>
 
-            <Box sx={{ textAlign: 'center' }}>
-              <Typography variant="body2">
-                Don't have an account?{' '}
-                <Link to="/register" style={{ color: '#1976d2', textDecoration: 'none' }}>
-                  Register here
-                </Link>
-              </Typography>
-            </Box>
-          </Box>
-        </Paper>
-      </Box>
-    </Container>
+        <div className="flex items-center gap-3 py-1">
+          <div className="h-px flex-1 bg-slate-200" />
+          <span className="text-xs font-medium uppercase tracking-wider text-slate-400">or</span>
+          <div className="h-px flex-1 bg-slate-200" />
+        </div>
+
+        <p className="text-center text-sm text-slate-600">
+          Don&apos;t have an account?{' '}
+          <Link to="/register" className="font-semibold text-kid-sky transition hover:text-[#4B7CFA] hover:underline">
+            Register here
+          </Link>
+        </p>
+      </div>
+    </AuthLayout>
   );
 }
 
