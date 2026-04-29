@@ -299,6 +299,7 @@ readingResultSchema.pre('save', function(next) {
   next();
 });
 
+/*
 // Method to calculate risk score
 readingResultSchema.methods.calculateRiskScore = function() {
   const scores = {
@@ -383,6 +384,7 @@ readingResultSchema.methods.calculateRiskScore = function() {
   
   return this.riskScore;
 };
+*/
 
 // Method to generate recommendations based on validated thresholds
 readingResultSchema.methods.generateRecommendations = function() {

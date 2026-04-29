@@ -158,6 +158,36 @@ router.post('/submit', protect, async (req, res) => {
     
     // Save again with risk scores and recommendations
     const savedResult = await readingResult.save();
+
+    // Wire to Assessment
+    try {
+      const Assessment = require('../models/Assessment');
+      const assessmentId = req.body.assessmentId || req.headers['x-assessment-id'];
+      let assessment = null;
+      if (assessmentId) {
+        assessment = await Assessment.findOne({
+          _id: assessmentId,
+          user: req.user.id,
+          status: 'in_progress'
+        });
+        if (!assessment) {
+          console.warn('[Reading] assessmentId provided but not found:', assessmentId);
+        }
+      } else {
+        // Fallback: find any in_progress (legacy support)
+        assessment = await Assessment.findOne({
+          user: req.user.id,
+          status: 'in_progress'
+        });
+      }
+      if (assessment) {
+        assessment.readingResult = savedResult._id;
+        assessment.currentStep = assessment.getNextStep();
+        await assessment.save();
+      }
+    } catch (assessmentErr) {
+      console.error('Reading Assessment wiring error:', assessmentErr.message);
+    }
     
     res.json({
       success: true,

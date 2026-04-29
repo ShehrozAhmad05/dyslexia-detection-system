@@ -93,10 +93,23 @@ router.post('/upload', protect, upload.single('image'), async (req, res) => {
     });
 
     // Create or update assessment record
-    let assessment = await Assessment.findOne({
-      user: req.user.id,
-      status: 'in_progress'
-    });
+    const assessmentId = req.body.assessmentId;
+    let assessment = null;
+    if (assessmentId) {
+      assessment = await Assessment.findOne({
+        _id: assessmentId,
+        user: req.user.id,
+        status: 'in_progress'
+      });
+      if (!assessment) {
+        console.warn('[Handwriting] assessmentId provided but not found:', assessmentId);
+      }
+    } else {
+      assessment = await Assessment.findOne({
+        user: req.user.id,
+        status: 'in_progress'
+      });
+    }
 
     if (!assessment) {
       assessment = await Assessment.create({

@@ -67,13 +67,13 @@ router.post('/start', protect, async (req, res) => {
         levelConfig.distractorCount
       );
       
-      config = {
-        taskType: 'word',
-        level: level,
-        wordsToShow: targetWords,              // 4-6 words to memorize
-        mixedWords: mixedWords,                // 10-12 words for selection (shuffled)
-        wordCount: levelConfig.wordCount,
-        displayDuration: levelConfig.displayDuration,
+        config = {
+          taskType: 'word',
+          level: level,
+          wordsToShow: targetWords,              // 3-5 words to memorize
+          mixedWords: mixedWords,                // 10-12 words for selection (shuffled)
+          wordCount: levelConfig.wordCount,
+          displayDuration: levelConfig.displayDuration,
         recallTimeLimit: memoryThresholds.wordTask.recallTimeLimit,
         instructions: `Level ${level}: Study the ${levelConfig.wordCount} words carefully.\nAfter they disappear, ${mixedWords.length} mixed words will appear.\nClick on the words you remember!`
       };
@@ -155,6 +155,36 @@ router.post('/submit', protect, async (req, res) => {
     
     // Save to database
     await result.save();
+
+    // Wire to Assessment
+    try {
+      const Assessment = require('../models/Assessment');
+      const assessmentId = req.body.assessmentId || req.headers['x-assessment-id'];
+      let assessment = null;
+      if (assessmentId) {
+        assessment = await Assessment.findOne({
+          _id: assessmentId,
+          user: req.user.id,
+          status: 'in_progress'
+        });
+        if (!assessment) {
+          console.warn('[Memory] assessmentId provided but not found:', assessmentId);
+        }
+      } else {
+        // Fallback: find any in_progress (legacy support)
+        assessment = await Assessment.findOne({
+          user: req.user.id,
+          status: 'in_progress'
+        });
+      }
+      if (assessment) {
+        assessment.memoryResult = result._id;
+        assessment.currentStep = assessment.getNextStep();
+        await assessment.save();
+      }
+    } catch (assessmentErr) {
+      console.error('Memory Assessment wiring error:', assessmentErr.message);
+    }
     
     // Return result summary (don't send raw taskData to save bandwidth)
     res.status(201).json({

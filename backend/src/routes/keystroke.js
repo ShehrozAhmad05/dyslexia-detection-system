@@ -65,6 +65,36 @@ router.post('/submit', protect, async (req, res) => {
 
     await result.save();
 
+    // Wire to Assessment
+    try {
+      const Assessment = require('../models/Assessment');
+      const assessmentId = req.body.assessmentId || req.headers['x-assessment-id'];
+      let assessment = null;
+      if (assessmentId) {
+        assessment = await Assessment.findOne({
+          _id: assessmentId,
+          user: req.user.id,
+          status: 'in_progress'
+        });
+        if (!assessment) {
+          console.warn('[Keystroke] assessmentId provided but not found:', assessmentId);
+        }
+      } else {
+        // Fallback: find any in_progress (legacy support)
+        assessment = await Assessment.findOne({
+          user: req.user.id,
+          status: 'in_progress'
+        });
+      }
+      if (assessment) {
+        assessment.keystrokeResult = result._id;
+        assessment.currentStep = assessment.getNextStep();
+        await assessment.save();
+      }
+    } catch (assessmentErr) {
+      console.error('Keystroke Assessment wiring error:', assessmentErr.message);
+    }
+
     return res.status(201).json({
       success: true,
       resultId: result._id,

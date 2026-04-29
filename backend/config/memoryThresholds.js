@@ -37,21 +37,21 @@ module.exports = {
   // =====================================================
   // WORD TASK CONFIGURATION
   // Settings for the word recall test (click-based selection)
-  // 3 Levels for children aged 12-15: 4 words → 5 words → 6 words
+  // 3 Levels for children aged 12-15: 3 words → 4 words → 5 words
   // =====================================================
   wordTask: {
     // Level-based configuration for children
     levels: [
-      { level: 1, wordCount: 4, displayDuration: 10000, distractorCount: 6 },  // 4 words, 10 sec, 10 total (4+6)
-      { level: 2, wordCount: 5, displayDuration: 10000, distractorCount: 6 },  // 5 words, 10 sec, 11 total (5+6)
-      { level: 3, wordCount: 6, displayDuration: 10000, distractorCount: 6 }   // 6 words, 10 sec, 12 total (6+6)
+      { level: 1, wordCount: 3, displayDuration: 10000, distractorCount: 6 },  // 3 words, 10 sec, 9 total (3+6)
+      { level: 2, wordCount: 4, displayDuration: 10000, distractorCount: 6 },  // 4 words, 10 sec, 10 total (4+6)
+      { level: 3, wordCount: 5, displayDuration: 10000, distractorCount: 6 }   // 5 words, 10 sec, 11 total (5+6)
     ],
     
     // Default values (backward compatibility)
-    wordCount: 4,                  // Start with 4 words (Level 1)
+    wordCount: 3,                  // Start with 3 words (Level 1)
     displayDuration: 20000,        // 20 seconds to study (milliseconds)
     recallTimeLimit: 60000,        // 60 seconds to select words (milliseconds)
-    distractorCount: 6,            // 6 distractor words (total = 10-12 mixed words)
+    distractorCount: 6,            // 6 distractor words (total = 9-11 mixed words)
     
     // Pool of common, easy-to-remember words
     wordPool: [

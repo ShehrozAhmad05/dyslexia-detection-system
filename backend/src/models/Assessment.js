@@ -6,25 +6,30 @@ const assessmentSchema = new mongoose.Schema({
     ref: 'User',
     required: true
   },
+
   assessmentType: {
     type: String,
-    enum: ['individual', 'comprehensive'],
-    default: 'individual'
+    enum: ['comprehensive'],
+    default: 'comprehensive'
   },
+
   status: {
     type: String,
     enum: ['in_progress', 'completed', 'incomplete'],
     default: 'in_progress'
   },
-  // Module Results
+
+  // Track which step user is currently on
+  currentStep: {
+    type: String,
+    enum: ['handwriting', 'reading', 'keystroke', 'memory', 'completed'],
+    default: 'handwriting'
+  },
+
+  // Module Results — all 4 modules
   handwritingResult: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'HandwritingResult',
-    default: null
-  },
-  keystrokeResult: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'KeystrokeResult',
     default: null
   },
   readingResult: {
@@ -32,30 +37,54 @@ const assessmentSchema = new mongoose.Schema({
     ref: 'ReadingResult',
     default: null
   },
-  // Overall Analysis
+  keystrokeResult: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'KeystrokeResult',
+    default: null
+  },
+  memoryResult: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'MemoryResult',
+    default: null
+  },
+
+  // Overall score on 0-100 scale
   overallRiskScore: {
     type: Number,
     min: 0,
-    max: 1,
+    max: 100,
     default: null
   },
+
   riskLevel: {
     type: String,
     enum: ['low', 'moderate', 'high', 'unknown'],
     default: 'unknown'
   },
+
   // Fusion Results
   fusionAnalysis: {
-    confidenceScore: Number,
+    confidenceScore: {
+      type: Number,
+      default: null
+    },
     moduleWeights: {
-      handwriting: { type: Number, default: 0.33 },
-      keystroke: { type: Number, default: 0.33 },
-      reading: { type: Number, default: 0.34 }
+      handwriting: { type: Number, default: 0.25 },
+      reading: { type: Number, default: 0.25 },
+      keystroke: { type: Number, default: 0.25 },
+      memory: { type: Number, default: 0.25 }
+    },
+    moduleScores: {
+      handwriting: { type: Number, default: null },
+      reading: { type: Number, default: null },
+      keystroke: { type: Number, default: null },
+      memory: { type: Number, default: null }
     },
     combinedRecommendations: [String],
     analysisNotes: String
   },
-  // Therapy & Follow-up
+
+  // Therapy recommendations
   therapyRecommendations: [{
     category: String,
     title: String,
@@ -66,74 +95,133 @@ const assessmentSchema = new mongoose.Schema({
     },
     resources: [String]
   }],
+
   followUpRequired: {
     type: Boolean,
     default: false
   },
   followUpDate: Date,
-  // Completion tracking
   completedAt: Date,
   lastUpdated: {
     type: Date,
     default: Date.now
   }
 }, {
-  timestamps: true
+  timestamps: true,
+  toJSON: { virtuals: true },
+  toObject: { virtuals: true }
 });
 
-// Index for queries
-assessmentSchema.index({ user: 1, createdAt: -1 });
-assessmentSchema.index({ status: 1 });
-
-// Method to calculate overall risk score
 assessmentSchema.methods.calculateOverallRisk = function() {
-  const scores = [];
-  const weights = this.fusionAnalysis.moduleWeights;
+  const weights = this.fusionAnalysis?.moduleWeights || {
+    handwriting: 0.25,
+    reading: 0.25,
+    keystroke: 0.25,
+    memory: 0.25
+  };
 
-  if (this.handwritingResult?.analysisResults?.riskScore) {
-    scores.push(this.handwritingResult.analysisResults.riskScore * weights.handwriting);
+  let weightedSum = 0;
+  let totalWeight = 0;
+  const moduleScores = {};
+
+  // Handwriting — use overallScore (0-100)
+  const hwScore = this.handwritingResult?.analysisResults?.overallScore;
+  if (hwScore != null) {
+    moduleScores.handwriting = hwScore;
+    weightedSum += hwScore * weights.handwriting;
+    totalWeight += weights.handwriting;
   }
-  if (this.keystrokeResult?.analysisResults?.riskScore) {
-    scores.push(this.keystrokeResult.analysisResults.riskScore * weights.keystroke);
+
+  // Reading — riskScore is 0-100
+  const rdScore = this.readingResult?.riskScore;
+  if (rdScore != null) {
+    moduleScores.reading = rdScore;
+    weightedSum += rdScore * weights.reading;
+    totalWeight += weights.reading;
   }
-  // ReadingResult stores riskScore directly (0-100), convert to 0-1 scale
-  if (this.readingResult?.riskScore) {
-    scores.push((this.readingResult.riskScore / 100) * weights.reading);
+
+  // Keystroke — riskScore is 0-100
+  const ksScore = this.keystrokeResult?.riskScore;
+  if (ksScore != null) {
+    moduleScores.keystroke = ksScore;
+    weightedSum += ksScore * weights.keystroke;
+    totalWeight += weights.keystroke;
   }
 
-  if (scores.length === 0) return null;
+  // Memory — riskScore is 0-100
+  const memScore = this.memoryResult?.riskScore;
+  if (memScore != null) {
+    moduleScores.memory = memScore;
+    weightedSum += memScore * weights.memory;
+    totalWeight += weights.memory;
+  }
 
-  const totalScore = scores.reduce((a, b) => a + b, 0);
-  this.overallRiskScore = totalScore;
+  if (totalWeight === 0) return null;
 
-  // Update risk level
-  if (totalScore >= 0.7) this.riskLevel = 'high';
-  else if (totalScore >= 0.4) this.riskLevel = 'moderate';
+  const finalScore = Math.round(weightedSum / totalWeight);
+  this.overallRiskScore = finalScore;
+
+  if (!this.fusionAnalysis) this.fusionAnalysis = {};
+  this.fusionAnalysis.moduleScores = moduleScores;
+
+  if (finalScore >= 67) this.riskLevel = 'high';
+  else if (finalScore >= 34) this.riskLevel = 'moderate';
   else this.riskLevel = 'low';
 
-  return totalScore;
+  const completedModules = Object.keys(moduleScores).length;
+  this.fusionAnalysis.confidenceScore =
+    Math.round((completedModules / 4) * 100);
+
+  return finalScore;
 };
 
-// Method to check if assessment is complete
 assessmentSchema.methods.isComplete = function() {
-  if (this.assessmentType === 'comprehensive') {
-    return !!(this.handwritingResult && this.keystrokeResult && this.readingResult);
-  }
-  // For individual, at least one module completed
-  return !!(this.handwritingResult || this.keystrokeResult || this.readingResult);
+  return !!(
+    this.handwritingResult &&
+    this.readingResult &&
+    this.keystrokeResult &&
+    this.memoryResult
+  );
 };
 
-// Update lastUpdated on save
+assessmentSchema.methods.getCompletedModules = function() {
+  const completed = [];
+  if (this.handwritingResult) completed.push('handwriting');
+  if (this.readingResult) completed.push('reading');
+  if (this.keystrokeResult) completed.push('keystroke');
+  if (this.memoryResult) completed.push('memory');
+  return completed;
+};
+
+assessmentSchema.methods.getNextStep = function() {
+  const order = ['handwriting', 'reading', 'keystroke', 'memory'];
+  for (const step of order) {
+    if (!this[`${step}Result`]) return step;
+  }
+  return 'completed';
+};
+
 assessmentSchema.pre('save', function(next) {
   this.lastUpdated = new Date();
-  
-  // Update status based on completion
+
   if (this.isComplete() && this.status === 'in_progress') {
     this.status = 'completed';
+    this.currentStep = 'completed';
     this.completedAt = new Date();
   }
-  
+
   next();
 });
+
+assessmentSchema.index({ user: 1, createdAt: -1 });
+assessmentSchema.index({ status: 1 });
+assessmentSchema.index(
+  { user: 1, status: 1 },
+  {
+    unique: true,
+    partialFilterExpression: { status: 'in_progress' },
+    name: 'unique_user_in_progress'
+  }
+);
 
 module.exports = mongoose.model('Assessment', assessmentSchema);
