@@ -365,7 +365,7 @@ const SequenceMemoryTest = ({ onComplete, onSkipToNext }) => {
 
         <div className="intro-content">
           <div className="intro-left">
-            <h1 className="intro-title">Sequence Memory Test</h1>
+            <h1 className="intro-title1">Sequence Memory Test</h1>
 
             <div className="intro-steps">
               <h3>How to play</h3>

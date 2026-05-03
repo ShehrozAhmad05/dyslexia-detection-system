@@ -265,59 +265,22 @@ const WordMemoryTest = ({ onComplete, onSkipToDetailed }) => {
   // =====================================================
   if (gameState === 'intro') {
     return (
-      <div className="word-test-container">
-        <div className="intro-card cute-card">
-          <div className="game-icon">📚</div>
-          <h1 className="game-title">Word Memory Game</h1>
-          <p className="game-description">
-            Let's test your word memory! 🎮
-          </p>
-          
-          <div className="instructions-box">
-            <h3>How to Play:</h3>
-            <ol className="instructions-list">
-              <li>
-                <span className="step-icon">👀</span>
-                Watch words appear on screen
-              </li>
-              <li>
-                <span className="step-icon">⏱️</span>
-                Study them carefully (you have time!)
-              </li>
-              <li>
-                <span className="step-icon">🖱️</span>
-                After they disappear, click the words you remember
-              </li>
-              <li>
-                <span className="step-icon">🎯</span>
-                Complete 3 levels (⭐ → ⭐⭐ → ⭐⭐⭐)
-              </li>
-            </ol>
+      <div className="word-test-container intro-screen">
+        <div className="intro-layout">
+          <h1 className="game-title intro-title">Word Game</h1>
+
+          <div className="instructions-box intro-instructions">
+            <div className="instructions-heading">Instructions</div>
+            <ul className="instructions-list">
+              <li>Watch the words appear on screen.</li>
+              <li>Study them carefully until they disappear.</li>
+              <li>Click the words you remember.</li>
+              <li>Complete three levels.</li>
+            </ul>
           </div>
-          
-          <div className="levels-info">
-            <h4>📊 3 Levels:</h4>
-            <div className="level-boxes">
-              <div className="level-box">
-                <div className="level-star">⭐</div>
-                <p>Level 1</p>
-                <p className="level-detail">4 words - 20 seconds</p>
-              </div>
-              <div className="level-box">
-                <div className="level-star">⭐⭐</div>
-                <p>Level 2</p>
-                <p className="level-detail">5 words - 25 seconds</p>
-              </div>
-              <div className="level-box">
-                <div className="level-star">⭐⭐⭐</div>
-                <p>Level 3</p>
-                <p className="level-detail">6 words - 30 seconds</p>
-              </div>
-            </div>
-          </div>
-          
-          <button className="start-button cute-button" onClick={startGame}>
-            🚀 Start Game!
+
+          <button className="start-button cute-button intro-start" onClick={startGame}>
+            Start Game
           </button>
         </div>
       </div>
@@ -329,11 +292,13 @@ const WordMemoryTest = ({ onComplete, onSkipToDetailed }) => {
   // =====================================================
   if (gameState === 'loading') {
     return (
-      <div className="word-test-container">
-        <div className="loading-card cute-card">
-          <div className="loading-spinner">🔄</div>
-          <h2>Loading Level {currentLevel}...</h2>
-          <p>{getLevelStars(currentLevel)}</p>
+      <div className="word-test-container word-loading">
+        <div className="word-loading-card">
+          <div className="word-loading-title">Preparing Level {currentLevel}</div>
+          <div className="word-loading-bar">
+            <span className="word-loading-progress" />
+          </div>
+          <p className="word-loading-text">Get ready to memorize the words</p>
         </div>
       </div>
     );
@@ -343,23 +308,37 @@ const WordMemoryTest = ({ onComplete, onSkipToDetailed }) => {
   // RENDER: SHOWING WORDS
   // =====================================================
   if (gameState === 'showing') {
+    const timerProgress = displayDuration
+      ? Math.max(0, Math.min(100, (timer / displayDuration) * 100))
+      : 0;
+
     return (
-      <div className="word-test-container">
-        <div className="game-header">
-          <div className="level-indicator">
-            <span className="level-number">Level {currentLevel}</span>
-            <span className="level-stars">{getLevelStars(currentLevel)}</span>
+      <div className="word-test-container word-showing">
+        <div className="word-top-bar">
+          <div className="circular-timer word-timer">
+            <svg width="60" height="60" viewBox="0 0 60 60">
+              <circle className="timer-bg" cx="30" cy="30" r="25" />
+              <circle
+                className="timer-progress"
+                cx="30" cy="30" r="25"
+                strokeDasharray="157"
+                strokeDashoffset={157 - (157 * timerProgress) / 100}
+              />
+            </svg>
+            <span className="timer-text">{timer}s</span>
           </div>
-          <div className="score-display">Score: {score}</div>
+
+          <div className="level-pill">Level {currentLevel}</div>
+          <div className="score-pill">Score {score}</div>
         </div>
-        
-        <div className="words-display-card cute-card">
-          <h2 className="instruction-text">Study these words carefully! 👀</h2>
-          
-          <div className="words-grid">
+
+        <div className="word-showing-body">
+          <h2 className="word-showing-title">Watch the words Carefully!</h2>
+
+          <div className="words-grid word-showing-grid">
             {wordsToShow.map((word, index) => (
-              <div 
-                key={index} 
+              <div
+                key={index}
                 className="word-card animate-pop"
                 style={{ animationDelay: `${index * 0.1}s` }}
               >
@@ -367,15 +346,10 @@ const WordMemoryTest = ({ onComplete, onSkipToDetailed }) => {
               </div>
             ))}
           </div>
-          
-          <div className="timer-display">
-            <div className="timer-circle">
-              {timer}
-            </div>
-            <p>seconds remaining</p>
-          </div>
-          
-          <p className="hint-text">💡 Try to remember all of them!</p>
+        </div>
+
+        <div className="word-dialog-bubble float-bubble">
+          <p>Memorize these words. They will hide soon!</p>
         </div>
       </div>
     );
@@ -386,7 +360,7 @@ const WordMemoryTest = ({ onComplete, onSkipToDetailed }) => {
   // =====================================================
   if (gameState === 'selecting') {
     return (
-      <div className="word-test-container">
+      <div className="word-test-container word-selecting">
         <div className="game-header">
           <div className="level-indicator">
             <span className="level-number">Level {currentLevel}</span>
@@ -414,7 +388,9 @@ const WordMemoryTest = ({ onComplete, onSkipToDetailed }) => {
               </div>
             ))}
           </div>
-          
+        </div>
+
+        <div className="selection-actions">
           <div className="button-group">
             <button 
               className="submit-button cute-button" 
@@ -436,46 +412,53 @@ const WordMemoryTest = ({ onComplete, onSkipToDetailed }) => {
   // =====================================================
   if (gameState === 'feedback') {
     const isAllCorrect = feedback.correct === wordsToShow.length && feedback.incorrect === 0;
+    const totalWords = wordsToShow.length || 0;
+    const accuracy = totalWords ? Math.round((feedback.correct / totalWords) * 100) : 0;
     
     return (
-      <div className="word-test-container">
-        <div className="feedback-card cute-card">
-          <div className={`feedback-icon ${isAllCorrect ? 'correct' : 'partial'}`}>
-            {isAllCorrect ? '🎉' : '👍'}
-          </div>
-          <h2 className="feedback-message">
-            {feedback.message}
-          </h2>
-          
-          <div className="feedback-stats">
-            <div className="stat-box correct-stat">
-              <div className="stat-icon">✅</div>
-              <div className="stat-value">{feedback.correct}</div>
-              <div className="stat-label">Correct</div>
+      <div className="word-test-container word-feedback">
+        <div className="word-feedback-card">
+          <div className="feedback-header">
+            <div className="feedback-badge">★</div>
+            <div>
+              <h2 className="feedback-title">Great Job!</h2>
+              <p className="feedback-subtitle">You did amazing!</p>
             </div>
-            
-            {feedback.incorrect > 0 && (
-              <div className="stat-box incorrect-stat">
-                <div className="stat-icon">❌</div>
-                <div className="stat-value">{feedback.incorrect}</div>
-                <div className="stat-label">Wrong</div>
-              </div>
-            )}
-            
-            {feedback.missed > 0 && (
-              <div className="stat-box missed-stat">
-                <div className="stat-icon">⚠️</div>
-                <div className="stat-value">{feedback.missed}</div>
-                <div className="stat-label">Missed</div>
-              </div>
-            )}
+            <div className="feedback-trophy">🏆</div>
           </div>
-          
-          <p className="next-level-text">
-            {currentLevel < maxLevels 
-              ? `Moving to Level ${currentLevel + 1}... 🎯` 
-              : 'Calculating final results... 📊'}
-          </p>
+
+          <div className="feedback-body">
+            <div className="feedback-score">
+              <div className="score-ring" style={{ '--progress': `${accuracy}` }}>
+                <div className="score-main">{feedback.correct}/{totalWords}</div>
+                <div className="score-percent">{accuracy}%</div>
+              </div>
+              <div className="score-label">Your Score</div>
+            </div>
+
+            <div className="feedback-stats-grid">
+              <div className="feedback-stat correct">
+                <div className="stat-name">Correct</div>
+                <div className="stat-count">{feedback.correct}</div>
+              </div>
+              <div className="feedback-stat incorrect">
+                <div className="stat-name">Incorrect</div>
+                <div className="stat-count">{feedback.incorrect}</div>
+              </div>
+              <div className="feedback-stat missed">
+                <div className="stat-name">Missed</div>
+                <div className="stat-count">{feedback.missed}</div>
+              </div>
+            </div>
+          </div>
+
+          <div className="feedback-summary">
+            <span className="summary-icon">🏅</span>
+            <div>
+              <h3>Excellent Memory!</h3>
+              <p>{feedback.message}</p>
+            </div>
+          </div>
         </div>
       </div>
     );
@@ -490,48 +473,49 @@ const WordMemoryTest = ({ onComplete, onSkipToDetailed }) => {
     const accuracy = Math.round((totalCorrect / totalWords) * 100);
     
     return (
-      <div className="word-test-container">
-        <div className="complete-card cute-card">
-          <div className="celebration-icon">🎊</div>
-          <h1 className="complete-title">All Levels Complete!</h1>
-          
-          <div className="final-score-box">
-            <h2>Your Total Score</h2>
-            <div className="score-big">{totalCorrect} / {totalWords}</div>
-            <div className="accuracy-text">{accuracy}% Correct</div>
-            
-            <div className="stars-earned">
-              {Array.from({ length: 5 }).map((_, i) => (
-                <span key={i} className={i < Math.floor(accuracy / 20) ? 'star-big' : 'star-gray'}>
-                  {i < Math.floor(accuracy / 20) ? '⭐' : '☆'}
-                </span>
-              ))}
+      <div className="word-test-container word-complete">
+        <div className="word-complete-card">
+          <div className="complete-header">
+            <div className="complete-badge">★</div>
+            <div>
+              <h1 className="complete-title">Great Job!</h1>
+              <p className="complete-subtitle">You did amazing!</p>
+            </div>
+            <div className="complete-trophy">🏆</div>
+          </div>
+
+          <div className="complete-layout">
+            <div className="complete-left">
+              <div className="complete-score-ring" style={{ '--progress': `${accuracy}` }}>
+                <div className="complete-score-main">{totalCorrect}/{totalWords}</div>
+                <div className="complete-score-percent">{accuracy}%</div>
+              </div>
+              <div className="complete-score-label">Total Score</div>
+            </div>
+
+            <div className="complete-right">
+              <div className="level-cards">
+                {results.map((result, index) => (
+                  <div key={index} className="level-card">
+                    <div className="level-card-title">Level {result.level}</div>
+                    <div className="level-card-score">
+                      {result.correct.length}/{result.wordsShown.length}
+                    </div>
+                    <div className="level-card-accuracy">
+                      {Math.round(result.accuracy)}%
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
-          
-          <div className="level-breakdown">
-            <h3>📊 Level Breakdown:</h3>
-            {results.map((result, index) => (
-              <div key={index} className="level-result">
-                <span className="level-name">
-                  Level {result.level} {getLevelStars(result.level)}
-                </span>
-                <span className="level-score">
-                  {result.correct.length}/{result.wordsShown.length}
-                </span>
-                <span className="level-accuracy">
-                  ({Math.round(result.accuracy)}%)
-                </span>
-              </div>
-            ))}
-          </div>
-          
-          <div className="button-group">
-            <button className="submit-button cute-button" onClick={submitAndShowResults}>
-              📊 View My Results
+
+          <div className="complete-actions">
+            <button className="complete-button secondary" onClick={submitAndSkipToDetailed}>
+              View Detailed Results
             </button>
-            <button className="secondary-button cute-button" onClick={submitAndSkipToDetailed}>
-              📋 View Detailed Results
+            <button className="complete-button primary" onClick={submitAndShowResults}>
+              View My Results
             </button>
           </div>
         </div>

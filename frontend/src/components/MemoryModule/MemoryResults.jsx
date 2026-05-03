@@ -138,177 +138,117 @@ const MemoryResults = () => {
     const combinedRiskLevel = combinedRiskScore < 40 ? 'LOW' : combinedRiskScore < 70 ? 'MODERATE' : 'HIGH';
     
     return (
-      <div className="results-container">
-        {/* HEADER SECTION */}
-        <div className="results-header">
-          <button className="back-button" onClick={() => navigate('/dashboard')}>
-            ← Back to Dashboard
-          </button>
-          <h1 className="results-title">🧠 Complete Memory Assessment Results</h1>
-          <p className="test-date">Sequence Test + Word Recall Test</p>
+      <div className="results-container combined-results">
+        <div className="combined-page-header">
+          <h1 className="combined-page-title">Memory Assessment Complete!</h1>
+          <p className="combined-page-subtitle">Here's how your brain performed today</p>
         </div>
-
-        {/* COMBINED RISK SCORE CARD */}
-        <div className="risk-score-card">
-          <div className="risk-score-header">
-            <h2>Overall Memory Risk Assessment</h2>
-          </div>
-          
-          <div className="risk-score-display">
-            <div className="risk-icon-large" style={{ color: getRiskColor(combinedRiskLevel) }}>
-              {getRiskIcon(combinedRiskLevel)}
-            </div>
-            <div className="risk-score-value">{combinedRiskScore}</div>
-            <div className="risk-score-label">Combined Risk Score (0-100)</div>
-            <div 
-              className="risk-level-badge" 
-              style={{ 
-                backgroundColor: getRiskColor(combinedRiskLevel),
-                color: 'white'
-              }}
-            >
-              {combinedRiskLevel} RISK
-            </div>
-          </div>
-
-          <div className="risk-scale">
-            <div className="risk-scale-bar">
-              <div 
-                className="risk-scale-indicator" 
-                style={{ 
-                  left: `${combinedRiskScore}%`,
-                  backgroundColor: getRiskColor(combinedRiskLevel)
-                }}
-              />
-            </div>
-            <div className="risk-scale-labels">
-              <span>0 (Low)</span>
-              <span>40</span>
-              <span>70</span>
-              <span>100 (High)</span>
-            </div>
-          </div>
-        </div>
-
-        {/* INDIVIDUAL TEST COMPARISON */}
-        <div className="comparison-section">
-          <h3>📊 Test Comparison</h3>
-          <div className="comparison-grid">
-            {/* Sequence Test Card */}
-            <div className="test-comparison-card">
-              <div className="test-header">
-                <h4>🧠 Sequence Memory Test</h4>
-                <div 
-                  className="test-risk-badge"
-                  style={{ backgroundColor: getRiskColor(sequenceData.riskLevel) }}
-                >
-                  {sequenceData.riskScore}/100
-                </div>
+        <div className="combined-hero">
+          <div className="combined-card">
+            <div className="combined-score">
+              <div className="combined-score-ring" style={{ '--progress': `${combinedRiskScore}` }}>
+                <div className="combined-score-main">{combinedRiskScore}</div>
+                <div className="combined-score-sub">/100</div>
               </div>
-              <div className="test-metrics">
-                <div className="mini-metric">
-                  <span className="mini-label">Accuracy</span>
-                  <span className="mini-value">{sequenceData.metrics.accuracy.toFixed(1)}%</span>
-                </div>
-                <div className="mini-metric">
-                  <span className="mini-label">Memory Span</span>
-                  <span className="mini-value">{sequenceData.metrics.maxSequenceLength}</span>
-                </div>
-                <div className="mini-metric">
-                  <span className="mini-label">Response Time</span>
-                  <span className="mini-value">{(sequenceData.metrics.avgResponseTime / 1000).toFixed(1)}s</span>
-                </div>
-                <div className="mini-metric">
-                  <span className="mini-label">Consistency</span>
-                  <span className="mini-value">{sequenceData.metrics.consistencyScore.toFixed(1)}%</span>
-                </div>
-              </div>
+              <div className="combined-score-label">Combined Memory Score</div>
             </div>
 
-            {/* Word Test Card */}
-            <div className="test-comparison-card">
-              <div className="test-header">
-                <h4>📚 Word Recall Test</h4>
-                <div 
-                  className="test-risk-badge"
-                  style={{ backgroundColor: getRiskColor(wordData.riskLevel) }}
-                >
-                  {wordData.riskScore}/100
-                </div>
+            <div className="combined-details">
+              <div className="combined-risk-pill" style={{ backgroundColor: getRiskColor(combinedRiskLevel) }}>
+                {combinedRiskLevel} Risk
               </div>
-              <div className="test-metrics">
-                <div className="mini-metric">
-                  <span className="mini-label">Accuracy</span>
-                  <span className="mini-value">{wordData.metrics.accuracy.toFixed(1)}%</span>
+              <p className="combined-risk-text">
+                Your memory performance is in the {combinedRiskLevel.toLowerCase()} range.
+                Keep practicing to improve your results.
+              </p>
+              <div className="combined-scale">
+                <div className="combined-scale-bar">
+                  <span
+                    className="combined-scale-indicator"
+                    style={{ left: `${combinedRiskScore}%`, backgroundColor: getRiskColor(combinedRiskLevel) }}
+                  />
                 </div>
-                <div className="mini-metric">
-                  <span className="mini-label">Memory Span</span>
-                  <span className="mini-value">{wordData.metrics.maxSequenceLength}</span>
-                </div>
-                <div className="mini-metric">
-                  <span className="mini-label">Response Time</span>
-                  <span className="mini-value">{(wordData.metrics.avgResponseTime / 1000).toFixed(1)}s</span>
-                </div>
-                <div className="mini-metric">
-                  <span className="mini-label">Consistency</span>
-                  <span className="mini-value">{wordData.metrics.consistencyScore.toFixed(1)}%</span>
+                <div className="combined-scale-labels">
+                  <span>Low 0</span>
+                  <span>Moderate 40</span>
+                  <span>High 100</span>
                 </div>
               </div>
             </div>
           </div>
         </div>
 
-        {/* COMBINED RECOMMENDATIONS */}
-        <div className="recommendations-card">
-          <h3>💡 Combined Recommendations</h3>
-          <ul className="recommendations-list">
-            {sequenceData.recommendations && sequenceData.recommendations.map((rec, index) => (
-              <li key={`seq-${index}`} className="recommendation-item">
-                <span className="rec-icon">✓</span>
-                {rec}
-              </li>
-            ))}
-            {wordData.recommendations && wordData.recommendations.map((rec, index) => (
-              <li key={`word-${index}`} className="recommendation-item">
-                <span className="rec-icon">✓</span>
-                {rec}
-              </li>
-            ))}
-          </ul>
+        <div className="combined-section">
+          <h3 className="section-title">Overall Performance</h3>
+          <div className="performance-grid">
+            <div className="performance-card">
+              <div className="performance-title">Sequence Memory Test</div>
+              <div className="performance-score">{sequenceData.riskScore}/100</div>
+              <div className="performance-metrics">
+                <span>Accuracy {sequenceData.metrics.accuracy.toFixed(1)}%</span>
+                <span>Span {sequenceData.metrics.maxSequenceLength}</span>
+                <span>Time {(sequenceData.metrics.avgResponseTime / 1000).toFixed(1)}s</span>
+                <span>Consistency {sequenceData.metrics.consistencyScore.toFixed(1)}%</span>
+              </div>
+            </div>
+            <div className="performance-card">
+              <div className="performance-title">Word Recall Test</div>
+              <div className="performance-score">{wordData.riskScore}/100</div>
+              <div className="performance-metrics">
+                <span>Accuracy {wordData.metrics.accuracy.toFixed(1)}%</span>
+                <span>Span {wordData.metrics.maxSequenceLength}</span>
+                <span>Time {(wordData.metrics.avgResponseTime / 1000).toFixed(1)}s</span>
+                <span>Consistency {wordData.metrics.consistencyScore.toFixed(1)}%</span>
+              </div>
+            </div>
+          </div>
         </div>
 
-        {/* ACTION BUTTONS */}
-        <div className="action-buttons">
-          <button 
-            className="action-button secondary"
+        <div className="combined-section">
+          <h3 className="section-title">Personalized Recommendations</h3>
+          <div className="recommendations-scroll">
+            <ul className="recommendations-list">
+              {sequenceData.recommendations && sequenceData.recommendations.map((rec, index) => (
+                <li key={`seq-${index}`} className="recommendation-item">
+                  <span className="rec-icon">✓</span>
+                  {rec}
+                </li>
+              ))}
+              {wordData.recommendations && wordData.recommendations.map((rec, index) => (
+                <li key={`word-${index}`} className="recommendation-item">
+                  <span className="rec-icon">✓</span>
+                  {rec}
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+
+        <div className="combined-actions">
+          <button
+            className="combined-button secondary"
             onClick={() => navigate('/dashboard')}
           >
-            🏠 Back to Dashboard
+            Back to Dashboard
           </button>
-          <button 
-            className="action-button primary"
+          <button
+            className="combined-button ghost"
             onClick={() => navigate('/memory-test')}
           >
-            🔄 Take Test Again
+            Take Test Again
           </button>
-        </div>
-
-        {isInAssessment && (
-          <Box sx={{ mt: 4, display: 'flex', justifyContent: 'center' }}>
-            <Button
-              variant="contained"
-              size="large"
-              color="success"
+          {isInAssessment && (
+            <button
+              className="combined-button primary"
               onClick={() => {
                 const id = localStorage.getItem('currentAssessmentId');
                 navigate(`/assessment/overall/${id}`);
               }}
-              endIcon={<ArrowForward />}
             >
-              View Overall Results
-            </Button>
-          </Box>
-        )}
+              View Overall Result
+            </button>
+          )}
+        </div>
       </div>
     );
   }
