@@ -114,6 +114,8 @@ router.get('/me', protect, async (req, res) => {
         name: user.name,
         email: user.email,
         role: user.role,
+        avatar: user.avatar || null,
+        provider: user.provider || 'local',
         createdAt: user.createdAt
       }
     });
@@ -135,6 +137,105 @@ router.post('/logout', protect, (req, res) => {
     success: true,
     message: 'Logged out successfully'
   });
+});
+
+// @route   POST /api/auth/google
+// @desc    Authenticate with Google OAuth token
+// @access  Public
+router.post('/google', async (req, res) => {
+  try {
+    const { credential } = req.body;
+
+    if (!credential) {
+      return res.status(400).json({
+        success: false,
+        message: 'Google credential token is required'
+      });
+    }
+
+    // Verify Google token
+    const { OAuth2Client } = require('google-auth-library');
+    const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+
+    let payload;
+    try {
+      const ticket = await client.verifyIdToken({
+        idToken: credential,
+        audience: process.env.GOOGLE_CLIENT_ID
+      });
+      payload = ticket.getPayload();
+    } catch (verifyError) {
+      console.error('Google token verification failed:', verifyError);
+      return res.status(401).json({
+        success: false,
+        message: 'Invalid Google token'
+      });
+    }
+
+    const { sub: googleId, email, name, picture } = payload;
+
+    if (!email) {
+      return res.status(400).json({
+        success: false,
+        message: 'Email not provided by Google'
+      });
+    }
+
+    // Find existing user by googleId or email
+    let user = await User.findOne({
+      $or: [{ googleId }, { email }]
+    });
+
+    if (user) {
+      // Update Google info if user exists but
+      // signed up with email originally
+      if (!user.googleId) {
+        user.googleId = googleId;
+        user.provider = 'google';
+        if (picture && !user.avatar) {
+          user.avatar = picture;
+        }
+        user.isEmailVerified = true;
+        await user.save();
+      }
+    } else {
+      // Create new user from Google profile
+      user = await User.create({
+        name: name || email.split('@')[0],
+        email,
+        googleId,
+        avatar: picture || null,
+        provider: 'google',
+        isEmailVerified: true
+        // No password for Google users
+      });
+    }
+
+    // Generate JWT same as normal login
+    const token = user.generateAuthToken();
+
+    res.status(200).json({
+      success: true,
+      message: 'Google authentication successful',
+      token,
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        avatar: user.avatar,
+        provider: user.provider
+      }
+    });
+
+  } catch (error) {
+    console.error('Google OAuth error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error during Google authentication',
+      error: error.message
+    });
+  }
 });
 
 module.exports = router;

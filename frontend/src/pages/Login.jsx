@@ -4,11 +4,12 @@ import { Visibility, VisibilityOff, EmailOutlined, LockOutlined } from '@mui/ico
 import { useAuth } from '@contexts/AuthContext';
 import AuthLayout from '@components/auth/AuthLayout';
 import AuthInput from '@components/auth/AuthInput';
+import GoogleSignInButton from '@components/auth/GoogleSignInButton';
 import loginBackgroundImage from '../assets/bglogin.png';
 
 function Login() {
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const { login, loginWithGoogle } = useAuth();
   
   const [formData, setFormData] = useState({
     email: '',
@@ -19,6 +20,7 @@ function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [apiError, setApiError] = useState('');
+  const [googleError, setGoogleError] = useState('');
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -54,6 +56,7 @@ function Login() {
 
   const handleSubmit = async () => {
     setApiError('');
+    setGoogleError('');
 
     if (!validateForm()) {
       return;
@@ -78,6 +81,30 @@ function Login() {
       setApiError('An unexpected error occurred. Please try again.');
       setLoading(false);
     }
+  };
+
+  const handleGoogleSuccess = async (credential) => {
+    setApiError('');
+    setGoogleError('');
+    setLoading(true);
+    try {
+      const result = await loginWithGoogle(credential);
+      if (result.success) {
+        navigate('/dashboard');
+      } else {
+        setGoogleError(
+          result.error || 'Google sign-in failed. Please try again.'
+        );
+      }
+    } catch (err) {
+      setGoogleError('An unexpected error occurred.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleGoogleError = (message) => {
+    setGoogleError(message || 'Google sign-in failed.');
   };
 
   return (
@@ -171,10 +198,23 @@ function Login() {
           {loading ? 'Logging in...' : 'Login'}
         </button>
 
+        {googleError && (
+          <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700">
+            {googleError}
+          </div>
+        )}
+
         <div className="flex items-center gap-3 py-1">
           <div className="h-px flex-1 bg-slate-200" />
           <span className="text-xs font-medium uppercase tracking-wider text-slate-400">or</span>
           <div className="h-px flex-1 bg-slate-200" />
+        </div>
+
+        <div className="flex justify-center">
+          <GoogleSignInButton
+            onSuccess={handleGoogleSuccess}
+            onError={handleGoogleError}
+          />
         </div>
 
         <p className="text-center text-sm text-slate-600">

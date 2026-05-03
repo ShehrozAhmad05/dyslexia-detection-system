@@ -163,6 +163,7 @@ function OverallResults() {
       default: return 'default';
     }
   };
+
   const getStatusColor = (status) => {
     const s = (status || '').toLowerCase();
     if (s.includes('high') || s.includes('risk') ||
@@ -361,7 +362,8 @@ function OverallResults() {
                 );
               })}
             </Grid>
-{explainability && (
+
+            {explainability && (
               <Box sx={{ mt: 4 }}>
                 <Paper sx={{ p: 3, mb: 3 }}>
                   <Typography variant="h6" gutterBottom color="primary">
@@ -704,6 +706,7 @@ function OverallResults() {
                 </Paper>
               </Box>
             )}
+
             <Paper sx={{ p: 3, mb: 3 }}>
               <Typography variant="h6" gutterBottom>
                 Recommendations

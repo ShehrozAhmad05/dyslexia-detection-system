@@ -64,6 +64,23 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const loginWithGoogle = async (credential) => {
+    try {
+      setError(null);
+      const response = await authService.googleAuth(credential);
+      const { token, user } = response.data;
+      localStorage.setItem('token', token);
+      setUser(user);
+      return { success: true, user };
+    } catch (err) {
+      const message =
+        err.response?.data?.message ||
+        'Google sign-in failed. Please try again.';
+      setError(message);
+      return { success: false, error: message };
+    }
+  };
+
   // Logout function
   const logout = async () => {
     try {
@@ -88,6 +105,7 @@ export const AuthProvider = ({ children }) => {
     isAuthenticated: !!user,
     register,
     login,
+    loginWithGoogle,
     logout,
     updateUser
   };
