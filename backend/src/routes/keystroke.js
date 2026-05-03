@@ -47,8 +47,9 @@ router.post('/submit', protect, async (req, res) => {
     });
 
     result.calculateMetrics();
-    const { predictAnomaly } = require('../ml/keystroke/predict');
-    const ml = await predictAnomaly({
+
+ const { explainAnomaly } = require('../ml/keystroke/predict');
+    const ml = await explainAnomaly({
       avgHoldTime: result.avgHoldTime,
       cvHoldTime: result.cvHoldTime,
       avgFlightTime: result.avgFlightTime,
@@ -61,6 +62,7 @@ router.post('/submit', protect, async (req, res) => {
 
     result.anomalyScore = ml.anomalyScore;
     result.isAnomalous = ml.isAnomalous;
+    result.shapValues = ml.shapValues || [];
     result.calculateRiskScore(result.anomalyScore || 0);
 
     await result.save();

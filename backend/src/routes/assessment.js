@@ -145,6 +145,9 @@ router.get('/:id/fusion', protect, async (req, res) => {
 
     // Save updated scores
     await assessment.save();
+    const { generateFullExplainability } =
+      require('../utils/explainabilityEngine');
+    const explainability = await generateFullExplainability(assessment);
 
     res.status(200).json({
       success: true,
@@ -190,6 +193,8 @@ router.get('/:id/fusion', protect, async (req, res) => {
             recommendations: assessment.memoryResult.recommendations || []
           } : null
         },
+
+        explainability,
         completedAt: assessment.completedAt,
         createdAt: assessment.createdAt
       }
@@ -398,6 +403,12 @@ router.get('/:id/pdf', protect, async (req, res) => {
       buildCombinedRecommendations(assessment);
     assessment.fusionAnalysis.combinedRecommendations =
       combinedRecommendations;
+      
+      await assessment.save();
+    const { generateFullExplainability } =
+      require('../utils/explainabilityEngine');
+    const explainability = await generateFullExplainability(assessment);
+
     const handwritingExpectedSentence =
       getHandwritingSentence(assessment.handwritingResult, 'expected');
     const handwritingDetectedSentence =
@@ -452,7 +463,8 @@ router.get('/:id/pdf', protect, async (req, res) => {
       assessment: {
         ...assessment.toObject(),
         moduleResults,
-        completedModules: assessment.getCompletedModules()
+        completedModules: assessment.getCompletedModules(),
+        explainability
       }
     };
 

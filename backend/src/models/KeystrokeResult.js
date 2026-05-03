@@ -50,6 +50,19 @@ const keystrokeSchema = new mongoose.Schema({
 
   anomalyScore: Number,
   isAnomalous: Boolean,
+  shapValues: [{
+    feature: String,
+    shapValue: Number,
+    featureValue: Number,
+    direction: {
+      type: String,
+      enum: ['increases_anomaly', 'decreases_anomaly']
+    },
+    impact: {
+      type: String,
+      enum: ['HIGH', 'MEDIUM', 'LOW']
+    }
+  }],
 
   features: {
     holdTimeStats: Object,

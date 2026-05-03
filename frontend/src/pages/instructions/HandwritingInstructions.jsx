@@ -59,34 +59,34 @@ function HandwritingInstructions() {
         
         }}
       />
-
-      <Container maxWidth="lg" sx={{ position: 'relative', zIndex: 1, height: '100%', py: 4,top: '30px' }}>
-        <Box sx={{ display: 'flex', gap: 4, flexWrap: 'wrap', height: '100%', alignItems: 'center' }}>
+      <Container maxWidth="lg" sx={{ position: 'relative', zIndex: 1, height: '100%', py: 2, top: '10px' }}>
+        <Box sx={{ display: 'flex', gap: 3, flexWrap: 'wrap', height: '100%', alignItems: 'center' }}>
           <Box sx={{ flex: 1, minWidth: 280 }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 5 }}>
-              <Box component="img" src={stickyIcon} alt="sticky" sx={{ width: 34, height: 34 }} />
-              <Typography variant="h3" sx={{ fontWeight: 800, color: '#6C4DE6' }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 1 }}>
+              <Box component="img" src={stickyIcon} alt="sticky" sx={{ width: 30, height: 30 }} />
+              <Typography variant="h4" sx={{ fontWeight: 800, color: '#6C4DE6' }}>
                 Handwriting analysis
               </Typography>
             </Box>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 5 }}>
-              <Box component="img" src={favoriteIcon} alt="favorite" sx={{ width: 22, height: 22 }} />
-              <Typography variant="body1" sx={{ color: '#3d3d3d' ,fontSize: '1.3rem'}}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
+              <Box component="img" src={favoriteIcon} alt="favorite" sx={{ width: 18, height: 18 }} />
+              <Typography variant="body1" sx={{ color: '#3d3d3d', fontSize: '1rem' }}>
                 Write a sentence in print style for analysis
               </Typography>
             </Box>
 
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5, mb: 3 }}>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, mb: 2 }}>
               {instructions.map((item, index) => (
-                <Box key={item} sx={{ display: 'flex', alignItems: 'flex-start', gap: 1.5 }}>
+                <Box key={item} sx={{ display: 'flex', alignItems: 'flex-start', gap: 1.6 }}>
                   <Box
                     sx={{
-                      width: 28,
-                      height: 28,
+                      width: 16,
+                      height: 16,
                       borderRadius: '50%',
                       bgcolor: '#6C4DE6',
                       color: '#fff',
-                      fontWeight: 700,
+                      fontWeight:400,
+                      fontSize: '0.69rem',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
@@ -95,29 +95,35 @@ function HandwritingInstructions() {
                   >
                     {index + 1}
                   </Box>
-                  <Typography variant="body2" sx={{ color: '#4a4a4a' }}>
+                  <Typography variant="body2" sx={{ color: '#4a4a4a', fontSize: '0.875rem' }}>
                     {item}
                   </Typography>
                 </Box>
               ))}
             </Box>
 
-            <Box sx={{ mb: 3, border: '1px solid #D9CCFF', borderRadius: '13px', p: 2, bgcolor: '#F3F3FD' }}>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
-                <Box component="img" src={messageIcon} alt="message" sx={{ width: 50, height: 40 }} />
-                <Typography variant="subtitle1" sx={{ fontWeight: 700, color: '#6C4DE6' }}>
+            <Box sx={{ mb: 3, border: '1px solid #D9CCFF', borderRadius: '10px', p: 1.5, bgcolor: '#F3F3FD' ,width: '100px'}}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                <Box component="img" src={messageIcon} alt="message" sx={{ width: 34, height: 30 }} />
+                <Typography variant="subtitle2" sx={{ fontWeight: 500, color: '#6C4DE6' }}>
                   Important Notes
                 </Typography>
               </Box>
               <Box component="ul" sx={{ pl: 3, m: 0, color: '#4a4a4a', listStyle: 'disc' }}>
                 <li>
-                  <Typography variant="body2">Print style only — cursive writing cannot be analyzed.</Typography>
+                  <Typography variant="body2" sx={{ fontSize: '0.85rem' }}>
+                    Print style only — cursive writing cannot be analyzed.
+                  </Typography>
                 </li>
                 <li>
-                  <Typography variant="body2">Ensure good lighting and a clear, unblurred photo.</Typography>
+                  <Typography variant="body2" sx={{ fontSize: '0.85rem' }}>
+                    Ensure good lighting and a clear, unblurred photo.
+                  </Typography>
                 </li>
                 <li>
-                  <Typography variant="body2">Write at your normal pace — do not rush.</Typography>
+                  <Typography variant="body2" sx={{ fontSize: '0.85rem' }}>
+                    Write at your normal pace — do not rush.
+                  </Typography>
                 </li>
               </Box>
             </Box>
@@ -126,36 +132,35 @@ function HandwritingInstructions() {
               sx={{
                 display: 'inline-flex',
                 alignItems: 'center',
-                px: 2,
-                gap: 1.5,
-                mb: 3,
-                py: 1.5,
+                px: 1.5,
+                gap: 1,
+                mb: 1,
+                py: 1,
                 border: '1px solid #D9CCFF',
                 borderRadius: '9px',
                 bgcolor: '#D3DFEE'
               }}
             >
-              <AccessTime sx={{ color: '#6C4DE6' }} />
-              <Typography variant="body2" sx={{ fontWeight: 700, color: '#6C4DE6' }}>
+              <AccessTime sx={{ color: '#6C4DE6', fontSize: 18 }} />
+              <Typography variant="body2" sx={{ fontWeight: 700, color: '#6C4DE6', fontSize: '0.85rem' }}>
                 Estimated time: 5 minutes
               </Typography>
              
             </Box>
 
-            <Box sx={{ display: 'flex', gap: 3, flexWrap: 'wrap' ,marginTop: 7}}>
+            <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', mt: 4 }}>
            
               <Button
                 variant="outlined"
                 onClick={() => navigate('/assessment/start')}
-                sx={{ borderColor: '#6C4DE6', color: '#6C4DE6', borderRadius: '9px', px: 10,py:2
-                 }}
+                sx={{ borderColor: '#6C4DE6', color: '#6C4DE6', borderRadius: '9px', px: 6, py: 1.5 }}
               >
                 Back
               </Button>
-                 <Button
+              <Button
                 variant="contained"
                 onClick={() => navigate('/assessment/handwriting')}
-                sx={{ bgcolor: '#6C4DE6', borderRadius: '9px', px: 7,py: 2, '&:hover': { bgcolor: '#5B3FE0' } }}
+                sx={{ bgcolor: '#6C4DE6', borderRadius: '9px', px: 5, py: 1.5, '&:hover': { bgcolor: '#5B3FE0' } }}
               >
                 Start Test
               </Button>
