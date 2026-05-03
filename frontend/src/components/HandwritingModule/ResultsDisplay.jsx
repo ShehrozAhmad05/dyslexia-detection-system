@@ -10,6 +10,13 @@ import {
   Button,
   Divider
 } from '@mui/material';
+import cupi from '../../assets/purplecrop.png';
+import cloudy from '../../assets/cloudy copy.png';
+import favorite from '../../assets/favorite.png';
+import stickyNote from '../../assets/sticky-note.png';
+import searchIcon from '../../assets/search.png';
+import analysisIcon from '../../assets/analysis.png';
+import ideaIcon from '../../assets/idea.png';
 
 function formatDate(value) {
   if (!value) return 'Date unavailable';
@@ -60,12 +67,25 @@ function getScoreColor(value) {
   return 'success';
 }
 
+function getRiskColor(riskLevel) {
+  switch (riskLevel) {
+    case 'high':
+      return '#E53935';
+    case 'moderate':
+      return '#FB8C00';
+    case 'low':
+      return '#2E7D32';
+    default:
+      return '#6C4DE6';
+  }
+}
+
 function toPercent(value) {
   if (value === null || value === undefined) return null;
   return Math.max(0, Math.min(100, Number(value)));
 }
 
-function ResultsDisplay({ result, onTakeAnotherTest }) {
+function ResultsDisplay({ result, onTakeAnotherTest, onContinue }) {
   const navigate = useNavigate();
 
   const overallScore =
@@ -79,6 +99,7 @@ function ResultsDisplay({ result, onTakeAnotherTest }) {
   const unableToAssess = Boolean(result?.unableToAssess);
   const overrideApplied = Boolean(result?.overrideApplied);
   const riskChip = getRiskChipConfig(riskLevel, unableToAssess);
+  const riskColor = getRiskColor(riskLevel);
 
   const wordResults = useMemo(
     () => (Array.isArray(result?.wordResults) ? result.wordResults : []),
@@ -95,65 +116,99 @@ function ResultsDisplay({ result, onTakeAnotherTest }) {
   return (
     <Box>
       {/* SECTION 1 — Header */}
-      <Paper sx={{ p: 3, mb: 3, bgcolor: 'primary.main', color: 'common.white' }}>
-        <Typography variant="h4" gutterBottom>
-          Handwriting Analysis Results
-        </Typography>
-        <Typography variant="body2" sx={{ opacity: 0.9 }}>
-          Analyzed on {formatDate(result?.analyzedAt)}
-        </Typography>
+      <Paper
+        sx={{
+          p: { xs: 3, md: 4 ,marginBottom: 30},
+          mb: 4,
+          backgroundImage: `url(${cupi})`,
+          backgroundSize: 'cover',
+          marginTop: 8,
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
+          color: 'common.white',
+          borderRadius: 3,
+          position: 'relative',
+          overflow: 'hidden'
+          
+        }}
+      >
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap' }}>
+          <Box sx={{ flex: 1, minWidth: 220, textShadow: '0 2px 8px rgba(0,0,0,0.45)' }}>
+            <Typography variant="h4" sx={{ fontWeight: 700 }}>
+              Handwriting Analysis Results
+            </Typography>
+            <Typography variant="body2" sx={{ opacity: 0.9, mt: 1 }}>
+              Analyzedd on {formatDate(result?.analyzedAt)}
+            </Typography>
+          </Box>
+        </Box>
       </Paper>
 
       {/* SECTION 2 — Risk Score Card */}
-      <Paper sx={{ p: 3, mb: 3, textAlign: 'center' }}>
-        <Typography variant="h6" gutterBottom>
-          Risk Score
-        </Typography>
-        {overallScore === null || Number.isNaN(overallScore) ? (
-          <Typography variant="h6" color="text.secondary">
-            Analysis pending or unavailable
-          </Typography>
-        ) : (
-          <Typography variant="h2" sx={{ fontWeight: 'bold', mb: 1 }}>
-            {Math.round(overallScore)}
-          </Typography>
-        )}
-        <Chip label={riskChip.label} sx={{ ...riskChip.sx, mb: 2 }} />
+      <Paper sx={{ px: 3, py: 3, mb: 3, borderRadius: 3,position: 'relative', overflow: 'hidden' }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, justifyContent: 'space-between', px: { xs: 0, sm: 25 }, flexWrap: 'wrap' }}>
+          <Box sx={{ flex: 1, minWidth: 220 }}>
+            <Typography variant="h6" gutterBottom>
+              Risk Score
+            </Typography>
+            {overallScore === null || Number.isNaN(overallScore) ? (
+              <Typography variant="h6" color="text.secondary">
+                Analysis pending or unavailable
+              </Typography>
+            ) : (
+              <Typography variant="h2" sx={{ fontWeight: 800, color: riskColor, mb: 1 }}>
+                {Math.round(overallScore)}
+              </Typography>
+            )}
+            <Chip label={riskChip.label} sx={{ ...riskChip.sx, mb: 2 }} />
 
-        {unableToAssess && (
-          <Alert severity="warning" sx={{ textAlign: 'left' }}>
-            The handwriting image could not be read clearly.
-            Please retake the photo with better lighting
-            and resubmit.
-          </Alert>
-        )}
+            {unableToAssess && (
+              <Alert severity="warning" sx={{ textAlign: 'left' }}>
+                The handwriting image could not be read clearly.
+                Please retake the photo with better lighting
+                and resubmit.
+              </Alert>
+            )}
 
-        {overrideApplied && (
-          <Typography variant="body2" color="info.main" sx={{ mt: 2 }}>
-            Risk elevated due to significant reversal pattern detected
-          </Typography>
-        )}
+            {overrideApplied && (
+              <Typography variant="body2" color="info.main" sx={{ mt: 2 }}>
+                Risk elevated due to significant reversal pattern detected
+              </Typography>
+            )}
+          </Box>
+          <Box component="img" src={cloudy} alt="cloudy" sx={{
+      position: 'absolute',
+      right: 200,
+      marginTop: 6,
+      width: { xs: 220, sm: 320, md: 450 }, // 🔥 increase freely
+      height: 'auto'
+    }} />
+        </Box>
       </Paper>
 
       {/* SECTION 3 — Sentence Comparison */}
-      <Paper sx={{ p: 3, mb: 3 }}>
-        <Typography variant="h6" gutterBottom>
-          Sentence Analysis
-        </Typography>
-        <Box sx={{ mb: 1 }}>
+      <Paper sx={{ p: 3, mb: 3, borderRadius: 3 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 2, mb: 2 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <Box component="img" src={favorite} alt="favorite" sx={{ width: 22, height: 22 }} />
+            <Typography variant="h6">Sentence Analysis</Typography>
+          </Box>
+          <Box component="img" src={stickyNote} alt="sticky-note" sx={{ width: 44, height: 'auto' }} />
+        </Box>
+        <Box sx={{ mb: 2 }}>
           <Typography variant="body2" color="text.secondary">
-            Expected:
+            Input Sentence
           </Typography>
-          <Typography variant="body1" sx={{ fontWeight: 'bold' }}>
+          <Typography variant="body1" sx={{ fontWeight: 700 }}>
             {result?.expectedSentence || 'Not available'}
           </Typography>
         </Box>
         <Box>
           <Typography variant="body2" color="text.secondary">
-            Detected:
+            Detected
           </Typography>
           {result?.detectedSentence ? (
-            <Typography variant="body1" sx={{ fontWeight: 'bold' }}>
+            <Typography variant="body1" sx={{ fontWeight: 700 }}>
               {result.detectedSentence}
             </Typography>
           ) : (
@@ -165,17 +220,21 @@ function ResultsDisplay({ result, onTakeAnotherTest }) {
       </Paper>
 
       {/* SECTION 4 — Word-by-Word Breakdown */}
-      <Paper sx={{ p: 3, mb: 3 }}>
-        <Typography variant="h6" gutterBottom>
-          Word Analysis
-        </Typography>
+      <Paper sx={{ p: 3, mb: 3, borderRadius: 3 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 2, mb: 2 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <Box component="img" src={favorite} alt="favorite" sx={{ width: 22, height: 22 }} />
+            <Typography variant="h6">Word Analysis</Typography>
+          </Box>
+          <Box component="img" src={searchIcon} alt="search" sx={{ width: 40, height: 'auto' }} />
+        </Box>
 
         {wordResults.length === 0 ? (
           <Typography variant="body2" color="text.secondary">
             Word-by-word breakdown not available.
           </Typography>
         ) : (
-          <Box sx={{ display: 'grid', gap: 1.5 }}>
+          <Box sx={{ display: 'grid', gap: 1.5, maxHeight: 280, overflowY: 'auto', pr: 1 }}>
             {wordResults.map((word, index) => {
               const label = word?.errorType || 'unknown';
               return (
@@ -195,64 +254,62 @@ function ResultsDisplay({ result, onTakeAnotherTest }) {
         )}
       </Paper>
 
-      {/* SECTION 5 — Feature Scores */}
-      <Paper sx={{ p: 3, mb: 3 }}>
-        <Typography variant="h6" gutterBottom>
-          Risk Indicators
-        </Typography>
-
-        <Box sx={{ mb: 2 }}>
-          <Typography variant="body2" gutterBottom>
-            Reversal Score {reversalScore !== null ? `(${Math.round(reversalScore)}/100)` : '(N/A)'}
-          </Typography>
-          <LinearProgress
-            variant="determinate"
-            value={reversalScore ?? 0}
-            color={getScoreColor(reversalScore ?? 0)}
-            sx={{ height: 8, borderRadius: 4 }}
-          />
-        </Box>
-
-        <Box sx={{ mb: 2 }}>
-          <Typography variant="body2" gutterBottom>
-            Error Score {errorScore !== null ? `(${Math.round(errorScore)}/100)` : '(N/A)'}
-          </Typography>
-          <LinearProgress
-            variant="determinate"
-            value={errorScore ?? 0}
-            color={getScoreColor(errorScore ?? 0)}
-            sx={{ height: 8, borderRadius: 4 }}
-          />
-        </Box>
-
-        <Divider sx={{ my: 2 }} />
-
-        <Typography variant="body2">Reversals detected: {result?.reversalCount ?? '-'}</Typography>
-        <Typography variant="body2">Substitutions: {result?.substitutionCount ?? '-'}</Typography>
-        <Typography variant="body2">Multi-character errors: {result?.multiErrorCount ?? '-'}</Typography>
-        <Typography variant="body2">Correct words: {result?.correctCount ?? '-'}</Typography>
-      </Paper>
-
-      {/* SECTION 6 — Recommendations */}
-      <Paper sx={{ p: 3, mb: 3 }}>
-        <Typography variant="h6" gutterBottom>
-          Recommendations
-        </Typography>
-
-        {recommendations.length === 0 ? (
-          <Typography variant="body2" color="text.secondary">
-            No recommendations available.
-          </Typography>
-        ) : (
-          <Box component="ul" sx={{ pl: 3, m: 0 }}>
-            {recommendations.map((item, index) => (
-              <Typography component="li" key={`${item}-${index}`} variant="body2" sx={{ mb: 0.75 }}>
-                {item}
-              </Typography>
-            ))}
+      {/* SECTION 5 — Risk + Recommendations */}
+      <Box sx={{ display: 'grid', gap: 3, gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, mb: 3 }}>
+        <Paper sx={{ p: 3, borderRadius: 3 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
+            <Box component="img" src={analysisIcon} alt="analysis" sx={{ width: 28, height: 28 }} />
+            <Typography variant="h6">Risk Indicator</Typography>
           </Box>
-        )}
-      </Paper>
+          <Box sx={{ mb: 2 }}>
+            <Typography variant="body2" gutterBottom>
+              Reversal Score {reversalScore !== null ? `(${Math.round(reversalScore)}/100)` : '(N/A)'}
+            </Typography>
+            <LinearProgress
+              variant="determinate"
+              value={reversalScore ?? 0}
+              color={getScoreColor(reversalScore ?? 0)}
+              sx={{ height: 8, borderRadius: 4 }}
+            />
+          </Box>
+          <Box sx={{ mb: 2 }}>
+            <Typography variant="body2" gutterBottom>
+              Error Score {errorScore !== null ? `(${Math.round(errorScore)}/100)` : '(N/A)'}
+            </Typography>
+            <LinearProgress
+              variant="determinate"
+              value={errorScore ?? 0}
+              color={getScoreColor(errorScore ?? 0)}
+              sx={{ height: 8, borderRadius: 4 }}
+            />
+          </Box>
+          <Divider sx={{ my: 2 }} />
+          <Typography variant="body2">Reversals detected: {result?.reversalCount ?? '-'}</Typography>
+          <Typography variant="body2">Substitutions: {result?.substitutionCount ?? '-'}</Typography>
+          <Typography variant="body2">Multi-character errors: {result?.multiErrorCount ?? '-'}</Typography>
+          <Typography variant="body2">Correct words: {result?.correctCount ?? '-'}</Typography>
+        </Paper>
+
+        <Paper sx={{ p: 3, borderRadius: 3 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
+            <Box component="img" src={ideaIcon} alt="idea" sx={{ width: 28, height: 28 }} />
+            <Typography variant="h6">Recommendation</Typography>
+          </Box>
+          {recommendations.length === 0 ? (
+            <Typography variant="body2" color="text.secondary">
+              No recommendations available.
+            </Typography>
+          ) : (
+            <Box component="ul" sx={{ pl: 3, m: 0 }}>
+              {recommendations.map((item, index) => (
+                <Typography component="li" key={`${item}-${index}`} variant="body2" sx={{ mb: 0.75 }}>
+                  {item}
+                </Typography>
+              ))}
+            </Box>
+          )}
+        </Paper>
+      </Box>
 
       {/* SECTION 7 — Disclaimer */}
       <Box sx={{ mb: 3 }}>
@@ -263,11 +320,27 @@ function ResultsDisplay({ result, onTakeAnotherTest }) {
 
       {/* SECTION 8 — Actions */}
       <Box sx={{ display: 'flex', justifyContent: 'center', gap: 2, flexWrap: 'wrap' }}>
-        <Button variant="contained" onClick={onTakeAnotherTest}>
+        <Button
+          variant="contained"
+          onClick={onTakeAnotherTest}
+          sx={{
+            borderRadius: '9px',
+            px: 3,
+            
+          }}
+        >
           Take Another Test
         </Button>
-        <Button variant="outlined" onClick={() => navigate('/dashboard')}>
+        <Button variant="outlined" onClick={() => navigate('/dashboard')} sx={{ borderRadius: '9px', px: 3 }}>
           Back to Dashboard
+        </Button>
+        <Button
+          variant="contained"
+          color="secondary"
+          onClick={onContinue || (() => navigate('/dashboard'))}
+          sx={{ borderRadius: '9px', px: 3 ,bgcolor: '#48A14F',}}
+        >
+          {onContinue ? 'Continue to Reading Test' : 'Download Report'}
         </Button>
       </Box>
     </Box>

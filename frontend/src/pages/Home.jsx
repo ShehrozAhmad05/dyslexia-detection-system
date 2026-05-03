@@ -23,14 +23,14 @@ const MODULES = [
     title: 'Keystroke Dynamics',
     description: 'Analyzes typing patterns, timing irregularities, and error frequencies.',
     image: keystrokeImage,
-   accent: '#8B7CFF'
+    accent: '#8B7CFF'
   },
   {
     title: 'Reading Assessment',
     description: 'Evaluates reading speed, comprehension, and eye movement patterns.',
     image: readingImage,
-    
-     accent: '#44C0A8'
+
+    accent: '#44C0A8'
   },
   {
     title: 'Memory Assessment',
@@ -91,88 +91,88 @@ function Home() {
           }}
         >
           <Box sx={{ maxWidth: 640, zIndex: 2 }}>
-              <Chip
-                label="Child-Friendly AI Screening"
+            <Chip
+              label="Child-Friendly AI Screening"
+              sx={{
+                mb: 2,
+                bgcolor: 'rgba(255,255,255,0.18)',
+                color: '#FFFFFF',
+                fontFamily: contentFont,
+                fontWeight: 700,
+                backdropFilter: 'blur(4px)'
+              }}
+            />
+            <Typography
+              variant="h2"
+              sx={{
+                fontFamily: kidsFont,
+                color: '#FFFFFF',
+                fontWeight: 100,
+                lineHeight: 1.15,
+                fontSize: { xs: '2rem', sm: '2.4rem', md: '2.9rem' }
+              }}
+            >
+              Dyslexia Detection System
+            </Typography>
+            <Typography
+              sx={{
+                mt: 2,
+                maxWidth: 560,
+                color: 'rgba(255,255,255,0.96)',
+                fontSize: { xs: '1.02rem', sm: '1.12rem' },
+                fontWeight: 700,
+                fontFamily: contentFont
+              }}
+            >
+              AI-Powered Multimodal Early Screening & Support
+            </Typography>
+
+            <Typography
+              sx={{
+                mt: 1.2,
+                maxWidth: 560,
+                color: 'rgba(237,243,255,0.95)',
+                fontSize: '0.98rem',
+                fontFamily: contentFont
+              }}
+            >
+              Gentle, child-friendly assessments for reading, writing, memory, and typing growth.
+            </Typography>
+
+            <Box sx={{ mt: 3, display: 'flex', gap: 1.5, flexWrap: 'wrap' }}>
+              <Button
+                variant="contained"
+                onClick={() => navigate('/register')}
                 sx={{
-                  mb: 2,
-                  bgcolor: 'rgba(255,255,255,0.18)',
+                  borderRadius: '999px',
+                  px: 3,
+                  py: 1.1,
+                  fontFamily: contentFont,
+                  fontWeight: 700,
+                  bgcolor: '#5B8CFF',
+                  boxShadow: '0 12px 25px rgba(91, 140, 255, 0.35)',
+                  '&:hover': { bgcolor: '#4B7CFA' }
+                }}
+              >
+                Create Account
+              </Button>
+              <Button
+                variant="outlined"
+                onClick={() => navigate('/login')}
+                sx={{
+                  borderRadius: '999px',
+                  px: 3,
+                  py: 1.1,
+                  borderColor: 'rgba(255,255,255,0.8)',
                   color: '#FFFFFF',
                   fontFamily: contentFont,
                   fontWeight: 700,
-                  backdropFilter: 'blur(4px)'
-                }}
-              />
-              <Typography
-                variant="h2"
-                sx={{
-                  fontFamily: kidsFont,
-                  color: '#FFFFFF',
-                  fontWeight: 100,
-                  lineHeight: 1.15,
-                  fontSize: { xs: '2rem', sm: '2.4rem', md: '2.9rem' }
+                  '&:hover': { borderColor: '#FFFFFF', backgroundColor: 'rgba(255,255,255,0.12)' }
                 }}
               >
-                Dyslexia Detection System
-              </Typography>
-              <Typography
-                sx={{
-                  mt: 2,
-                  maxWidth: 560,
-                  color: 'rgba(255,255,255,0.96)',
-                  fontSize: { xs: '1.02rem', sm: '1.12rem' },
-                  fontWeight: 700,
-                  fontFamily: contentFont
-                }}
-              >
-                AI-Powered Multimodal Early Screening & Support
-              </Typography>
-
-              <Typography
-                sx={{
-                  mt: 1.2,
-                  maxWidth: 560,
-                  color: 'rgba(237,243,255,0.95)',
-                  fontSize: '0.98rem',
-                  fontFamily: contentFont
-                }}
-              >
-                Gentle, child-friendly assessments for reading, writing, memory, and typing growth.
-              </Typography>
-
-              <Box sx={{ mt: 3, display: 'flex', gap: 1.5, flexWrap: 'wrap' }}>
-                <Button
-                  variant="contained"
-                  onClick={() => navigate('/register')}
-                  sx={{
-                    borderRadius: '999px',
-                    px: 3,
-                    py: 1.1,
-                    fontFamily: contentFont,
-                    fontWeight: 700,
-                    bgcolor: '#5B8CFF',
-                    boxShadow: '0 12px 25px rgba(91, 140, 255, 0.35)',
-                    '&:hover': { bgcolor: '#4B7CFA' }
-                  }}
-                >
-                  Create Account
-                </Button>
-                <Button
-                  variant="outlined"
-                  onClick={() => navigate('/login')}
-                  sx={{
-                    borderRadius: '999px',
-                    px: 3,
-                    py: 1.1,
-                    borderColor: 'rgba(255,255,255,0.8)',
-                    color: '#FFFFFF',
-                    fontFamily: contentFont,
-                    fontWeight: 700,
-                    '&:hover': { borderColor: '#FFFFFF', backgroundColor: 'rgba(255,255,255,0.12)' }
-                  }}
-                >
-                  Sign In
-                </Button>
-              </Box>
+                Sign In
+              </Button>
+            </Box>
           </Box>
         </Container>
 
@@ -215,10 +215,9 @@ function Home() {
         <Box
           sx={{
             display: 'flex',
-            gap: 1,
-            flexWrap: 'nowrap',
-            overflowX: 'auto',
-            pb: 1,
+            justifyContent: 'center',
+            flexWrap: 'wrap',
+            gap: 2
             // '&::-webkit-scrollbar': {
             //   height: 10
             // },
@@ -286,7 +285,7 @@ function Home() {
               <Box
                 sx={{
                   display: 'flex',
-                 
+
                   gap: 1,
                   flexWrap: 'nowrap',
                   justifyContent: { xs: 'center', sm: 'flex-end' }
@@ -299,7 +298,7 @@ function Home() {
                     borderRadius: '999px',
                     px: { xs: 2.2, md: 2.8 },
                     py: 0.9,
-                      marginTop:'15px',
+                    marginTop: '15px',
                     fontFamily: contentFont,
                     fontWeight: 700,
                     whiteSpace: 'nowrap',
@@ -316,7 +315,7 @@ function Home() {
                     borderRadius: '999px',
                     px: { xs: 2.2, md: 2.8 },
                     py: 0.9,
-                     marginTop:'15px',
+                    marginTop: '15px',
                     borderColor: '#6A4FD8',
                     color: '#6A4FD8',
                     fontFamily: contentFont,

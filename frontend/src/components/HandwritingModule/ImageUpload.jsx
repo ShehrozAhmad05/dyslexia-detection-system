@@ -61,18 +61,18 @@ function ImageUpload({ onImageSelect, selectedImage, onRemove }) {
             textAlign: 'center',
             cursor: 'pointer',
             border: '2px dashed',
-            borderColor: isDragActive ? 'primary.main' : 'grey.400',
+            borderColor: isDragActive ? '#6C4DE6' : '#6C4DE6',
             bgcolor: isDragActive ? 'action.hover' : 'background.paper',
             transition: 'all 0.3s ease',
             '&:hover': {
-              borderColor: 'primary.main',
+              borderColor: '#6C4DE6',
               bgcolor: 'action.hover'
             }
           }}
         >
           <input {...getInputProps()} />
           
-          <CloudUpload sx={{ fontSize: 64, color: 'primary.main', mb: 2 }} />
+          <CloudUpload sx={{ fontSize: 64, color: '#6C4DE6', mb: 2 }} />
           
           <Typography variant="h6" gutterBottom>
             {isDragActive ? 'Drop the image here' : 'Drag & drop handwriting image'}

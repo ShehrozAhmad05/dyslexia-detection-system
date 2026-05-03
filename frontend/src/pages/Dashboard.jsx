@@ -62,6 +62,7 @@ function Dashboard() {
   const assessmentId = localStorage.getItem('currentAssessmentId');
   const [history, setHistory] = useState([]);
   const [historyLoading, setHistoryLoading] = useState(true);
+  const [showHistory, setShowHistory] = useState(false);
 
   useEffect(() => {
     fetchHistory();
@@ -141,7 +142,15 @@ function Dashboard() {
           </Alert>
         )}
 
-        <Box sx={{ mb: 4, display: 'flex', justifyContent: 'center' }}>
+        <Box
+          sx={{
+            mb: 4,
+            display: 'flex',
+            justifyContent: 'center',
+            flexWrap: 'wrap',
+            gap: 1.5
+          }}
+        >
           <Button
             variant="contained"
             size="large"
@@ -158,6 +167,27 @@ function Dashboard() {
             }}
           >
             Start Full Assessment
+          </Button>
+          <Button
+            variant="outlined"
+            size="large"
+            onClick={() => setShowHistory((prev) => !prev)}
+            sx={{
+              borderRadius: '999px',
+              px: { xs: 3, md: 4 },
+              py: 1.1,
+              fontWeight: 800,
+              fontFamily: contentFont,
+              color: '#FFFFFF',
+              borderColor: 'rgba(255,255,255,0.7)',
+              backgroundColor: 'rgba(13, 27, 58, 0.25)',
+              '&:hover': {
+                borderColor: '#FFFFFF',
+                backgroundColor: 'rgba(13, 27, 58, 0.35)'
+              }
+            }}
+          >
+            {showHistory ? 'Hide Assessment History' : 'Assessment History'}
           </Button>
         </Box>
 
@@ -216,13 +246,13 @@ function Dashboard() {
                     display: 'flex',
                     flexDirection: 'column',
                     alignItems: 'center',
-                    justifyContent: 'center',
+                    justifyContent: 'space-between',
                     py: 2.5,
                     px: 2,
                     textAlign: 'center'
                   }}
                 >
-                  <Box>
+                  <Box sx={{ width: '100%' }}>
                     <Typography
                       variant="h6"
                       sx={{
@@ -253,7 +283,7 @@ function Dashboard() {
                     size="small"
                     variant="outlined"
                     sx={{
-                      mt: 2,
+                      mt: 'auto',
                       color: '#FFFFFF',
                       borderColor: 'rgba(255,255,255,0.65)',
                       fontFamily: contentFont
@@ -265,135 +295,137 @@ function Dashboard() {
           ))}
         </Box>
 
-        <Box
-          sx={{
-            mt: 5,
-            borderRadius: 4,
-            px: { xs: 2.5, sm: 4 },
-            py: { xs: 2.5, sm: 3.5 },
-            background: 'linear-gradient(135deg, rgba(255,255,255,0.92), rgba(247,251,255,0.82))',
-            backdropFilter: 'blur(5px)',
-            boxShadow: '0 16px 36px rgba(15, 32, 61, 0.22)'
-          }}
-        >
-          <Typography
-            variant="h4"
+        {showHistory && (
+          <Box
             sx={{
-              fontFamily: kidsFont,
-              color: '#5B8CFF',
-              fontWeight: 800,
-              fontSize: { xs: '1.5rem', sm: '1.8rem', md: '2rem' }
+              mt: 5,
+              borderRadius: 4,
+              px: { xs: 2.5, sm: 4 },
+              py: { xs: 2.5, sm: 3.5 },
+              background: 'linear-gradient(135deg, rgba(255,255,255,0.92), rgba(247,251,255,0.82))',
+              backdropFilter: 'blur(5px)',
+              boxShadow: '0 16px 36px rgba(15, 32, 61, 0.22)'
             }}
           >
-            Assessment History
-          </Typography>
-          <Divider sx={{ my: 2.5 }} />
-
-          {historyLoading && (
-            <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
-              <CircularProgress />
-            </Box>
-          )}
-
-          {!historyLoading && history.length === 0 && (
             <Typography
-              variant="body2"
-              color="text.secondary"
-              sx={{ textAlign: 'center', py: 4, fontFamily: contentFont }}
-            >
-              No assessments yet. Start your first assessment above.
-            </Typography>
-          )}
-
-          {!historyLoading && history.length > 0 && (
-            <Box
+              variant="h4"
               sx={{
-                display: 'grid',
-                gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, minmax(0, 1fr))', lg: 'repeat(3, minmax(0, 1fr))' },
-                gap: 2
+                fontFamily: kidsFont,
+                color: '#5B8CFF',
+                fontWeight: 800,
+                fontSize: { xs: '1.5rem', sm: '1.8rem', md: '2rem' }
               }}
             >
-              {history.map((assessment) => (
-                <Card key={assessment.id} variant="outlined" sx={{ height: '100%' }}>
-                  <CardContent>
-                    <Typography variant="body2" color="text.secondary" gutterBottom>
-                      {assessment.completedAt
-                        ? new Date(assessment.completedAt).toLocaleDateString('en-GB', {
-                            day: 'numeric',
-                            month: 'long',
-                            year: 'numeric'
-                          })
-                        : new Date(assessment.createdAt).toLocaleDateString('en-GB', {
-                            day: 'numeric',
-                            month: 'long',
-                            year: 'numeric'
-                          })}
-                    </Typography>
+              Assessment History
+            </Typography>
+            <Divider sx={{ my: 2.5 }} />
 
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1.5 }}>
-                      <Typography variant="h4" fontWeight="bold">
-                        {assessment.overallRiskScore ?? 'N/A'}
+            {historyLoading && (
+              <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
+                <CircularProgress />
+              </Box>
+            )}
+
+            {!historyLoading && history.length === 0 && (
+              <Typography
+                variant="body2"
+                color="text.secondary"
+                sx={{ textAlign: 'center', py: 4, fontFamily: contentFont }}
+              >
+                No assessments yet. Start your first assessment above.
+              </Typography>
+            )}
+
+            {!historyLoading && history.length > 0 && (
+              <Box
+                sx={{
+                  display: 'grid',
+                  gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, minmax(0, 1fr))', lg: 'repeat(3, minmax(0, 1fr))' },
+                  gap: 2
+                }}
+              >
+                {history.map((assessment) => (
+                  <Card key={assessment.id} variant="outlined" sx={{ height: '100%' }}>
+                    <CardContent>
+                      <Typography variant="body2" color="text.secondary" gutterBottom>
+                        {assessment.completedAt
+                          ? new Date(assessment.completedAt).toLocaleDateString('en-GB', {
+                              day: 'numeric',
+                              month: 'long',
+                              year: 'numeric'
+                            })
+                          : new Date(assessment.createdAt).toLocaleDateString('en-GB', {
+                              day: 'numeric',
+                              month: 'long',
+                              year: 'numeric'
+                            })}
                       </Typography>
+
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1.5 }}>
+                        <Typography variant="h4" fontWeight="bold">
+                          {assessment.overallRiskScore ?? 'N/A'}
+                        </Typography>
+                        <Chip
+                          label={assessment.riskLevel ? assessment.riskLevel.toUpperCase() : 'UNKNOWN'}
+                          color={
+                            assessment.riskLevel === 'high'
+                              ? 'error'
+                              : assessment.riskLevel === 'moderate'
+                                ? 'warning'
+                                : assessment.riskLevel === 'low'
+                                  ? 'success'
+                                  : 'default'
+                          }
+                          size="small"
+                        />
+                      </Box>
+
                       <Chip
-                        label={assessment.riskLevel ? assessment.riskLevel.toUpperCase() : 'UNKNOWN'}
-                        color={
-                          assessment.riskLevel === 'high'
-                            ? 'error'
-                            : assessment.riskLevel === 'moderate'
-                              ? 'warning'
-                              : assessment.riskLevel === 'low'
-                                ? 'success'
-                                : 'default'
-                        }
+                        label={assessment.status === 'completed' ? 'Completed' : 'Incomplete'}
+                        color={assessment.status === 'completed' ? 'success' : 'default'}
                         size="small"
+                        variant="outlined"
+                        sx={{ mb: 1.5 }}
                       />
-                    </Box>
 
-                    <Chip
-                      label={assessment.status === 'completed' ? 'Completed' : 'Incomplete'}
-                      color={assessment.status === 'completed' ? 'success' : 'default'}
-                      size="small"
-                      variant="outlined"
-                      sx={{ mb: 1.5 }}
-                    />
+                      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, mb: 2 }}>
+                        {['handwriting', 'reading', 'keystroke', 'memory'].map((module) => {
+                          const done = (assessment.completedModules || []).includes(module);
+                          return (
+                            <Chip
+                              key={module}
+                              label={module.charAt(0).toUpperCase() + module.slice(1)}
+                              size="small"
+                              icon={
+                                done ? (
+                                  <CheckCircle fontSize="small" />
+                                ) : (
+                                  <RadioButtonUnchecked fontSize="small" />
+                                )
+                              }
+                              color={done ? 'success' : 'default'}
+                              variant={done ? 'filled' : 'outlined'}
+                              sx={{ fontSize: '11px' }}
+                            />
+                          );
+                        })}
+                      </Box>
 
-                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, mb: 2 }}>
-                      {['handwriting', 'reading', 'keystroke', 'memory'].map((module) => {
-                        const done = (assessment.completedModules || []).includes(module);
-                        return (
-                          <Chip
-                            key={module}
-                            label={module.charAt(0).toUpperCase() + module.slice(1)}
-                            size="small"
-                            icon={
-                              done ? (
-                                <CheckCircle fontSize="small" />
-                              ) : (
-                                <RadioButtonUnchecked fontSize="small" />
-                              )
-                            }
-                            color={done ? 'success' : 'default'}
-                            variant={done ? 'filled' : 'outlined'}
-                            sx={{ fontSize: '11px' }}
-                          />
-                        );
-                      })}
-                    </Box>
-
-                    <Button
-                      variant="contained"
-                      size="small"
-                      fullWidth
-                      onClick={() => navigate(`/assessment/overall/${assessment.id}`)}
-                    >
-                      View Results
-                    </Button>
-                  </CardContent>
-                </Card>
-              ))}
-            </Box>
-          )}
-        </Box>
+                      <Button
+                        variant="contained"
+                        size="small"
+                        fullWidth
+                        onClick={() => navigate(`/assessment/overall/${assessment.id}`)}
+                      >
+                        View Results
+                      </Button>
+                    </CardContent>
+                  </Card>
+                ))}
+              </Box>
+            )}
+          </Box>
+        )}
       </Container>
     </Box>
   );
