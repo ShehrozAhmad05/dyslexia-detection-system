@@ -5,10 +5,17 @@ import {
   CircularProgress, Alert, Grid, Card, CardContent,
   Chip, Divider, LinearProgress
 } from '@mui/material';
+import Accordion from '@mui/material/Accordion';
+import AccordionSummary from '@mui/material/AccordionSummary';
+import AccordionDetails from '@mui/material/AccordionDetails';
 import {
   Download, Refresh, CheckCircle,
-  Edit, MenuBook, Keyboard, Psychology
+  ExpandMore, Edit, MenuBook, Keyboard, Psychology
 } from '@mui/icons-material';
+import {
+  BarChart, Bar, XAxis, YAxis, CartesianGrid,
+  Tooltip, ResponsiveContainer, Cell
+} from 'recharts';
 import { assessmentService } from '@services';
 
 const modules = ['handwriting', 'reading', 'keystroke', 'memory'];
@@ -89,6 +96,7 @@ function OverallResults() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [fusion, setFusion] = useState(null);
+  const [explainability, setExplainability] = useState(null);
   const [downloading, setDownloading] = useState(false);
 
   useEffect(() => {
@@ -99,6 +107,7 @@ function OverallResults() {
     try {
       setLoading(true);
       setError('');
+      setExplainability(null);
       const assessmentId = id ||
         localStorage.getItem('currentAssessmentId');
       if (!assessmentId) {
@@ -107,6 +116,7 @@ function OverallResults() {
       }
       const response = await assessmentService.getFusion(assessmentId);
       setFusion(response.data.assessment);
+      setExplainability(response.data.assessment.explainability || null);
       const currentId = localStorage.getItem('currentAssessmentId');
       if (currentId && currentId === assessmentId) {
         localStorage.removeItem('currentAssessmentId');
@@ -152,6 +162,27 @@ function OverallResults() {
       case 'low': return 'success';
       default: return 'default';
     }
+  };
+  const getStatusColor = (status) => {
+    const s = (status || '').toLowerCase();
+    if (s.includes('high') || s.includes('risk') ||
+        s.includes('elevated') || s.includes('errors found')) {
+      return 'error.main';
+    }
+    if (s.includes('moderate')) return 'warning.main';
+    return 'success.main';
+  };
+
+  const getImpactColor = (impact) => {
+    switch ((impact || '').toUpperCase()) {
+      case 'HIGH': return '#c62828';
+      case 'MEDIUM': return '#e65100';
+      default: return '#2e7d32';
+    }
+  };
+
+  const getDirectionColor = (direction) => {
+    return direction === 'increases_anomaly' ? '#c62828' : '#2e7d32';
   };
 
   const getModuleIcon = (module) => {
@@ -330,7 +361,349 @@ function OverallResults() {
                 );
               })}
             </Grid>
+{explainability && (
+              <Box sx={{ mt: 4 }}>
+                <Paper sx={{ p: 3, mb: 3 }}>
+                  <Typography variant="h6" gutterBottom color="primary">
+                    Why You Got This Score
+                  </Typography>
+                  <Typography variant="body1" sx={{ mb: 2 }}>
+                    {explainability.fusion?.naturalLanguage}
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                    {explainability.fusion?.confidenceStatement}
+                  </Typography>
+                  <Alert
+                    severity={
+                      fusion.riskLevel === 'high' ? 'error' :
+                      fusion.riskLevel === 'moderate' ? 'warning' : 'success'
+                    }
+                    sx={{ mt: 2 }}
+                  >
+                    {explainability.fusion?.overallInterpretation}
+                  </Alert>
+                </Paper>
 
+                <Paper sx={{ p: 3, mb: 3 }}>
+                  <Typography variant="h6" gutterBottom color="primary">
+                    Module Risk Contributions
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                    How much each module contributed to your overall score
+                  </Typography>
+                  <ResponsiveContainer width="100%" height={200}>
+                    <BarChart
+                      data={explainability.fusion?.weightedContributions?.map(m => ({
+                        name: m.module.charAt(0).toUpperCase() + m.module.slice(1),
+                        score: m.score,
+                        contribution: Number(Number(m.contribution || 0).toFixed(1))
+                      })) || []}
+                      margin={{ top: 5, right: 20, left: 0, bottom: 5 }}
+                    >
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="name" />
+                      <YAxis domain={[0, 100]} />
+                      <Tooltip
+                        formatter={(value, name) =>
+                          name === 'score'
+                            ? [`${value}/100`, 'Module Score']
+                            : [value, 'Weighted Contribution']
+                        }
+                      />
+                      <Bar dataKey="score" radius={[4, 4, 0, 0]}>
+                        {(explainability.fusion?.weightedContributions || []).map((entry, index) => (
+                          <Cell
+                            key={`cell-${index}`}
+                            fill={
+                              entry.score >= 67 ? '#c62828' :
+                              entry.score >= 34 ? '#e65100' : '#2e7d32'
+                            }
+                          />
+                        ))}
+                      </Bar>
+                    </BarChart>
+                  </ResponsiveContainer>
+
+                  <Typography variant="subtitle2" sx={{ mt: 2, mb: 1 }}>
+                    Top Risk Factors:
+                  </Typography>
+                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                    {(explainability.fusion?.topRiskFactors || []).map((factor) => (
+                      <Box key={factor.module} sx={{
+                        display: 'flex', alignItems: 'center',
+                        gap: 1, p: 1, bgcolor: 'grey.50', borderRadius: 1
+                      }}>
+                        <Typography variant="body2" sx={{ fontWeight: 600, minWidth: 20 }}>
+                          #{factor.rank}
+                        </Typography>
+                        <Chip
+                          label={factor.impact}
+                          size="small"
+                          sx={{ bgcolor: getImpactColor(factor.impact), color: '#fff' }}
+                        />
+                        <Typography variant="body2">
+                          <strong>
+                            {factor.module.charAt(0).toUpperCase() + factor.module.slice(1)}:
+                          </strong> {factor.factor} — Score: {factor.score}/100
+                        </Typography>
+                      </Box>
+                    ))}
+                  </Box>
+                </Paper>
+
+                <Paper sx={{ p: 3, mb: 3 }}>
+                  <Typography variant="h6" gutterBottom color="primary">
+                    Detailed Module Explanations
+                  </Typography>
+
+                  {explainability.handwriting && (
+                    <Accordion>
+                      <AccordionSummary expandIcon={<ExpandMore />}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                          <Edit fontSize="small" color="primary" />
+                          <Typography fontWeight={600}>Handwriting Analysis</Typography>
+                        </Box>
+                      </AccordionSummary>
+                      <AccordionDetails>
+                        <Typography variant="body2" sx={{ mb: 2 }}>
+                          {explainability.handwriting.naturalLanguage}
+                        </Typography>
+                        {(explainability.handwriting.featureBreakdown || []).map((item) => (
+                          <Box key={item.feature} sx={{
+                            display: 'flex', justifyContent: 'space-between',
+                            alignItems: 'center', py: 0.75,
+                            borderBottom: '1px solid', borderColor: 'divider'
+                          }}>
+                            <Typography variant="body2">{item.feature}</Typography>
+                            <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+                              <Typography variant="body2" fontWeight={600}>
+                                {item.value}
+                              </Typography>
+                              <Chip
+                                label={item.status}
+                                size="small"
+                                color={item.status === 'At Risk' || item.status === 'Elevated' ||
+                                       item.status === 'Errors Found' ? 'error' :
+                                       item.status === 'Normal' || item.status === 'All Correct'
+                                       ? 'success' : 'warning'}
+                              />
+                            </Box>
+                          </Box>
+                        ))}
+                        {(explainability.handwriting.keyFindings || []).length > 0 && (
+                          <Box sx={{ mt: 2 }}>
+                            <Typography variant="subtitle2" gutterBottom>
+                              Key Findings:
+                            </Typography>
+                            {explainability.handwriting.keyFindings.map((f, i) => (
+                              <Typography key={i} variant="body2" sx={{ pl: 1, mb: 0.5 }}>
+                                • {f}
+                              </Typography>
+                            ))}
+                          </Box>
+                        )}
+                      </AccordionDetails>
+                    </Accordion>
+                  )}
+
+                  {explainability.reading && (
+                    <Accordion>
+                      <AccordionSummary expandIcon={<ExpandMore />}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                          <MenuBook fontSize="small" color="success" />
+                          <Typography fontWeight={600}>Reading Assessment</Typography>
+                        </Box>
+                      </AccordionSummary>
+                      <AccordionDetails>
+                        <Typography variant="body2" sx={{ mb: 2 }}>
+                          {explainability.reading.naturalLanguage}
+                        </Typography>
+                        {(explainability.reading.featureComparison || []).map((item) => (
+                          <Box key={item.feature} sx={{
+                            py: 0.75, borderBottom: '1px solid', borderColor: 'divider'
+                          }}>
+                            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                              <Typography variant="body2">{item.feature}</Typography>
+                              <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+                                <Typography variant="body2" fontWeight={600}>
+                                  {item.rawValue}
+                                </Typography>
+                                <Chip
+                                  label={item.status}
+                                  size="small"
+                                  color={item.status === 'High Risk' ? 'error' :
+                                         item.status === 'Moderate' ? 'warning' : 'success'}
+                                />
+                              </Box>
+                            </Box>
+                            <Typography variant="caption" color={getStatusColor(item.status)}>
+                              {item.interpretation}
+                              {item.confidence && ` (Confidence: ${item.confidence})`}
+                            </Typography>
+                          </Box>
+                        ))}
+                      </AccordionDetails>
+                    </Accordion>
+                  )}
+
+                  {explainability.keystroke && (
+                    <Accordion>
+                      <AccordionSummary expandIcon={<ExpandMore />}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                          <Keyboard fontSize="small" color="warning" />
+                          <Typography fontWeight={600}>Keystroke Analysis</Typography>
+                        </Box>
+                      </AccordionSummary>
+                      <AccordionDetails>
+                        <Typography variant="body2" sx={{ mb: 2 }}>
+                          {explainability.keystroke.naturalLanguage}
+                        </Typography>
+
+                        {(explainability.keystroke.shapExplanation || []).length > 0 && (
+                          <Box sx={{ mb: 2 }}>
+                            <Box sx={{ mb: 1 }}>
+                              <Typography variant="subtitle2" gutterBottom>
+                                Feature Impact (SHAP Values)
+                              </Typography>
+                              <Typography variant="caption" color="text.secondary"
+                                          sx={{ display: 'block', mb: 1 }}>
+                                Shows how each feature influenced the AI model&apos;s decision,
+                                compared against anomalous typing patterns in training data.
+                                {'\u{1F534}'} Red = nudges toward anomaly detection &nbsp;|&nbsp;
+                                {'\u{1F7E2}'} Green = nudges toward normal classification &nbsp;|&nbsp;
+                                Overall result depends on combined score
+                              </Typography>
+                            </Box>
+                            <ResponsiveContainer width="100%" height={220}>
+                              <BarChart
+                                layout="vertical"
+                                data={explainability.keystroke.shapExplanation.map(s => ({
+                                  name: s.displayName,
+                                  value: Number(Number(s.shapValue).toFixed(4)),
+                                  direction: s.direction,
+                                  impact: s.impact
+                                }))}
+                                margin={{ top: 0, right: 20, left: 120, bottom: 0 }}
+                              >
+                                <CartesianGrid strokeDasharray="3 3" />
+                                <XAxis type="number" />
+                                <YAxis type="category" dataKey="name"
+                                       tick={{ fontSize: 11 }} width={115} />
+                                <Tooltip
+                                  formatter={(value, name, props) => [
+                                    Number(value).toFixed(4),
+                                    `SHAP (${props.payload.direction})`
+                                  ]}
+                                />
+                                <Bar dataKey="value" radius={[0, 4, 4, 0]}>
+                                  {explainability.keystroke.shapExplanation.map((entry, index) => (
+                                    <Cell
+                                      key={`cell-${index}`}
+                                      fill={getDirectionColor(entry.direction)}
+                                    />
+                                  ))}
+                                </Bar>
+                              </BarChart>
+                            </ResponsiveContainer>
+                          </Box>
+                        )}
+
+                        {(explainability.keystroke.keyFindings || []).map((f, i) => (
+                          <Typography key={i} variant="body2" sx={{ pl: 1, mb: 0.5 }}>
+                            • {f}
+                          </Typography>
+                        ))}
+                        {(explainability.keystroke.riskBreakdownExplanation || []).length > 0 && (
+                          <Box>
+                            <Typography variant="subtitle2" gutterBottom sx={{ mt: 2 }}>
+                              Risk Breakdown (Threshold Analysis)
+                            </Typography>
+                            <Typography variant="caption" color="text.secondary"
+                                        sx={{ display: 'block', mb: 1 }}>
+                              Compares each typing metric against validated normal ranges
+                              from the Aalto keystroke dataset.
+                            </Typography>
+                            {(explainability.keystroke.riskBreakdownExplanation || []).map((item) => (
+                              <Box key={item.component} sx={{
+                                display: 'flex', justifyContent: 'space-between',
+                                alignItems: 'center', py: 0.75,
+                                borderBottom: '1px solid', borderColor: 'divider'
+                              }}>
+                                <Typography variant="body2">{item.component}</Typography>
+                                <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+                                  <Typography variant="body2" fontWeight={600}>
+                                    {Math.round(item.score)}/100
+                                  </Typography>
+                                  <Chip
+                                    label={item.status}
+                                    size="small"
+                                    color={item.status === 'High' ? 'error' :
+                                           item.status === 'Moderate' ? 'warning' : 'success'}
+                                  />
+                                </Box>
+                              </Box>
+                            ))}
+                          </Box>
+                        )}
+                        <Alert severity="info" sx={{ mt: 2 }} icon={false}>
+                          <Typography variant="caption">
+                            <strong>Note:</strong> SHAP values and threshold analysis
+                            may occasionally show different signals for the same feature.
+                            SHAP reflects multivariate AI model patterns across all
+                            features together, while threshold analysis evaluates each
+                            feature individually against population norms.
+                            Both perspectives are valid and complementary.
+                          </Typography>
+                        </Alert>
+                      </AccordionDetails>
+                    </Accordion>
+                  )}
+
+                  {explainability.memory && (
+                    <Accordion>
+                      <AccordionSummary expandIcon={<ExpandMore />}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                          <Psychology fontSize="small" color="secondary" />
+                          <Typography fontWeight={600}>Memory Assessment</Typography>
+                        </Box>
+                      </AccordionSummary>
+                      <AccordionDetails>
+                        <Typography variant="body2" sx={{ mb: 2 }}>
+                          {explainability.memory.naturalLanguage}
+                        </Typography>
+                        {(explainability.memory.componentBreakdown || []).map((item) => (
+                          <Box key={item.component} sx={{
+                            display: 'flex', justifyContent: 'space-between',
+                            alignItems: 'center', py: 0.75,
+                            borderBottom: '1px solid', borderColor: 'divider'
+                          }}>
+                            <Box>
+                              <Typography variant="body2" fontWeight={500}>
+                                {item.component}
+                              </Typography>
+                              <Typography variant="caption" color="text.secondary">
+                                Weight: {item.weight} — {item.interpretation}
+                              </Typography>
+                            </Box>
+                            <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+                              <Typography variant="body2" fontWeight={600}>
+                                {Math.round(item.score)}/100
+                              </Typography>
+                              <Chip
+                                label={item.status}
+                                size="small"
+                                color={item.status === 'High Risk' ? 'error' :
+                                       item.status === 'Moderate' ? 'warning' : 'success'}
+                              />
+                            </Box>
+                          </Box>
+                        ))}
+                      </AccordionDetails>
+                    </Accordion>
+                  )}
+                </Paper>
+              </Box>
+            )}
             <Paper sx={{ p: 3, mb: 3 }}>
               <Typography variant="h6" gutterBottom>
                 Recommendations
