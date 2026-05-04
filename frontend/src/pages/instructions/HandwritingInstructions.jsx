@@ -22,7 +22,7 @@ function HandwritingInstructions() {
   ];
 
   return (
-    <Box sx={{ position: 'relative', height: '100vh', overflow: 'hidden' }}>
+    <Box sx={{ position: 'relative', minHeight: '100vh', overflow: 'hidden' }}>
       <Box
         component="video"
         src={writingAnimation}
@@ -60,29 +60,32 @@ function HandwritingInstructions() {
         }}
       />
 
-      <Container maxWidth="lg" sx={{ position: 'relative', zIndex: 1, height: '100%', py: 3, top: '40px' }}>
-        <Box sx={{ display: 'flex', gap: 4, flexWrap: 'wrap', height: '100%', alignItems: 'center' }}>
+      <Container
+        maxWidth="lg"
+        sx={{ position: 'relative', zIndex: 1, pt: { xs: 10, md: 20 }, pb: 3 }}
+      >
+        <Box sx={{ display: 'flex', gap: 3, flexWrap: 'wrap', alignItems: 'flex-start' }}>
           <Box sx={{ flex: 1, minWidth: 280 }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 1 }}>
-              <Box component="img" src={stickyIcon} alt="sticky" sx={{ width: 30, height: 30 }} />
-              <Typography variant="h4" sx={{ fontWeight: 800, color: '#6C4DE6' }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1.5 }}>
+              <Box component="img" src={stickyIcon} alt="sticky" sx={{ width: 26, height: 26 }} />
+              <Typography variant="h5" sx={{ fontWeight: 800, color: '#6C4DE6' }}>
                 Handwriting analysis
               </Typography>
             </Box>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
-              <Box component="img" src={favoriteIcon} alt="favorite" sx={{ width: 18, height: 18 }} />
-              <Typography variant="body2" sx={{ color: '#3d3d3d' }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, mb: 2.5 }}>
+              <Box component="img" src={favoriteIcon} alt="favorite" sx={{ width: 16, height: 16 }} />
+              <Typography variant="body2" sx={{ color: '#3d3d3d', fontSize: '0.8rem' }}>
                 Write a sentence in print style for analysis
               </Typography>
             </Box>
 
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, mb: 2 }}>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.75, mb: 1.5 }}>
               {instructions.map((item, index) => (
                 <Box key={item} sx={{ display: 'flex', alignItems: 'flex-start', gap: 1.5 }}>
                   <Box
                     sx={{
-                      width: 16,
-                      height: 16,
+                      width: 14,
+                      height: 14,
                       borderRadius: '50%',
                       bgcolor: '#6C4DE6',
                       color: '#fff',
@@ -96,29 +99,29 @@ function HandwritingInstructions() {
                   >
                     {index + 1}
                   </Box>
-                  <Typography variant="body2" sx={{ color: '#4a4a4a', fontSize: '0.85rem' }}>
+                  <Typography variant="body2" sx={{ color: '#4a4a4a', fontSize: '0.72rem' }}>
                     {item}
                   </Typography>
                 </Box>
               ))}
             </Box>
 
-            <Box sx={{ mb: 2, border: '1px solid #D9CCFF', borderRadius: '13px', p: 2, bgcolor: '#F3F3FD' }}>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
-                <Box component="img" src={messageIcon} alt="message" sx={{ width: 42, height: 34 }} />
-                <Typography variant="subtitle2" sx={{ fontWeight: 500, color: '#6C4DE6' }}>
+            <Box sx={{ mb: 1.5, border: '1px solid #D9CCFF', borderRadius: '13px', p: 1.5, bgcolor: '#F3F3FD' ,width:'fit-content'}}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, mb: 0.75 }}>
+                <Box component="img" src={messageIcon} alt="message" sx={{ width: 36, height: 30 }} />
+                <Typography variant="subtitle2" sx={{ fontWeight: 600, color: '#6C4DE6' }}>
                   Important Notes
                 </Typography>
               </Box>
-              <Box component="ul" sx={{ pl: 3, m: 0, color: '#4a4a4a', listStyle: 'disc' }}>
+              <Box component="ul" sx={{ pl: 5, m: 0, color: '#4a4a4a', listStyle: 'disc', fontSize: '0.50rem' }}>
                 <li>
-                  <Typography variant="body2" sx={{ fontSize: '0.85rem' }}>Print style only — cursive writing cannot be analyzed.</Typography>
+                  <Typography variant="body2" sx={{ fontSize: '0.7rem' }}>Print style only — cursive writing cannot be analyzed.</Typography>
                 </li>
                 <li>
-                  <Typography variant="body2" sx={{ fontSize: '0.85rem' }}>Ensure good lighting and a clear, unblurred photo.</Typography>
+                  <Typography variant="body2" sx={{ fontSize: '0.7rem' }}>Ensure good lighting and a clear, unblurred photo.</Typography>
                 </li>
                 <li>
-                  <Typography variant="body2" sx={{ fontSize: '0.85rem' }}>Write at your normal pace — do not rush.</Typography>
+                  <Typography variant="body2" sx={{ fontSize: '0.7rem' }}>Write at your normal pace — do not rush.</Typography>
                 </li>
               </Box>
             </Box>
@@ -127,17 +130,17 @@ function HandwritingInstructions() {
               sx={{
                 display: 'inline-flex',
                 alignItems: 'center',
-                px: 2,
-                gap: 1,
+                px: 1.5,
+                gap: 0.75,
                 mb: 1,
-                py: 1.5,
+                py: 1,
                 border: '1px solid #D9CCFF',
                 borderRadius: '9px',
                 bgcolor: '#D3DFEE'
               }}
             >
               <AccessTime sx={{ color: '#6C4DE6' }} />
-              <Typography variant="body2" sx={{ fontWeight: 700, color: '#6C4DE6' }}>
+              <Typography variant="body2" sx={{ fontWeight: 700, color: '#6C4DE6', fontSize: '0.8rem' }}>
                 Estimated time: 5 minutes
               </Typography>
              
@@ -148,14 +151,14 @@ function HandwritingInstructions() {
               <Button
                 variant="outlined"
                 onClick={() => navigate('/assessment/start')}
-                sx={{ borderColor: '#6C4DE6', color: '#6C4DE6', borderRadius: '9px', px: 6, py: 1.5 }}
+                sx={{ borderColor: '#6C4DE6', color: '#6C4DE6', borderRadius: '9px', px: 5, py: 1 }}
               >
                 Back
               </Button>
                  <Button
                 variant="contained"
                 onClick={() => navigate('/assessment/handwriting')}
-                sx={{ bgcolor: '#6C4DE6', borderRadius: '9px', px: 6, py: 1.5, '&:hover': { bgcolor: '#5B3FE0' } }}
+                sx={{ bgcolor: '#6C4DE6', borderRadius: '9px', px: 5, py: 1, '&:hover': { bgcolor: '#5B3FE0' } }}
               >
                 Start Test
               </Button>
