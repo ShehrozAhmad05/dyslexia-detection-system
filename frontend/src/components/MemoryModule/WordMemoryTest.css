@@ -2,14 +2,6 @@
    WORD MEMORY TEST - CUTE & CHILD-FRIENDLY STYLES
    ===================================================== */
 
-@font-face {
-  font-family: "Milkyway Demo", "Porcelain";
-  src: url('../../assets/MilkywayDemo.ttf') format('truetype');
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-
 .word-test-container {
   min-height: 100vh;
   background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);

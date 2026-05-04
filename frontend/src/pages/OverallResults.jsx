@@ -561,7 +561,7 @@ function OverallResults() {
                           {explainability.keystroke.naturalLanguage}
                         </Typography>
 
-                        {(explainability.keystroke.shapExplanation || []).length > 0 && (
+                        {(explainability.keystroke.shapExplanation || []).length > 0 ? (
                           <Box sx={{ mb: 2 }}>
                             <Box sx={{ mb: 1 }}>
                               <Typography variant="subtitle2" gutterBottom>
@@ -608,7 +608,12 @@ function OverallResults() {
                               </BarChart>
                             </ResponsiveContainer>
                           </Box>
-                        )}
+                          ) : (
+                            <Alert severity="info" sx={{ mb: 2 }}>
+                              SHAP explainability is not available for this session. This typically
+                              means the keystroke model did not return SHAP values.
+                            </Alert>
+                          )}
 
                         {(explainability.keystroke.keyFindings || []).map((f, i) => (
                           <Typography key={i} variant="body2" sx={{ pl: 1, mb: 0.5 }}>
