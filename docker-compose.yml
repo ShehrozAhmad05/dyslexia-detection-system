@@ -1,0 +1,88 @@
+name: dyslexia-detection-system
+
+services:
+  mongo:
+    image: mongo:7
+    container_name: dyslexia-mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping').ok"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  ml-api:
+    image: python:3.11-slim
+    container_name: dyslexia-ml-api
+    working_dir: /workspace/ml-models
+    command: >
+      sh -c "pip install --no-cache-dir -r requirements.txt &&
+             uvicorn main:app --host 0.0.0.0 --port 8000 --reload"
+    environment:
+      PYTHONUNBUFFERED: "1"
+      GOOGLE_APPLICATION_CREDENTIALS: /workspace/ml-models/credentials/google_vision_key.json
+    volumes:
+      - ./:/workspace
+    ports:
+      - "8000:8000"
+    depends_on:
+      mongo:
+        condition: service_healthy
+
+  backend:
+    image: node:20-bullseye
+    container_name: dyslexia-backend
+    working_dir: /workspace/backend
+    command: >
+      sh -c "apt-get update &&
+             apt-get install -y --no-install-recommends python3 python3-pip &&
+             rm -rf /var/lib/apt/lists/* &&
+             npm install &&
+             pip3 install --no-cache-dir -r /workspace/ml-models/requirements.txt &&
+             npm run dev"
+    env_file:
+      - ./backend/.env
+    environment:
+      PORT: "5000"
+      NODE_ENV: development
+      MONGODB_URI: mongodb://mongo:27017/dyslexia_detection
+      ML_SERVICE_URL: http://ml-api:8000
+      ML_API_URL: http://ml-api:8000
+      PYTHON_PATH: python3
+      ALLOWED_ORIGINS: http://localhost:3000,http://127.0.0.1:3000
+    volumes:
+      - ./:/workspace
+      - backend_node_modules:/workspace/backend/node_modules
+    ports:
+      - "5000:5000"
+    depends_on:
+      mongo:
+        condition: service_healthy
+      ml-api:
+        condition: service_started
+
+  frontend:
+    image: node:20-alpine
+    container_name: dyslexia-frontend
+    working_dir: /workspace/frontend
+    command: sh -c "npm install && npm run dev -- --host 0.0.0.0 --port 3000"
+    env_file:
+      - ./frontend/.env
+    environment:
+      VITE_API_URL: http://localhost:5000/api
+    volumes:
+      - ./:/workspace
+      - frontend_node_modules:/workspace/frontend/node_modules
+    ports:
+      - "3000:3000"
+    depends_on:
+      backend:
+        condition: service_started
+
+volumes:
+  mongo_data:
+  backend_node_modules:
+  frontend_node_modules:

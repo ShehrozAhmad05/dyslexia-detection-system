@@ -217,21 +217,57 @@ router.get('/history', protect, async (req, res) => {
       .find({ user: req.user.id })
       .sort({ createdAt: -1 })
       .limit(10)
+      .populate('handwritingResult', 'analysisResults.overallScore riskLevel')
+      .populate('readingResult', 'riskScore riskLevel')
+      .populate('keystrokeResult', 'riskScore riskLevel')
+      .populate('memoryResult', 'riskScore riskLevel')
       .select('-therapyRecommendations -fusionAnalysis.combinedRecommendations');
 
     res.status(200).json({
       success: true,
       count: assessments.length,
-      assessments: assessments.map(a => ({
-        id: a._id,
-        status: a.status,
-        overallRiskScore: a.overallRiskScore,
-        riskLevel: a.riskLevel,
-        completedModules: a.getCompletedModules(),
-        currentStep: a.currentStep,
-        completedAt: a.completedAt,
-        createdAt: a.createdAt
-      }))
+      assessments: assessments.map(a => {
+        const storedScores = a.fusionAnalysis?.moduleScores || {};
+        const moduleScores = {
+          handwriting:
+            storedScores.handwriting ??
+            a.handwritingResult?.analysisResults?.overallScore ??
+            null,
+          reading:
+            storedScores.reading ??
+            a.readingResult?.riskScore ??
+            null,
+          keystroke:
+            storedScores.keystroke ??
+            a.keystrokeResult?.riskScore ??
+            null,
+          memory:
+            storedScores.memory ??
+            a.memoryResult?.riskScore ??
+            null
+        };
+
+        return {
+          id: a._id,
+          status: a.status,
+          overallRiskScore: a.overallRiskScore,
+          riskLevel: a.riskLevel,
+          completedModules: a.getCompletedModules(),
+          currentStep: a.currentStep,
+          completedAt: a.completedAt,
+          createdAt: a.createdAt,
+          fusionAnalysis: {
+            moduleScores,
+            moduleWeights: a.fusionAnalysis?.moduleWeights || {
+              handwriting: 0.25,
+              reading: 0.25,
+              keystroke: 0.25,
+              memory: 0.25
+            },
+            confidenceScore: a.fusionAnalysis?.confidenceScore ?? null
+          }
+        };
+      })
     });
   } catch (error) {
     console.error('Assessment history error:', error);
