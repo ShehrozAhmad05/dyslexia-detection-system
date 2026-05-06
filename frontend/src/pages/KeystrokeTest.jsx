@@ -1,21 +1,26 @@
 import { useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  Container,
   Typography,
   Box,
-  Card,
-  CardContent,
   Button,
   TextField,
   Stack,
   Chip,
   Paper,
-  Grid,
-  LinearProgress,
-  Divider,
+  Container,
 } from '@mui/material';
 import { keystrokeService } from '../services';
+import bgKeyboardTest from '../assets/keybg.png';
+import technologyIcon from '../assets/technology.png';
+import starRatingIcon from '../assets/star-rating.png';
+import playIcon from '../assets/play.png';
+import stopIcon from '../assets/stop.png';
+import paperAirplaneIcon from '../assets/paper-airplane.png';
+import refreshIcon from '../assets/refresh.png';
+import focusIcon from '../assets/focus.png';
+import daysIcon from '../assets/days.png';
+import clockIcon from '../assets/clocks.png';
 
 const IGNORED_KEYS = new Set([
   'Shift',
@@ -173,11 +178,11 @@ function KeystrokeTest() {
       keyUpIso: Number.isFinite(k.keyUpTime) ? new Date(k.keyUpTime).toISOString() : '-',
     }));
 
-    console.group('[KeystrokeTest] Capture Stopped');
-    console.log('Session summary:', snapshot);
-    console.table(recentEvents);
-    console.log('Full keystrokes array:', keystrokes);
-    console.groupEnd();
+    // console.group('[KeystrokeTest] Capture Stopped');
+    // console.log('Session summary:', snapshot);
+    // console.table(recentEvents);
+    // console.log('Full keystrokes array:', keystrokes);
+    // console.groupEnd();
   };
 
   const handleSubmit = async () => {
@@ -205,16 +210,16 @@ function KeystrokeTest() {
         ...(assessmentId && { assessmentId })
       };
 
-      console.group('[KeystrokeTest] Submitting Payload');
-      console.log('Payload summary:', {
-        promptLength: prompt.length,
-        typedLength: typedText.length,
-        eventCount: keystrokes.length,
-        startTime: payload.startTime,
-        endTime: payload.endTime,
-      });
-      console.log('Computed debug metrics:', calculateDebugMetrics({ keystrokes, startTime, endTime, prompt, typedText }));
-      console.groupEnd();
+      // console.group('[KeystrokeTest] Submitting Payload');
+      // console.log('Payload summary:', {
+      //   promptLength: prompt.length,
+      //   typedLength: typedText.length,
+      //   eventCount: keystrokes.length,
+      //   startTime: payload.startTime,
+      //   endTime: payload.endTime,
+      // });
+      // console.log('Computed debug metrics:', calculateDebugMetrics({ keystrokes, startTime, endTime, prompt, typedText }));
+      // console.groupEnd();
 
       const response = await keystrokeService.submitData(submitPayload);
 
@@ -225,9 +230,9 @@ function KeystrokeTest() {
         navigate(`/assessment/keystroke/results/${submitResult.resultId}`);
       }
 
-      console.group('[KeystrokeTest] Submit Response');
-      console.log('Result payload:', response?.data || null);
-      console.groupEnd();
+      // console.group('[KeystrokeTest] Submit Response');
+      // console.log('Result payload:', response?.data || null);
+      // console.groupEnd();
     } catch (error) {
       setSubmitError(error?.response?.data?.message || error.message || 'Failed to submit keystroke test');
     } finally {
@@ -283,51 +288,94 @@ function KeystrokeTest() {
   };
 
   return (
-    <Container maxWidth="md" sx={{ py: 6 }}>
-      <Card>
-        <CardContent>
-          <Typography variant="h5" gutterBottom>
-            Keystroke Capture Test
-          </Typography>
-          <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-            This step captures raw key events only. Metrics and risk scoring are computed in backend.
-          </Typography>
-
-          <Box sx={{ mb: 2 }}>
-            <Typography variant="subtitle2" sx={{ mb: 0.5 }}>
-              Prompt
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
-              {prompt || 'Press Start Capture to fetch a prompt from backend.'}
-            </Typography>
-            {startError ? (
-              <Typography variant="body2" color="error" sx={{ mt: 1 }}>
-                {startError}
+    <Box
+      sx={{
+        minHeight: '100vh',
+        backgroundImage: `url(${bgKeyboardTest})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+       
+       
+        
+        py: { xs: 10, md: 0 }
+      }}
+    >
+      <Container sx={{ width: '53%' }}>
+        <Paper sx={{ p: 5, borderRadius: 5, bgcolor: '#F4F0FD', minHeight: '65vh' }}>
+          <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1.5, mb: 2 }}>
+            <Box component="img" src={technologyIcon} alt="technology" sx={{ width: 42, height: 42, mt: 0.25 }} />
+            <Box>
+              <Typography variant="h5" sx={{ fontWeight: 800, color: '#6C4DE6' }}>
+                Keystroke Capture Test
               </Typography>
-            ) : null}
-            {submitError ? (
-              <Typography variant="body2" color="error" sx={{ mt: 1 }}>
-                {submitError}
+              <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+                This step captures raw key events only. Metrics and scoring are computed in backend.
               </Typography>
-            ) : null}
+            </Box>
+               {/* <Typography variant="body2" color='text.secondary' sx={{ mb:3 }}>
+              Keystroke Capture Test
+            </Typography> */}
           </Box>
 
-          <Stack direction="row" spacing={1} sx={{ mb: 2 }}>
-            <Button variant="contained" onClick={handleStart} disabled={isCapturing || isStarting}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
+            <Box component="img" src={starRatingIcon} alt="prompt" sx={{ width: 35, height: 35 }} />
+            <Typography variant="subtitle1" sx={{ fontWeight: 700, color: '#6C4DE6' }}>
+              Prompt
+            </Typography>
+          </Box>
+         
+          <Typography variant="body2" color="text.secondary">
+            {prompt || 'Press Start Capture to fetch a prompt from backend.'}
+          </Typography>
+          {startError ? (
+            <Typography variant="body2" color="error" sx={{ mt: 1 }}>
+              {startError}
+            </Typography>
+          ) : null}
+          {submitError ? (
+            <Typography variant="body2" color="error" sx={{ mt: 1 }}>
+              {submitError}
+            </Typography>
+          ) : null}
+
+          <Stack direction="row" spacing={1.5} sx={{ mt: 2, mb: 2, flexWrap: 'wrap' }}>
+            <Button
+              variant="contained"
+              onClick={handleStart}
+              disabled={isCapturing || isStarting}
+              startIcon={<Box component="img" src={playIcon} alt="start" sx={{ width: 16, height: 16 }} />}
+              sx={{ bgcolor: '#6C4DE6', boxShadow: '0 6px 14px rgba(108,77,230,0.35)', '&:hover': { bgcolor: '#5B3FE0' } }}
+            >
               {isStarting ? 'Starting...' : 'Start Capture'}
             </Button>
-            <Button variant="outlined" onClick={handleStop} disabled={!isCapturing}>
+            <Button
+              variant="contained"
+              onClick={handleStop}
+              disabled={!isCapturing}
+              startIcon={<Box component="img" src={stopIcon} alt="stop" sx={{ width: 16, height: 16 }} />}
+              sx={{ bgcolor: '#ffffff', color: '#6C4DE6', boxShadow: '0 6px 14px rgba(108,77,230,0.2)' }}
+            >
               Stop Capture
             </Button>
             <Button
               variant="contained"
-              color="secondary"
               onClick={handleSubmit}
               disabled={isCapturing || isSubmitting || keystrokes.length === 0 || !typedText || !prompt}
+              startIcon={<Box component="img" src={paperAirplaneIcon} alt="submit" sx={{ width: 16, height: 16 }} />}
+              sx={{ bgcolor: '#6C4DE6', boxShadow: '0 6px 14px rgba(108,77,230,0.35)', '&:hover': { bgcolor: '#5B3FE0' } }}
             >
-              {isSubmitting ? 'Submitting...' : 'Submit Test'}
+              {isSubmitting ? 'Submitting...' : 'Submit'}
             </Button>
-            <Button variant="text" onClick={resetCapture}>
+            <Button
+              variant="contained"
+              onClick={resetCapture}
+              startIcon={<Box  component="img" src={refreshIcon} alt="reset" sx={{ width: 16, height: 16 }} />}
+              sx={{ bgcolor: '#ffffff', color: '#6C4DE6', boxShadow: '0 6px 14px rgba(108,77,230,0.2)' }}
+            >
               Reset
             </Button>
           </Stack>
@@ -345,15 +393,43 @@ function KeystrokeTest() {
             onKeyDown={handleKeyDown}
             onKeyUp={handleKeyUp}
             placeholder="Click Start Capture, then type here..."
+            sx={{
+              '& .MuiOutlinedInput-root': {
+                bgcolor: '#ffffff',
+                borderRadius: '12px',
+                boxShadow: '0 6px 16px rgba(108,77,230,0.18)'
+              },
+              '& .MuiOutlinedInput-notchedOutline': {
+                border: 'none'
+              }
+            }}
           />
 
-          <Box sx={{ mt: 2, display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-            <Chip label={`Capturing: ${isCapturing ? 'Yes' : 'No'}`} />
-            <Chip label={`Events: ${keystrokes.length}`} />
-            <Chip label={`Duration: ${totalDurationMs} ms`} />
-          </Box>
+          <Stack direction="row" spacing={1} sx={{ mt: 2, flexWrap: 'wrap' }}>
+            <Button
+              variant="contained"
+              startIcon={<Box component="img" src={focusIcon} alt="capturing" sx={{ width: 14, height: 14 }} />}
+              sx={{ bgcolor: '#ffffff', color: '#6C4DE6', boxShadow: '0 4px 12px rgba(108,77,230,0.2)' }}
+            >
+              Capturing: {isCapturing ? 'Yes' : 'No'}
+            </Button>
+            <Button
+              variant="contained"
+              startIcon={<Box component="img" src={daysIcon} alt="events" sx={{ width: 14, height: 14 }} />}
+              sx={{ bgcolor: '#ffffff', color: '#6C4DE6', boxShadow: '0 4px 12px rgba(108,77,230,0.2)' }}
+            >
+              Events: {keystrokes.length}
+            </Button>
+            <Button
+              variant="contained"
+              startIcon={<Box component="img" src={clockIcon} alt="duration" sx={{ width: 14, height: 14 }} />}
+              sx={{ bgcolor: '#ffffff', color: '#6C4DE6', boxShadow: '0 4px 12px rgba(108,77,230,0.2)' }}
+            >
+              Duration: {totalDurationMs} ms
+            </Button>
+          </Stack>
 
-          {keystrokes.length > 0 ? (
+          {/* {keystrokes.length > 0 ? (
             <Box sx={{ mt: 3 }}>
               <Typography variant="h6" gutterBottom>
                 Debug Metrics (Local)
@@ -381,7 +457,7 @@ function KeystrokeTest() {
                 ))}
               </Box>
             </Box>
-          ) : null}
+          ) : null} */}
 
           {/*
             Inline result UI intentionally disabled for cleaner flow.
@@ -490,9 +566,9 @@ function KeystrokeTest() {
               </Paper>
             ) : null}
           */}
-        </CardContent>
-      </Card>
-    </Container>
+        </Paper>
+      </Container>
+    </Box>
   );
 }
 
