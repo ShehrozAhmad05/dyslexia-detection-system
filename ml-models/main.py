@@ -12,9 +12,20 @@ import numpy as np
 from dotenv import load_dotenv
 import os
 from typing import Dict, List
+import logging
+import time
+import uuid
 
 # Load environment variables
 load_dotenv(Path(__file__).parent / ".env")
+
+if not logging.getLogger().handlers:
+    logging.basicConfig(
+        level=os.getenv("LOG_LEVEL", "INFO").upper(),
+        format="%(asctime)s | %(levelname)s | %(name)s | %(message)s"
+    )
+
+logger = logging.getLogger("ml_api.handwriting")
 
 app = FastAPI(
     title="Dyslexia Detection ML API",
@@ -132,6 +143,17 @@ async def analyze_handwriting(
     Returns:
         HandwritingResponse with risk score and analysis.
     """
+    request_id = str(uuid.uuid4())[:8]
+    started_at = time.perf_counter()
+
+    logger.info(
+        "[%s] Handwriting analysis started: filename=%s content_type=%s expected_chars=%d",
+        request_id,
+        file.filename or "unknown",
+        file.content_type or "unknown",
+        len(expected_sentence or "")
+    )
+
     try:
         import sys
 
@@ -139,18 +161,50 @@ async def analyze_handwriting(
         from handwriting import OCRService, SentenceComparator, RiskCalculator
 
         image_bytes = await file.read()
+        logger.info(
+            "[%s] File read completed: bytes=%d",
+            request_id,
+            len(image_bytes)
+        )
         if not image_bytes:
+            logger.warning("[%s] Empty image payload received", request_id)
             raise HTTPException(status_code=400, detail="Empty image file")
 
         ocr = OCRService()
         detected_text = ocr.extract_and_normalize(image_bytes)
         normalized_expected = ocr.normalize_text(expected_sentence)
+        logger.info(
+            "[%s] OCR completed: expected_words=%d detected_words=%d",
+            request_id,
+            len(normalized_expected.split()),
+            len(detected_text.split())
+        )
 
         comparator = SentenceComparator()
         comparison = comparator.compare(normalized_expected, detected_text)
+        logger.info(
+            "[%s] Comparison completed: total_words=%d reversals=%d substitutions=%d multi_errors=%d correct=%d",
+            request_id,
+            comparison["total_words"],
+            comparison["reversal_count"],
+            comparison["substitution_count"],
+            comparison["multi_error_count"],
+            comparison["correct_count"]
+        )
 
         calculator = RiskCalculator()
         risk = calculator.calculate(comparison)
+        logger.info(
+            "[%s] Risk calculated: overall_score=%.2f risk_level=%s override_applied=%s unable_to_assess=%s",
+            request_id,
+            risk["overall_score"],
+            risk["risk_level"],
+            risk["override_applied"],
+            risk["unable_to_assess"]
+        )
+
+        duration_ms = (time.perf_counter() - started_at) * 1000
+        logger.info("[%s] Handwriting analysis succeeded in %.1fms", request_id, duration_ms)
 
         return HandwritingResponse(
             expected_sentence=normalized_expected,
@@ -173,9 +227,19 @@ async def analyze_handwriting(
             unable_to_assess=risk["unable_to_assess"],
             disclaimer=risk["disclaimer"],
         )
-    except HTTPException:
+    except HTTPException as http_err:
+        duration_ms = (time.perf_counter() - started_at) * 1000
+        logger.warning(
+            "[%s] Handwriting analysis failed with HTTP %s in %.1fms: %s",
+            request_id,
+            http_err.status_code,
+            duration_ms,
+            http_err.detail
+        )
         raise
     except Exception as e:
+        duration_ms = (time.perf_counter() - started_at) * 1000
+        logger.exception("[%s] Handwriting analysis crashed in %.1fms", request_id, duration_ms)
         raise HTTPException(status_code=500, detail=str(e))
 
 # Keystroke analysis endpoint
