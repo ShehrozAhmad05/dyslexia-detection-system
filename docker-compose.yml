@@ -72,7 +72,8 @@ services:
     env_file:
       - ./frontend/.env
     environment:
-      VITE_API_URL: http://localhost:5000/api
+      VITE_API_URL: /api
+      VITE_PROXY_TARGET: http://backend:5000
     volumes:
       - ./:/workspace
       - frontend_node_modules:/workspace/frontend/node_modules
