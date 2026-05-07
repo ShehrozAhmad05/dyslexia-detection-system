@@ -10,6 +10,7 @@ export default defineConfig({
   server: {
     port: 3000,
     open: true,
+    allowedHosts: ["dyslexisense.duckdns.org"],
     proxy: {
       '/api': {
         target: proxyTarget,
