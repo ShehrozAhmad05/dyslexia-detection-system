@@ -63,7 +63,7 @@ ml-models/scripts/preprocess_roboflow_robust.py
 ml-models/scripts/preprocess_lightweight.py
 ml-models/scripts/preprocess_memory_safe.py
 *.h5
-*.pkl
+# *.pkl
 *.pth
 *.onnx
 *.pb
