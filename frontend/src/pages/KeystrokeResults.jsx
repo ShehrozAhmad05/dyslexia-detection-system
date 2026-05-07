@@ -4,34 +4,32 @@ import {
   Alert,
   Box,
   Button,
-  Card,
-  CardContent,
   Chip,
   CircularProgress,
   Container,
-  Divider,
-  Grid,
+  GlobalStyles,
   LinearProgress,
-  List,
-  ListItem,
-  ListItemIcon,
-  ListItemText,
   Paper,
   Typography,
 } from '@mui/material';
 import {
   Assessment,
   ArrowForward,
-  Home,
-  Keyboard,
-  Lightbulb,
-  Schedule,
-  Speed,
-  Timer,
-  Warning,
   CheckCircle,
+  Warning,
 } from '@mui/icons-material';
 import { keystrokeService } from '../services';
+import keybg from '../assets/keybg.png';
+import technologyIcon from '../assets/technology.png';
+import starRatingIcon from '../assets/star-rating.png';
+import focusIcon from '../assets/accuracy.png';
+import daysIcon from '../assets/error.png';
+import clockIcon from '../assets/error.png';
+import ideaIcon from '../assets/idea.png';
+import accuracyIcon from '../assets/accuracy.png';
+import errorIcon from '../assets/error.png';
+import wpmIcon from '../assets/WPM.png';
+import anomalyIcon from '../assets/anomaly.png';
 
 function getRiskColor(level) {
   const levelStr = typeof level === 'string' ? level.toLowerCase() : '';
@@ -42,13 +40,22 @@ function getRiskColor(level) {
 }
 
 function getRecommendationIcon(severity) {
-  if (severity === 'high') return <Warning color="error" />;
-  if (severity === 'moderate') return <Warning color="warning" />;
-  return <CheckCircle color="success" />;
+  if (severity === 'high') return <Warning color="error" sx={{ fontSize: 16 }} />;
+  if (severity === 'moderate') return <Warning color="warning" sx={{ fontSize: 16 }} />;
+  return <CheckCircle color="success" sx={{ fontSize: 16 }} />;
 }
 
 function formatPercent(value, decimals = 2) {
   return Number.isFinite(value) ? `${Number(value).toFixed(decimals)}%` : 'N/A';
+}
+
+function formatBreakdownLabel(key = '') {
+  return key
+    .replace(/Risk$/, ' Risk')
+    .replace(/([A-Z])/g, ' $1')
+    .replace(/^./, (s) => s.toUpperCase())
+    .replace(/\s+/g, ' ')
+    .trim();
 }
 
 function buildRecommendations(result) {
@@ -145,19 +152,47 @@ const KeystrokeResults = () => {
 
   if (loading) {
     return (
-      <Container maxWidth="lg" sx={{ mt: 4, textAlign: 'center' }}>
-        <CircularProgress />
-        <Typography sx={{ mt: 2 }}>Loading keystroke results...</Typography>
-      </Container>
+      <Box
+        sx={{
+          height: '100vh',
+          backgroundImage: `url(${keybg})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center'
+        }}
+      >
+        <Box sx={{ textAlign: 'center' }}>
+          <CircularProgress />
+          <Typography sx={{ mt: 2 }}>Loading keystroke results...</Typography>
+        </Box>
+      </Box>
     );
   }
 
   if (error) {
     return (
-      <Container maxWidth="lg" sx={{ mt: 4 }}>
-        <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>
-        <Button variant="contained" onClick={() => navigate('/dashboard')}>Back to Dashboard</Button>
-      </Container>
+      <Box
+        sx={{
+          height: '100vh',
+          backgroundImage: `url(${keybg})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center'
+        }}
+      >
+        <Paper sx={{ p: 3, borderRadius: 3, bgcolor: 'rgba(255,255,255,0.92)' }}>
+          <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>
+          <Button variant="contained" onClick={() => navigate('/dashboard')} sx={{ bgcolor: '#6C4DE6' }}>
+            Back to Dashboard
+          </Button>
+        </Paper>
+      </Box>
     );
   }
 
@@ -166,218 +201,265 @@ const KeystrokeResults = () => {
   const riskScore = Number(result.riskScore) || 0;
   const riskLevel = result.riskLevel || 'N/A';
   const riskBreakdown = result.riskBreakdown || {};
+  const recommendationItems = recommendations || [];
+  const arrangedRecommendations = recommendationItems.length > 3
+    ? [recommendationItems[0], recommendationItems[3], recommendationItems[1], recommendationItems[2]].filter(Boolean)
+    : recommendationItems.slice(0, 3);
 
   return (
-    <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
-      <Paper elevation={3} sx={{ p: 3, mb: 3 }}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 2 }}>
-          <Box>
-            <Typography variant="h4" gutterBottom>
-              Keystroke Assessment Results
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
-              Test completed on {new Date(result.createdAt || Date.now()).toLocaleString()}
-            </Typography>
-          </Box>
-          <Chip
-            icon={<Assessment />}
-            label={`Risk Level: ${riskLevel}`}
-            color={getRiskColor(riskLevel)}
-            size="medium"
-          />
-        </Box>
-      </Paper>
-
-      <Paper elevation={3} sx={{ p: 3, mb: 3 }}>
-        <Typography variant="h6" gutterBottom>Overall Risk Score</Typography>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 1 }}>
-          <Box sx={{ flex: 1 }}>
-            <LinearProgress
-              variant="determinate"
-              value={Math.max(0, Math.min(100, riskScore))}
+    <Box
+      sx={{
+        minHeight: '100vh',
+        backgroundImage: `url(${keybg})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
+        display: 'flex',
+        alignItems: 'flex-start',
+        justifyContent: 'center',
+        pt: '6vh',
+        pb: '6vh'
+      }}
+    >
+      <GlobalStyles styles={{ '.MuiAppBar-root': { position: 'static' } }} />
+      <Container maxWidth="lg" sx={{ width: '100%' }}>
+        <Paper
+          sx={{
+            p: 4,
+            mt: 10,
+            borderRadius: 4,
+            bgcolor: 'rgba(255,255,255,0.92)',
+            width: '100%'
+          }}
+        >
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 2 }}>
+            <Box component="img" src={technologyIcon} alt="technology" sx={{ width: 38, height: 38 }} />
+            <Box>
+              <Typography variant="h5" sx={{ fontWeight: 800, color: '#6C4DE6' }}>
+                Keystroke Result
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                Test completed on {new Date(result.createdAt || Date.now()).toLocaleString()}
+              </Typography>
+            </Box>
+            <Chip
+              icon={<Assessment />}
+              label={`Risk Level: ${riskLevel}`}
               color={getRiskColor(riskLevel)}
-              sx={{ height: 18, borderRadius: 1 }}
+              size="small"
+              sx={{ ml: 'auto' }}
             />
           </Box>
-          <Typography variant="h5" fontWeight="bold">{riskScore}/100</Typography>
-        </Box>
-        <Typography variant="caption" color="text.secondary">
-          Score is a fusion of rule-based behavior metrics and ML anomaly contribution.
-        </Typography>
-      </Paper>
 
-      <Grid container spacing={2} sx={{ mb: 3 }}>
-        <Grid item xs={12} md={3}>
-          <Card>
-            <CardContent>
-              <Typography variant="subtitle2" color="text.secondary">Accuracy</Typography>
-              <Typography variant="h5" fontWeight="bold">{formatPercent(result.accuracy)}</Typography>
-            </CardContent>
-          </Card>
-        </Grid>
-        <Grid item xs={12} md={3}>
-          <Card>
-            <CardContent>
-              <Typography variant="subtitle2" color="text.secondary">Error Rate</Typography>
-              <Typography variant="h5" fontWeight="bold">{formatPercent(result.errorRate)}</Typography>
-            </CardContent>
-          </Card>
-        </Grid>
-        <Grid item xs={12} md={3}>
-          <Card>
-            <CardContent>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                <Speed color="primary" fontSize="small" />
-                <Typography variant="subtitle2" color="text.secondary">WPM</Typography>
-              </Box>
-              <Typography variant="h5" fontWeight="bold">{Number.isFinite(result.wpm) ? Number(result.wpm).toFixed(2) : 'N/A'}</Typography>
-            </CardContent>
-          </Card>
-        </Grid>
-        <Grid item xs={12} md={3}>
-          <Card>
-            <CardContent>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                <Keyboard color="primary" fontSize="small" />
-                <Typography variant="subtitle2" color="text.secondary">Anomaly</Typography>
-              </Box>
-              <Typography variant="h6" fontWeight="bold">
-                {Number.isFinite(result.anomalyScore) ? Number(result.anomalyScore).toFixed(3) : 'N/A'}
-              </Typography>
-              <Typography variant="caption" color="text.secondary">
-                Is Anomalous: {result.isAnomalous ? 'Yes' : 'No'}
-              </Typography>
-            </CardContent>
-          </Card>
-        </Grid>
-      </Grid>
-
-      <Grid container spacing={3} sx={{ mb: 3 }}>
-        <Grid item xs={12} md={6}>
-          <Paper elevation={2} sx={{ p: 3 }}>
-            <Typography variant="h6" gutterBottom>
-              <Timer sx={{ verticalAlign: 'middle', mr: 1 }} />
-              Timing Metrics
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1.5 }}>
+            <Box component="img" src={starRatingIcon} alt="score" sx={{ width: 18, height: 18 }} />
+            <Typography variant="subtitle1" sx={{ fontWeight: 700, color: '#6C4DE6' }}>
+              Overall Risk Score
             </Typography>
-            <Divider sx={{ mb: 2 }} />
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
-              <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                <Typography variant="body2" color="text.secondary">Average Hold Time</Typography>
-                <Typography variant="body2" fontWeight="bold">{Number.isFinite(result.avgHoldTime) ? `${result.avgHoldTime.toFixed(2)} ms` : 'N/A'}</Typography>
+            <Typography variant="h6" sx={{ ml: 'auto', fontWeight: 700 }}>
+              {riskScore}/100
+            </Typography>
+          </Box>
+          <LinearProgress
+            variant="determinate"
+            value={Math.max(0, Math.min(100, riskScore))}
+            sx={{
+              height: 14,
+              borderRadius: 2,
+              mb: 2,
+              backgroundColor: '#E9E2FF',
+              '& .MuiLinearProgress-bar': { backgroundColor: '#6C4DE6' }
+            }}
+          />
+
+          <Box sx={{ display: 'flex', gap: 2, mb: 2, flexWrap: 'wrap' }}>
+            {[
+              {
+                label: 'Accuracy',
+                value: formatPercent(result.accuracy),
+                icon: accuracyIcon,
+              },
+              {
+                label: 'Error Rate',
+                value: formatPercent(result.errorRate),
+                icon: errorIcon,
+              },
+              {
+                label: 'WPM',
+                value: Number.isFinite(result.wpm) ? Number(result.wpm).toFixed(2) : 'N/A',
+                icon: wpmIcon,
+              },
+              {
+                label: 'Anomaly',
+                value: Number.isFinite(result.anomalyScore) ? Number(result.anomalyScore).toFixed(3) : 'N/A',
+                icon: anomalyIcon,
+              },
+            ].map((item) => (
+              <Paper
+                key={item.label}
+                sx={{
+                  p: 2,
+                  minWidth: 220,
+                  flex: '1 1 220px',
+                  borderRadius: 3,
+                  bgcolor: '#FFFFFF',
+                  boxShadow: '0 8px 18px rgba(108,77,230,0.18)',
+                  border: '1px solid rgba(108,77,230,0.15)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 2
+                }}
+              >
+                <Box
+                  component="img"
+                  src={item.icon}
+                  alt={item.label}
+                  sx={{ width: 42, height: 42 }}
+                />
+                <Box>
+                  <Typography variant="subtitle2" sx={{ fontWeight: 700, color: '#6C4DE6' }}>
+                    {item.label}
+                  </Typography>
+                  <Typography variant="h6" sx={{ fontWeight: 700, color: '#2B2B2B' }}>
+                    {item.value}
+                  </Typography>
+                </Box>
+              </Paper>
+            ))}
+          </Box>
+
+          <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', mb: 2 }}>
+            <Paper sx={{ p: 2, borderRadius: 3, bgcolor: '#F4F0FD', flex: 1, minWidth: 260 }}>
+              <Typography variant="subtitle2" sx={{ fontWeight: 700, color: '#6C4DE6', mb: 1 }}>
+                Timing Metrics
+              </Typography>
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <Typography variant="caption" color="text.secondary">Average Hold Time</Typography>
+                  <Typography variant="caption" fontWeight={600}>
+                    {Number.isFinite(result.avgHoldTime) ? `${result.avgHoldTime.toFixed(2)} ms` : 'N/A'}
+                  </Typography>
+                </Box>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <Typography variant="caption" color="text.secondary">Hold Time Variability (CV)</Typography>
+                  <Typography variant="caption" fontWeight={600}>
+                    {Number.isFinite(result.cvHoldTime) ? `${Number(result.cvHoldTime).toFixed(2)}%` : 'N/A'}
+                  </Typography>
+                </Box>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <Typography variant="caption" color="text.secondary">Average Flight Time</Typography>
+                  <Typography variant="caption" fontWeight={600}>
+                    {Number.isFinite(result.avgFlightTime) ? `${result.avgFlightTime.toFixed(2)} ms` : 'N/A'}
+                  </Typography>
+                </Box>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <Typography variant="caption" color="text.secondary">Flight Time Variability (CV)</Typography>
+                  <Typography variant="caption" fontWeight={600}>
+                    {Number.isFinite(result.cvFlightTime) ? `${Number(result.cvFlightTime).toFixed(2)}%` : 'N/A'}
+                  </Typography>
+                </Box>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <Typography variant="caption" color="text.secondary">Pause Frequency</Typography>
+                  <Typography variant="caption" fontWeight={600}>
+                    {Number.isFinite(result.pauseFrequency) ? Number(result.pauseFrequency).toFixed(4) : 'N/A'}
+                  </Typography>
+                </Box>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <Typography variant="caption" color="text.secondary">Pause Duration</Typography>
+                  <Typography variant="caption" fontWeight={600}>
+                    {Number.isFinite(result.pauseDuration) ? `${Number(result.pauseDuration).toFixed(2)} ms` : 'N/A'}
+                  </Typography>
+                </Box>
               </Box>
-              <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                <Typography variant="body2" color="text.secondary">Hold Time Variability (CV)</Typography>
-                <Typography variant="body2" fontWeight="bold">{Number.isFinite(result.cvHoldTime) ? `${Number(result.cvHoldTime).toFixed(2)}%` : 'N/A'}</Typography>
-              </Box>
-              <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                <Typography variant="body2" color="text.secondary">Average Flight Time</Typography>
-                <Typography variant="body2" fontWeight="bold">{Number.isFinite(result.avgFlightTime) ? `${result.avgFlightTime.toFixed(2)} ms` : 'N/A'}</Typography>
-              </Box>
-              <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                <Typography variant="body2" color="text.secondary">Flight Time Variability (CV)</Typography>
-                <Typography variant="body2" fontWeight="bold">{Number.isFinite(result.cvFlightTime) ? `${Number(result.cvFlightTime).toFixed(2)}%` : 'N/A'}</Typography>
-              </Box>
-              <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                <Typography variant="body2" color="text.secondary">Pause Frequency</Typography>
-                <Typography variant="body2" fontWeight="bold">{Number.isFinite(result.pauseFrequency) ? Number(result.pauseFrequency).toFixed(4) : 'N/A'}</Typography>
-              </Box>
-              <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                <Typography variant="body2" color="text.secondary">Pause Duration</Typography>
-                <Typography variant="body2" fontWeight="bold">{Number.isFinite(result.pauseDuration) ? `${Number(result.pauseDuration).toFixed(2)} ms` : 'N/A'}</Typography>
-              </Box>
+            </Paper>
+
+            <Paper sx={{ p: 2, borderRadius: 3, bgcolor: '#F4F0FD', flex: 1, minWidth: 260 }}>
+              <Typography variant="subtitle2" sx={{ fontWeight: 700, color: '#6C4DE6', mb: 1 }}>
+                Risk Breakdown
+              </Typography>
+              {Object.entries(riskBreakdown).map(([key, value]) => {
+                const numericValue = Math.min(100, Math.max(0, Number(value) || 0));
+                return (
+                  <Box key={key} sx={{ mb: 1 }}>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.25 }}>
+                      <Typography variant="caption" color="text.secondary">
+                        {formatBreakdownLabel(key)}
+                      </Typography>
+                      <Typography variant="caption" fontWeight={600}>
+                        {numericValue}
+                      </Typography>
+                    </Box>
+                    <LinearProgress
+                      variant="determinate"
+                      value={numericValue}
+                      sx={{
+                        height: 8,
+                        borderRadius: 2,
+                        backgroundColor: '#E9E2FF',
+                        '& .MuiLinearProgress-bar': { backgroundColor: '#6C4DE6' }
+                      }}
+                    />
+                  </Box>
+                );
+              })}
+            </Paper>
+          </Box>
+
+          <Paper sx={{ p: 2, borderRadius: 3, bgcolor: '#F4F0FD', mb: 2 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+              <Box component="img" src={ideaIcon} alt="recommendation" sx={{ width: 22, height: 22 }} />
+              <Typography variant="subtitle2" sx={{ fontWeight: 700, color: '#6C4DE6' }}>
+                Recommendations
+              </Typography>
+            </Box>
+            <Box
+              sx={{
+                display: 'grid',
+                gridTemplateColumns: recommendationItems.length > 3 ? '1fr 1fr' : '1fr',
+                columnGap: 2,
+                rowGap: 1
+              }}
+            >
+              {arrangedRecommendations.map((rec, index) => (
+                <Box key={`${rec.message}-${index}`} sx={{ display: 'flex', gap: 1 }}>
+                  {getRecommendationIcon(rec.severity)}
+                  <Typography variant="caption" color="text.secondary">
+                    {rec.message}
+                  </Typography>
+                </Box>
+              ))}
             </Box>
           </Paper>
-        </Grid>
 
-        <Grid item xs={12} md={6}>
-          <Paper elevation={2} sx={{ p: 3 }}>
-            <Typography variant="h6" gutterBottom>
-              <Assessment sx={{ verticalAlign: 'middle', mr: 1 }} />
-              Risk Breakdown
-            </Typography>
-            <Divider sx={{ mb: 2 }} />
-            {Object.entries(riskBreakdown).map(([key, value]) => {
-              const numericValue = Math.max(0, Math.min(100, Number(value) || 0));
-              const label = key
-                .replace(/Risk$/, ' Risk')
-                .replace(/([A-Z])/g, ' $1')
-                .replace(/^./, (s) => s.toUpperCase())
-                .replace(/\s+/g, ' ')
-                .trim();
-              return (
-                <Box key={key} sx={{ mb: 1.5 }}>
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
-                    <Typography variant="body2" color="text.secondary">{label}</Typography>
-                    <Typography variant="body2" fontWeight="bold">{numericValue}</Typography>
-                  </Box>
-                  <LinearProgress
-                    variant="determinate"
-                    value={numericValue}
-                    color={numericValue >= 70 ? 'error' : numericValue >= 40 ? 'warning' : 'success'}
-                    sx={{ height: 10, borderRadius: 1 }}
-                  />
-                </Box>
-              );
-            })}
-          </Paper>
-        </Grid>
-      </Grid>
-
-      <Paper elevation={3} sx={{ p: 3, mb: 3 }}>
-        <Typography variant="h6" gutterBottom>
-          <Lightbulb sx={{ verticalAlign: 'middle', mr: 1, color: 'warning.main' }} />
-          Personalized Recommendations
-        </Typography>
-        <Divider sx={{ mb: 2 }} />
-        <List>
-          {recommendations.map((item, index) => (
-            <ListItem key={`${item.message}-${index}`} sx={{ py: 1.2 }}>
-              <ListItemIcon sx={{ minWidth: 40 }}>
-                {getRecommendationIcon(item.severity)}
-              </ListItemIcon>
-              <ListItemText
-                primary={item.message}
-                secondary={
-                  <Chip
-                    label={`Priority: ${item.severity.toUpperCase()}`}
-                    size="small"
-                    color={item.severity === 'high' ? 'error' : item.severity === 'moderate' ? 'warning' : 'success'}
-                    sx={{ mt: 0.8, height: 20 }}
-                  />
-                }
-                secondaryTypographyProps={{ component: 'div' }}
-              />
-            </ListItem>
-          ))}
-        </List>
-        <Alert severity="info" icon={<Schedule fontSize="inherit" />} sx={{ mt: 1.5 }}>
-          Recommendations are supportive guidance for screening context and should be interpreted alongside repeated assessments.
-        </Alert>
-      </Paper>
-
-      <Box sx={{ display: 'flex', justifyContent: 'center', gap: 2 }}>
-        <Button variant="outlined" startIcon={<Home />} onClick={() => navigate('/dashboard')}>
-          Back to Dashboard
-        </Button>
-        <Button variant="contained" onClick={() => navigate('/assessment/keystroke')}>
-          Take Another Keystroke Test
-        </Button>
-      </Box>
-
-      {isInAssessment && (
-        <Box sx={{ mt: 4, display: 'flex', justifyContent: 'center' }}>
-          <Button
-            variant="contained"
-            size="large"
-            color="success"
-            onClick={() => navigate('/assessment/instructions/memory')}
-            endIcon={<ArrowForward />}
-          >
-            Continue to Memory Test
-          </Button>
-        </Box>
-      )}
-    </Container>
+          <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', mt: 'auto' }}>
+            <Button
+              variant="contained"
+              onClick={() => navigate('/assessment/keystroke')}
+              sx={{ bgcolor: '#6C4DE6', '&:hover': { bgcolor: '#5B3FE0' } }}
+            >
+              Try Again
+            </Button>
+            <Button
+              variant="outlined"
+              onClick={() => navigate('/dashboard')}
+              sx={{ borderColor: '#6C4DE6', color: '#6C4DE6',borderRadius: '5px', px: 5, py: 1, '&:hover': { borderColor: '#5B3FE0', backgroundColor: 'rgba(91,63,224,0.04)' } }}
+            >
+              Back to Dashboard
+            </Button>
+            {isInAssessment && (
+              <Button
+                variant="contained"
+                onClick={() => navigate('/assessment/instructions/memory')}
+                endIcon={<ArrowForward />}
+                sx={{ bgcolor: '#6C4DE6', '&:hover': { bgcolor: '#5B3FE0' } }}
+              >
+                Continue
+              </Button>
+            )}
+          </Box>
+        </Paper>
+      </Container>
+    </Box>
   );
 };
 

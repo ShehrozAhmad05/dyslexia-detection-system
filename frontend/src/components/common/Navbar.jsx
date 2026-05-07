@@ -9,10 +9,11 @@ function Navbar() {
   const { isAuthenticated, user, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const overlayRoutes = ['/', '/login', '/register', '/dashboard', '/assessment/handwriting'];
+  const overlayRoutes = ['/', '/login', '/register', '/dashboard', '/assessment/handwriting', '/assessment/keystroke'];
   const isHandwritingResults = location.pathname.startsWith('/assessment/handwriting/results');
   const isHandwritingInstructions = location.pathname.startsWith('/assessment/instructions/handwriting');
-  const isOverlayPage = overlayRoutes.includes(location.pathname) || isHandwritingResults || isHandwritingInstructions;
+  const isKeystrokeResults = location.pathname.startsWith('/assessment/keystroke/results');
+  const isOverlayPage = overlayRoutes.includes(location.pathname) || isHandwritingResults || isHandwritingInstructions || isKeystrokeResults;
 
   const handleLogout = async () => {
     await logout();
