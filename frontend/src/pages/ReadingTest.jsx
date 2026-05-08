@@ -25,6 +25,8 @@ import {
 import { readingService } from '../services';
 import { useReadingTracker } from '../hooks/useReadingTracker';
 import ComprehensionQuestions from '../components/ReadingModule/ComprehensionQuestions';
+import readingBgImage from '../assets/rbg1.png';
+import questionsBgImage from '../assets/rbg6.png';
 
 const ReadingTest = () => {
   const navigate = useNavigate();
@@ -197,15 +199,48 @@ const ReadingTest = () => {
    */
   if (phase === 'questions') {
     return (
-      <Container maxWidth="md" sx={{ mt: 4, mb: 4 }}>
-        <Paper elevation={3} sx={{ p: 3 }}>
-          <Typography variant="h5" gutterBottom>
+      <Box
+        sx={{
+          position: 'fixed',
+          inset: 0,
+          width: '100vw',
+          height: '100vh',
+          backgroundImage: `url(${questionsBgImage})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'bottom',
+          backgroundRepeat: 'no-repeat',
+          backgroundAttachment: 'fixed',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'flex-end',
+          pr: { xs: 1, md: 28 },
+          pt: { xs: 10, md: 10 },
+          
+          overflow: 'hidden'
+        }}
+      >
+        <Paper
+          elevation={4}
+          sx={{
+            width: '100%',
+            maxWidth: 660,
+            maxHeight: 'calc(100vh - 120px)',
+            overflow: 'hidden',
+            display: 'flex',
+            flexDirection: 'column',
+            p: { xs: 2, md: 2.4 },
+            borderRadius: '24px',
+            
+            bgcolor: 'rgba(255, 255, 255, 0.98)'
+          }}
+        >
+          <Typography variant="h5" sx={{ fontWeight: 800, color: '#2F5E1A', mb: 0.35, fontSize: '1.25rem' }}>
             Comprehension Questions
           </Typography>
-          <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+          <Typography variant="body2" sx={{ color: '#6b6b6b', mb: 1.5, fontSize: '0.76rem' }}>
             Answer the following questions based on what you read.
           </Typography>
-          
+
           <ComprehensionQuestions
             questions={passage.questions}
             onAnswerSubmit={handleAnswerSubmit}
@@ -213,14 +248,14 @@ const ReadingTest = () => {
             onReviewText={() => setPhase('reading')}
             submitting={submitting}
           />
-          
+
           {error && (
             <Alert severity="error" sx={{ mt: 2 }}>
               {error}
             </Alert>
           )}
         </Paper>
-      </Container>
+      </Box>
     );
   }
   
@@ -231,74 +266,144 @@ const ReadingTest = () => {
   const progress = ((tracker.currentSegment + 1) / tracker.totalSegments) * 100;
   
   return (
-    <Container maxWidth="md" sx={{ mt: 4, mb: 4 }}>
-      {/* Header */}
-      <Paper elevation={3} sx={{ p: 3, mb: 2 }}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-          <Typography variant="h5">
-            {passage?.title}
-          </Typography>
-          <Box sx={{ display: 'flex', gap: 1 }}>
-            <Chip 
-              icon={<Pause />} 
-              label={`${tracker.pauseCount} pauses`} 
-              size="small" 
-              variant="outlined"
-            />
-            <Chip 
-              icon={<Refresh />} 
-              label={`${tracker.totalRevisits} revisits`} 
-              size="small" 
-              variant="outlined"
-            />
+    <Box
+      sx={{
+        position: 'fixed',
+        inset: 0,
+        width: '100vw',
+        height: '100vh',
+        backgroundImage: `url(${readingBgImage})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center bottom',
+        backgroundRepeat: 'no-repeat',
+        backgroundAttachment: 'fixed',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'flex-start',
+        justifyContent: 'center',
+        pt: 10,
+        pb: 4,
+        pl: 4,
+        overflow: 'hidden',
+        zIndex: 0
+      }}
+    >
+      {/* Main reading card */}
+      <Card
+        elevation={4}
+        sx={{
+          width: '55%',
+          maxWidth: 650,
+          maxHeight: 'calc(100vh - 280px)',
+          overflow: 'hidden',
+          display: 'flex',
+          flexDirection: 'column',
+          backgroundColor: 'rgba(255, 255, 255, 0.98)',
+          borderRadius: '24px'
+        }}
+      >
+        <CardContent sx={{ p: 3, flex: 1, overflow: 'auto', display: 'flex', flexDirection: 'column' }}>
+          {/* Title and Stats */}
+          <Box sx={{ mb: 2 }}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.5 }}>
+              <Typography variant="h5" sx={{ fontWeight: 800, color: '#2F5E1A' }}>
+                {passage?.title}
+              </Typography>
+              <Box sx={{ display: 'flex', gap: 1.5, alignItems: 'center' }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.3 }}>
+                  <Pause sx={{ fontSize: 15, color: '#5FAF3A' }} />
+                  <Typography variant="body2" sx={{ fontWeight: 700, color: '#4b4b4b', fontSize: '0.75rem' }}>
+                    {tracker.pauseCount}
+                  </Typography>
+                </Box>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.3 }}>
+                  <Refresh sx={{ fontSize: 15, color: '#5FAF3A' }} />
+                  <Typography variant="body2" sx={{ fontWeight: 700, color: '#4b4b4b', fontSize: '0.75rem' }}>
+                    {tracker.totalRevisits}
+                  </Typography>
+                </Box>
+              </Box>
+            </Box>
+
+            {/* Progress bar */}
+            <Box sx={{ mb: 0.5 }}>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
+                <Typography variant="caption" sx={{ color: '#4b4b4b', fontSize: '0.75rem' }}>
+                  Section {tracker.currentSegment + 1} of {tracker.totalSegments}
+                </Typography>
+                <Typography variant="caption" sx={{ color: '#4b4b4b', fontSize: '0.75rem' }}>
+                  {Math.round(progress)}%
+                </Typography>
+              </Box>
+              <LinearProgress 
+                variant="determinate" 
+                value={progress}
+                sx={{
+                  height: 6,
+                  borderRadius: 3,
+                  backgroundColor: '#E0E0E0',
+                  '& .MuiLinearProgress-bar': {
+                    backgroundColor: '#5FAF3A'
+                  }
+                }}
+              />
+            </Box>
           </Box>
-        </Box>
-        
-        {/* Progress bar */}
-        <Box sx={{ mb: 1 }}>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
-            <Typography variant="caption" color="text.secondary">
-              Section {tracker.currentSegment + 1} of {tracker.totalSegments}
-            </Typography>
-            <Typography variant="caption" color="text.secondary">
-              {Math.round(progress)}%
-            </Typography>
-          </Box>
-          <LinearProgress variant="determinate" value={progress} />
-        </Box>
-      </Paper>
-      
-      {/* Reading content */}
-      <Card elevation={3} sx={{ mb: 2 }}>
-        <CardContent sx={{ p: 4 }}>
+
+          <Divider sx={{ my: 1.5 }} />
+
+          {/* Paragraph content */}
           <Typography 
-            variant="body1" 
+            variant="body2" 
             sx={{ 
-              fontSize: '1.1rem',
+              color: '#4b4b4b',
+              fontSize: '0.95rem',
               lineHeight: 1.8,
               textAlign: 'justify',
-              whiteSpace: 'pre-wrap'
+              whiteSpace: 'pre-wrap',
+              flex: 1
             }}
           >
             {currentSegmentData?.content}
           </Typography>
         </CardContent>
       </Card>
-      
-      <Divider sx={{ my: 2 }} />
-      
-      {/* Navigation buttons */}
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+
+      {/* Read carefully text and Navigation buttons */}
+      <Box sx={{ display: 'flex', gap: 3, mt: 2.5, justifyContent: 'space-between', alignItems: 'center', width: '55%', maxWidth: 650 }}>
         <Button
-          startIcon={<NavigateBefore />}
           onClick={handlePrevious}
           disabled={tracker.isFirstSegment}
+          startIcon={<NavigateBefore />}
           variant="outlined"
+          sx={{
+            borderColor: '#5FAF3A',
+            color: '#2F5E1A',
+            fontWeight: 700,
+            borderRadius: '12px',
+            px: 2.5,
+            py: 0.8,
+            fontSize: '0.85rem',
+            '&:hover': {
+              borderColor: '#4CAF50',
+              backgroundColor: 'rgba(95, 175, 58, 0.05)'
+            }
+          }}
         >
           Previous
         </Button>
         
-        <Typography variant="caption" color="text.secondary">
+        <Typography 
+          variant="body2" 
+          sx={{ 
+            color: '#2F5E1A',
+            fontWeight: 700,
+            fontSize: '0.85rem',
+            fontStyle: 'italic',
+            flex: 1,
+            textAlign: 'center'
+          }}
+        >
           Read carefully at your own pace
         </Typography>
         
@@ -307,7 +412,15 @@ const ReadingTest = () => {
             endIcon={<CheckCircle />}
             onClick={handleFinishReading}
             variant="contained"
-            color="success"
+            sx={{
+              backgroundColor: '#4CAF50',
+              fontWeight: 700,
+              borderRadius: '12px',
+              px: 2.5,
+              py: 0.8,
+              fontSize: '0.85rem',
+              '&:hover': { backgroundColor: '#3F9B45' }
+            }}
           >
             Continue to Questions
           </Button>
@@ -316,20 +429,21 @@ const ReadingTest = () => {
             endIcon={<NavigateNext />}
             onClick={handleNext}
             variant="contained"
+            sx={{
+              backgroundColor: '#4CAF50',
+              fontWeight: 700,
+              borderRadius: '12px',
+              px: 2.5,
+              py: 0.8,
+              fontSize: '0.85rem',
+              '&:hover': { backgroundColor: '#3F9B45' }
+            }}
           >
             Next
           </Button>
         )}
       </Box>
-      
-      {/* Instructions */}
-      <Alert severity="info" sx={{ mt: 3 }}>
-        <Typography variant="body2">
-          <strong>Instructions:</strong> Read each section carefully. You can navigate back to previous sections if needed.
-          When you're ready, click "Continue to Questions" to answer comprehension questions.
-        </Typography>
-      </Alert>
-    </Container>
+    </Box>
   );
 };
 

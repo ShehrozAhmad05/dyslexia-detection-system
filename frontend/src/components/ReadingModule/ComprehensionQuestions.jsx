@@ -14,6 +14,7 @@ import {
   Alert,
 } from '@mui/material';
 import { CheckCircle, ArrowBack } from '@mui/icons-material';
+// import bgImage from '../assets/rbg4.png'; // change path if needed
 
 const ComprehensionQuestions = ({ 
   questions, 
@@ -124,28 +125,40 @@ const ComprehensionQuestions = ({
   };
   
   return (
-    <Box>
+    <Box sx={{ width: '100%', display: 'flex', flexDirection: 'column' }}>
       {/* Progress */}
-      <Box sx={{ mb: 3 }}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
-          <Typography variant="body2" color="text.secondary">
+      <Box sx={{ mb: 0.8 }}>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.2 }}>
+          <Typography variant="body2" sx={{ color: '#6b6b6b', fontSize: '0.62rem' }}>
             Question {currentQuestionIndex + 1} of {questions.length}
           </Typography>
-          <Typography variant="body2" color="text.secondary">
+          <Typography variant="body2" sx={{ color: '#6b6b6b', fontSize: '0.55rem' }}>
             {Object.keys(answers).length} answered
           </Typography>
         </Box>
-        <LinearProgress variant="determinate" value={progress} />
+        <LinearProgress
+          variant="determinate"
+          value={progress}
+          sx={{ height: 4, borderRadius: 999, backgroundColor: '#E6E6D8', '& .MuiLinearProgress-bar': { backgroundColor: '#4CAF50' } }}
+        />
       </Box>
       
       {/* Question Card */}
-      <Card variant="outlined" sx={{ mb: 3 }}>
-        <CardContent>
-          <Typography variant="h6" gutterBottom>
+      <Card
+        variant="outlined"
+        sx={{
+          mb: 1.5,
+          borderRadius: '16px',
+          boxShadow: '0 6px 18px rgba(0, 0, 0, 0.06)',
+          borderColor: '#E1E8D0'
+        }}
+      >
+        <CardContent sx={{ p: { xs: 1.7, md: 2 } }}>
+          <Typography variant="h6" sx={{ gutterBottom: undefined, fontSize: '0.72rem', fontWeight: 800, color: '#2F5E1A', lineHeight: 1.35 }}>
             {currentQuestion.question}
           </Typography>
           
-          <Divider sx={{ my: 2 }} />
+          <Divider sx={{ my: 1.1 }} />
           
           <FormControl component="fieldset" fullWidth>
             <RadioGroup value={selectedAnswer} onChange={handleAnswerChange}>
@@ -153,17 +166,22 @@ const ComprehensionQuestions = ({
                 <FormControlLabel
                   key={index}
                   value={option}
-                  control={<Radio />}
+                  control={<Radio sx={{ p: 0.3 }} />}
                   label={option}
                   sx={{ 
-                    mb: 1,
-                    p: 1,
+                    mb: 0.55,
+                    p: 0.45,
                     border: '1px solid',
-                    borderColor: selectedAnswer === option ? 'primary.main' : 'grey.300',
-                    borderRadius: 1,
+                    borderColor: selectedAnswer === option ? '#5FAF3A' : '#D6DBC6',
+                    borderRadius: 1.5,
+                    bgcolor: selectedAnswer === option ? 'rgba(95, 175, 58, 0.12)' : 'transparent',
                     transition: 'all 0.2s',
+                    '& .MuiFormControlLabel-label': {
+                      fontSize: '0.68rem',
+                      color: '#3f3f3f'
+                    },
                     '&:hover': {
-                      backgroundColor: 'action.hover',
+                      backgroundColor: 'rgba(95, 175, 58, 0.06)',
                     }
                   }}
                 />
@@ -174,12 +192,13 @@ const ComprehensionQuestions = ({
       </Card>
       
       {/* Navigation Buttons */}
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 2 }}>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 1.2, alignItems: 'center' }}>
         <Box sx={{ display: 'flex', gap: 1 }}>
           <Button
             variant="outlined"
             onClick={handlePreviousQuestion}
             disabled={currentQuestionIndex === 0}
+            sx={{ borderColor: '#BFD0AA', color: '#2F5E1A', borderRadius: '12px', px: 1.8, py: 0.6, fontSize: '0.68rem' }}
           >
             Previous
           </Button>
@@ -188,6 +207,7 @@ const ComprehensionQuestions = ({
             variant="outlined"
             startIcon={<ArrowBack />}
             onClick={onReviewText}
+            sx={{ borderColor: '#BFD0AA', color: '#2F5E1A', borderRadius: '12px', px: 1.8, py: 0.6, fontSize: '0.68rem' }}
           >
             Review Text
           </Button>
@@ -199,6 +219,7 @@ const ComprehensionQuestions = ({
               variant="contained"
               onClick={handleNextQuestion}
               disabled={!selectedAnswer}
+              sx={{ backgroundColor: '#4CAF50', borderRadius: '12px', px: 2, py: 0.65, fontSize: '0.68rem', '&:hover': { backgroundColor: '#3F9B45' } }}
             >
               Next Question
             </Button>
@@ -209,6 +230,7 @@ const ComprehensionQuestions = ({
               startIcon={<CheckCircle />}
               onClick={handleSubmit}
               disabled={(!allAnswered && !selectedAnswer) || submitting}
+              sx={{ borderRadius: '12px', px: 2, py: 0.65, fontSize: '0.68rem' }}
             >
               {submitting ? 'Submitting...' : 'Submit Test'}
             </Button>
@@ -218,29 +240,29 @@ const ComprehensionQuestions = ({
       
       {/* Answer Summary */}
       {questions.length > 1 && (
-        <Box sx={{ mt: 3, p: 2, bgcolor: 'grey.50', borderRadius: 1 }}>
-          <Typography variant="caption" color="text.secondary" display="block" gutterBottom>
+        <Box sx={{ mt: 1.2, p: 1, bgcolor: 'rgba(95, 175, 58, 0.05)', borderRadius: 2 }}>
+          <Typography variant="caption" sx={{ color: '#6b6b6b', display: 'block', mb: 0.8, fontSize: '0.66rem' }}>
             Answer Progress:
           </Typography>
-          <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+          <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap' }}>
             {questions.map((q, index) => (
               <Box
                 key={q.questionId}
                 onClick={() => setCurrentQuestionIndex(index)}
                 sx={{
-                  width: 32,
-                  height: 32,
+                  width: 24,
+                  height: 24,
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   borderRadius: '50%',
                   border: '2px solid',
-                  borderColor: answers[q.questionId] ? 'success.main' : 'grey.300',
-                  bgcolor: currentQuestionIndex === index ? 'primary.light' : 'white',
-                  color: currentQuestionIndex === index ? 'white' : 'text.primary',
+                  borderColor: answers[q.questionId] ? '#4CAF50' : '#D6DBC6',
+                  bgcolor: currentQuestionIndex === index ? '#4CAF50' : 'white',
+                  color: currentQuestionIndex === index ? 'white' : '#2F5E1A',
                   cursor: 'pointer',
                   fontWeight: 'bold',
-                  fontSize: '0.875rem',
+                  fontSize: '0.65rem',
                   transition: 'all 0.2s',
                   '&:hover': {
                     transform: 'scale(1.1)',
