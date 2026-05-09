@@ -149,21 +149,30 @@ const ReadingResults = () => {
   };
   
   return (
-    <Box
-      sx={{
-        minHeight: '100vh',
-        backgroundImage: `url('/src/assets/rbgr.png')`,
-        backgroundPosition: 'center',
-        backgroundSize: 'cover',
-        backgroundAttachment: 'fixed',
-        pt: 12,
-        pb: 4,
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'flex-start',
-      }}
-    >
-      {/* Main Result Card */}
+    <Box sx={{ position: 'relative', minHeight: '100vh' }}>
+      <Box
+        sx={{
+          position: 'fixed',
+          inset: 0,
+          backgroundImage: `url('/src/assets/rbgr.png')`,
+          backgroundPosition: 'center',
+          backgroundSize: 'cover',
+          zIndex: 0
+        }}
+      />
+      <Box
+        sx={{
+          position: 'relative',
+          zIndex: 1,
+          minHeight: '100vh',
+          pt: 12,
+          pb: 4,
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'flex-start'
+        }}
+      >
+        {/* Main Result Card */}
       <Paper
         elevation={4}
         sx={{
@@ -646,6 +655,7 @@ const ReadingResults = () => {
           </Box>
         )}
       </Paper>
+      </Box>
     </Box>
   );
 };
