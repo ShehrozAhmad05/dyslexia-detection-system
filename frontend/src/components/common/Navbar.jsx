@@ -9,7 +9,7 @@ function Navbar() {
   const { isAuthenticated, user, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const overlayRoutes = ['/', '/login', '/register', '/dashboard', '/assessment/handwriting', '/assessment/keystroke'];
+  const overlayRoutes = ['/', '/login', '/register', '/dashboard', '/assessment/handwriting', '/assessment/keystroke', '/memory-test', '/memory/sequence', '/memory/word'];
   const isHandwritingResults = location.pathname.startsWith('/assessment/handwriting/results');
   const isHandwritingInstructions = location.pathname.startsWith('/assessment/instructions/handwriting');
   const isKeystrokeResults = location.pathname.startsWith('/assessment/keystroke/results');
@@ -22,7 +22,7 @@ function Navbar() {
 
   return (
     <AppBar
-      position={isOverlayPage ? 'absolute' : 'static'}
+      position={isOverlayPage ? 'absolute' : 'relative'}
       elevation={0}
       sx={{
         bgcolor: '#d7dce0ff',

@@ -182,20 +182,8 @@ body.memory-intro-lock {
   position: relative;
   overflow: hidden;
   padding: 0;
-  justify-content: flex-start;
-  height: calc(100vh - 64px);
-  margin-top: 0;
-}
-
-.intro-video {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: top center;
-  z-index: 0;
+  /* justify-content: flex-start; */
+   
 }
 
 .intro-content {
@@ -251,6 +239,7 @@ body.memory-intro-lock {
 }
 
 .video-button {
+  position: relative;
   align-self: flex-start;
   background: #002366;
   border: 1px solid rgba(0, 35, 102, 0.25);
@@ -260,6 +249,7 @@ body.memory-intro-lock {
   font-size: 1.1rem;
   border-radius: 999px;
   box-shadow: 0 12px 25px rgba(0, 35, 102, 0.2);
+  z-index: 1;
 }
 
 .video-button:hover {
