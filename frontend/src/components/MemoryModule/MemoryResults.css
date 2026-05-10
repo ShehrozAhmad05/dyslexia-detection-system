@@ -9,8 +9,12 @@
 }
 
 .results-container.combined-results {
-  min-height: calc(100vh - 64px);
-  padding: 24px 24px 48px;
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100vh;
+  min-height: 100vh;
+  padding: 110px 24px 48px;
   background-color: #2d2bc6;
   background-image: url('../../assets/combineresult.png');
   background-size: cover;

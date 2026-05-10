@@ -6,7 +6,7 @@
 import { useState, useEffect } from 'react';
 import './SequenceMemoryTest.css';
 import { memoryService } from '@services';
-import introVideo from '../../assets/vdo.mp4';
+import sequenceBgIntro from '../../assets/sequencebg.png';
 import sequenceBg from '../../assets/bkg.png';
 import sequenceCartoon from '../../assets/cartoon.png';
 
@@ -358,12 +358,19 @@ const SequenceMemoryTest = ({ onComplete, onSkipToNext }) => {
   // =====================================================
   if (gameState === 'intro') {
     return (
-      <div className="sequence-test-container intro-screen">
-        <video className="intro-video" autoPlay muted loop playsInline>
-          <source src={introVideo} type="video/mp4" />
-        </video>
-
-        <div className="intro-content">
+      <div className="sequence-test-container intro-screen" style={{
+        backgroundImage: `url(${sequenceBgIntro})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        width: '100%',
+        height: '100vh',
+        zIndex: 0
+      }}>
+        <div className="intro-content" style={{ paddingTop: '100px' }}>
           <div className="intro-left">
             <h1 className="intro-title1">Sequence Memory Test</h1>
 
@@ -376,7 +383,7 @@ const SequenceMemoryTest = ({ onComplete, onSkipToNext }) => {
               </ul>
             </div>
 
-            <button className="start-button video-button" onClick={startGame}>
+            <button className="start-button video-button" onClick={startGame} >
               Start Game
             </button>
           </div>

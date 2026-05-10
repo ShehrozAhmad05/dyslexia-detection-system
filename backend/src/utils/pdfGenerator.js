@@ -10,7 +10,15 @@ async function generateAssessmentPDF(assessmentData) {
 
   const browser = await puppeteer.launch({
     headless: true,
-    args: ['--no-sandbox', '--disable-setuid-sandbox']
+    executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || undefined,
+    args: [
+    '--no-sandbox',
+    '--disable-setuid-sandbox',
+    '--disable-dev-shm-usage',
+    '--disable-gpu',
+    '--no-zygote',
+    '--single-process'
+  ]
   });
 
   try {
@@ -162,6 +170,15 @@ function buildHTMLReport(data) {
     width: 100%;
     border-collapse: collapse;
     font-size: 12px;
+    page-break-inside: auto;
+    break-inside: auto;
+  }
+  thead { display: table-header-group; }
+  tbody { display: table-row-group; }
+  tr {
+    page-break-inside: avoid;
+    break-inside: avoid;
+    page-break-after: auto;
   }
   th {
     background: #f0f4f8;
@@ -237,7 +254,15 @@ function buildHTMLReport(data) {
     min-width: 2px;
   }
   @media print {
-    .section { page-break-inside: avoid; }
+    .section {
+      page-break-inside: auto;
+      break-inside: auto;
+      overflow: visible;
+    }
+    .section-header {
+      page-break-after: avoid;
+      break-after: avoid-page;
+    }
   }
 </style>
 </head>
@@ -373,18 +398,22 @@ function buildHandwritingSection(hw) {
   <div class="section-header">Handwriting Analysis</div>
   <div class="section-body">
     <table>
-      <tr><th>Metric</th><th>Value</th></tr>
-      <tr><td>Risk Score</td><td>${hw.overallScore ?? 'N/A'} / 100</td></tr>
-      <tr><td>Risk Level</td>
-          <td style="color:${getRiskColor(hw.riskLevel)};font-weight:600">
-            ${hw.riskLevel?.toUpperCase() || '-'}
-          </td></tr>
-      <tr><td>Reversals Detected</td>
-          <td>${hw.reversalCount ?? 'N/A'}</td></tr>
-      <tr><td>Expected Sentence</td>
-          <td>${escapeHtml(hw.expectedSentence || 'N/A')}</td></tr>
-      <tr><td>Detected Sentence</td>
-          <td>${escapeHtml(hw.detectedSentence || 'N/A')}</td></tr>
+      <thead>
+        <tr><th>Metric</th><th>Value</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Risk Score</td><td>${hw.overallScore ?? 'N/A'} / 100</td></tr>
+        <tr><td>Risk Level</td>
+            <td style="color:${getRiskColor(hw.riskLevel)};font-weight:600">
+              ${hw.riskLevel?.toUpperCase() || '-'}
+            </td></tr>
+        <tr><td>Reversals Detected</td>
+            <td>${hw.reversalCount ?? 'N/A'}</td></tr>
+        <tr><td>Expected Sentence</td>
+            <td>${escapeHtml(hw.expectedSentence || 'N/A')}</td></tr>
+        <tr><td>Detected Sentence</td>
+            <td>${escapeHtml(hw.detectedSentence || 'N/A')}</td></tr>
+      </tbody>
     </table>
     ${hw.wordResults?.length ? `
     <div style="margin-top:12px">

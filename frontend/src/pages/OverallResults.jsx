@@ -17,6 +17,11 @@ import {
   Tooltip, ResponsiveContainer, Cell
 } from 'recharts';
 import { assessmentService } from '@services';
+import overallBg from '../assets/bgoverall.png';
+import memoryIcon from '../assets/brainicon.png';
+import readingIcon from '../assets/book.png';
+import keystrokeIcon from '../assets/technology.png';
+import handwritingIcon from '../assets/pencil.png';
 
 const modules = ['handwriting', 'reading', 'keystroke', 'memory'];
 const moduleLabels = {
@@ -24,6 +29,13 @@ const moduleLabels = {
   reading: 'Reading',
   keystroke: 'Keystroke',
   memory: 'Memory'
+};
+
+const moduleStyles = {
+  handwriting: { bg: '#FFF3E6', accent: '#B85C00', font: '"Baloo 2", "Nunito", sans-serif' },
+  reading: { bg: '#E9F6ED', accent: '#2F6B3D', font: '"Nunito", "Segoe UI", sans-serif' },
+  keystroke: { bg: '#EEF2FF', accent: '#3D4AAE', font: '"Comic Sans MS", "Chalkboard SE", sans-serif' },
+  memory: { bg: '#F3EAFE', accent: '#6A3FBF', font: '"Baloo 2", "Nunito", sans-serif' }
 };
 
 const buildKeystrokeRecommendations = (keystroke) => {
@@ -188,13 +200,22 @@ function OverallResults() {
 
   const getModuleIcon = (module) => {
     const icons = {
-      handwriting: Edit,
-      reading: MenuBook,
-      keystroke: Keyboard,
-      memory: Psychology
+      handwriting: handwritingIcon,
+      reading: readingIcon,
+      keystroke: keystrokeIcon,
+      memory: memoryIcon
     };
-    const Icon = icons[module] || CheckCircle;
-    return <Icon />;
+    const src = icons[module];
+    return src
+      ? (
+        <Box
+          component="img"
+          src={src}
+          alt={`${moduleLabels[module]} icon`}
+          sx={{ width: 40, height: 40 }}
+        />
+      )
+      : <CheckCircle />;
   };
 
   const getModuleRiskLevel = (module) => {
@@ -261,21 +282,55 @@ function OverallResults() {
   const confidenceScore = fusion?.fusionAnalysis?.confidenceScore;
 
   return (
-    <Container maxWidth="lg">
-      <Box sx={{ py: 4 }}>
-        <Paper sx={{ p: 3, mb: 3, bgcolor: 'primary.main', color: 'white' }}>
-          <Typography variant="h4" gutterBottom>
-            Assessment Complete
-          </Typography>
-          <Typography variant="body1">
-            Here are your comprehensive screening results
-          </Typography>
-          {fusion?.completedAt && (
-            <Typography variant="body2" sx={{ mt: 1, opacity: 0.9 }}>
-              Completed on: {new Date(fusion.completedAt).toLocaleString()}
-            </Typography>
-          )}
-        </Paper>
+    <Box sx={{ position: 'relative', minHeight: '100vh' }}>
+      <Box
+        sx={{
+          position: 'fixed',
+          inset: 0,
+          backgroundImage: `url(${overallBg})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          zIndex: 0
+        }}
+      />
+      <Container
+        maxWidth={false}
+        sx={{ px: { xs: 2, md: 5 }, pt: { xs: 7, md: 8 }, pb: 4, position: 'relative', zIndex: 1 }}
+      >
+        <Box sx={{ maxWidth: 700, mx: 'auto', mb: 2 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 2, mb: 2 }}>
+            <Box>
+              <Typography variant="h5" sx={{ fontWeight: 800, color: '#2F2B57' }}>
+                Overall Assessment Result
+              </Typography>
+              <Typography variant="body2" sx={{ color: '#6B6B8A' }}>
+                Complete evaluation of all cognitive modules
+              </Typography>
+            </Box>
+            {fusion?.completedAt && (
+              <Box
+                sx={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: 0.2,
+                  px: 2,
+                  py: 1,
+                  borderRadius: 2,
+                  backgroundColor: 'rgba(250, 230, 250, 0.85)',
+                  border: '1px solid #E1E4F0',
+                  boxShadow: '0 6px 16px rgba(0,0,0,0.08)'
+                }}
+              >
+                <Typography variant="caption" sx={{ fontWeight: 700, color: '#2F2B57' }}>
+                  Assessment Date
+                </Typography>
+                <Typography variant="caption" sx={{ color: '#6B6B8A' }}>
+                  {new Date(fusion.completedAt).toLocaleString()}
+                </Typography>
+              </Box>
+            )}
+          </Box>
+        </Box>
 
         {loading && (
           <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
@@ -304,50 +359,123 @@ function OverallResults() {
 
         {!loading && !error && fusion && (
           <>
-            <Paper sx={{ p: 3, mb: 3, textAlign: 'center' }}>
-              <Typography variant="h2" sx={{ fontWeight: 700, lineHeight: 1.1 }}>
-                {formatScore(fusion?.overallRiskScore)}
-              </Typography>
-              <Typography variant="body2" color="text.secondary" sx={{ mb: 1.5 }}>
-                out of 100
-              </Typography>
-              <Chip
-                label={`${formatRiskLevel(fusion?.riskLevel)} RISK`}
-                color={getRiskColor(fusion.riskLevel)}
-                sx={{ mb: 1 }}
-              />
-              <Typography variant="body2" color="text.secondary">
-                Confidence: {confidenceScore != null ? Math.round(confidenceScore) : 'N/A'}% ({completedModules.length}/4 modules completed)
-              </Typography>
+            <Box sx={{ maxWidth: 800, mx: 'auto', mb: 2 }}>
+              <Paper
+              sx={{
+                p: { xs: 2, md: 2.5 },
+                mb: 3,
+                borderRadius: 3,
+               backgroundColor: 'rgba(250, 230, 250, 0.85)',
+                display: 'flex',
+                alignItems: 'center',
+                gap: { xs: 2, md: 3 },
+                flexWrap: 'wrap'
+              }}
+            >
+              <Box
+                sx={{
+                  width: 120,
+                  height: 120,
+                  borderRadius: '50%',
+                  border: '10px solid #7B61FF',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flexDirection: 'column',
+                  // bgcolor: '#fff'
+                }}
+              >
+                <Typography variant="h4" sx={{ fontWeight: 800, color: '#2F2B57', lineHeight: 1 }}>
+                  {formatScore(fusion?.overallRiskScore)}
+                </Typography>
+                <Typography variant="caption" sx={{ color: '#6B6B8A' }}>
+                  /100
+                </Typography>
+              </Box>
+              <Box sx={{ minWidth: 220, flex: 1 }}>
+                <Typography variant="h6" sx={{ fontWeight: 700, color: '#2F2B57', mb: 0.6 }}>
+                  Overall Score
+                </Typography>
+                <Chip
+                  label={`${formatRiskLevel(fusion?.riskLevel)} RISK`}
+                  color={getRiskColor(fusion.riskLevel)}
+                  size="small"
+                  sx={{ mb: 1 }}
+                />
+                <Typography variant="body2" sx={{ color: '#6B6B8A', mb: 0.6 }}>
+                  Your overall score indicates {formatRiskLevel(fusion?.riskLevel).toLowerCase()} risk of dyslexia indicators.
+                </Typography>
+                <Typography variant="body2" sx={{ color: '#2F2B57', fontWeight: 600 }}>
+                  Confidence Score: {confidenceScore != null ? Math.round(confidenceScore) : 'N/A'}% ({completedModules.length}/4 modules completed)
+                </Typography>
+              </Box>
             </Paper>
+            </Box>
 
-            <Grid container spacing={2} sx={{ mb: 3 }}>
+            <Paper
+              sx={{
+                p: { xs: 2.5, md: 3 },
+                maxWidth: 950,
+                width: '100%',
+                mx: 'auto',
+                bgcolor: 'rgba(255,255,255,0.95)',
+                borderRadius: 3,
+                boxShadow: '0 16px 40px rgba(0,0,0,0.12)'
+              }}
+            >
+
+            <Grid container spacing={2} sx={{ mb: 3 }} alignItems="stretch">
               {modules.map((module) => {
+                const style = moduleStyles[module] || moduleStyles.reading;
                 const score = getModuleScore(module);
                 const riskLevel = getModuleRiskLevel(module);
                 const completed = completedModules.includes(module);
                 return (
-                  <Grid item xs={12} sm={6} key={module}>
-                    <Card variant="outlined">
-                      <CardContent>
-                        <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                          <Box sx={{ mr: 1, display: 'flex', alignItems: 'center' }}>
+                  <Grid item xs={12} sm={6} md={3} key={module}>
+                    <Card
+                      sx={{
+                        height: '100%',
+                        // width: '100%',
+                        borderRadius: 2,
+                        border: `1px solid ${style.accent}33`,
+                        bgcolor: style.bg,
+                        boxShadow: '0 10px 24px rgba(0,0,0,0.08)'
+                      }}
+                    >
+                      <CardContent sx={{ display: 'flex', flexDirection: 'column', gap: 1, fontFamily: style.font, height: '100%' }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                          <Box
+                            sx={{
+                              width: 97,
+                              height: 70,
+                              borderRadius: '50%',
+                              bgcolor: `${style.accent}22`,
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center'
+                            }}
+                          >
                             {getModuleIcon(module)}
                           </Box>
-                          <Typography variant="h6">{moduleLabels[module]}</Typography>
+                          <Typography variant="subtitle1" sx={{ fontWeight: 700, color: style.accent }}>
+                            {moduleLabels[module]}
+                          </Typography>
                         </Box>
-                        <Typography variant="h5" sx={{ mb: 1 }}>
+                        <Typography variant="h5" sx={{ mb: 0.5, color: style.accent, fontWeight: 700 }}>
                           {formatScore(score)}
+                          <Typography component="span" variant="body2" sx={{ color: '#6B6B8A', ml: 0.4, fontFamily: style.font }}>
+                            /100
+                          </Typography>
                         </Typography>
                         {completed ? (
                           <Chip
                             size="small"
                             color={getRiskColor(riskLevel)}
                             label={formatRiskLevel(riskLevel)}
-                            sx={{ mb: 1.5 }}
+                            sx={{ mb: 1 }}
                           />
                         ) : (
-                          <Typography variant="body2" color="text.secondary" sx={{ mb: 1.5 }}>
+                          <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
                             Not completed
                           </Typography>
                         )}
@@ -798,14 +926,14 @@ function OverallResults() {
                 Back to Dashboard
               </Button>
             </Box>
+            <Typography variant="caption" color="text.secondary">
+              This screening does not constitute a clinical diagnosis. Results should be interpreted by a qualified professional.
+            </Typography>
+          </Paper>
           </>
         )}
-
-        <Typography variant="caption" color="text.secondary">
-          This screening does not constitute a clinical diagnosis. Results should be interpreted by a qualified professional.
-        </Typography>
-      </Box>
     </Container>
+  </Box>
   );
 }
 
