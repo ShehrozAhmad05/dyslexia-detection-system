@@ -19,7 +19,7 @@ import {
 import { assessmentService } from '@services';
 import overallBg from '../assets/bgoverall.png';
 import memoryIcon from '../assets/brainicon.png';
-import readingIcon from '../assets/book.png';
+import readingIcon from '../assets/books.png';
 import keystrokeIcon from '../assets/technology.png';
 import handwritingIcon from '../assets/pencil.png';
 
