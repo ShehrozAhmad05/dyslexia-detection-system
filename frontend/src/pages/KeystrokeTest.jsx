@@ -304,7 +304,7 @@ function KeystrokeTest() {
         py: { xs: 10, md: 0 }
       }}
     >
-      <Container sx={{ width: '53%' }}>
+      <Container sx={{ width: '57%' }}>
         <Paper sx={{ p: 5, borderRadius: 5, bgcolor: '#F4F0FD', minHeight: '65vh' }}>
           <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1.5, mb: 2 }}>
             <Box component="img" src={technologyIcon} alt="technology" sx={{ width: 42, height: 42, mt: 0.25 }} />
