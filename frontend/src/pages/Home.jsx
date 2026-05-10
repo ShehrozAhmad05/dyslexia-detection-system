@@ -44,12 +44,12 @@ const MODULES = [
     image: explainableImage,
     accent: '#2AA6D6'
   },
-  {
-    title: 'Personalized Therapy',
-    description: 'Custom learning support recommendations based on assessment outcomes.',
-    image: therapyImage,
-    accent: '#EC6EA8'
-  }
+  // {
+  //   title: 'Personalized Therapy',
+  //   description: 'Custom learning support recommendations based on assessment outcomes.',
+  //   image: therapyImage,
+  //   accent: '#EC6EA8'
+  // }
 ];
 
 function Home() {
