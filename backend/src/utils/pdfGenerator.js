@@ -1,4 +1,5 @@
 const puppeteer = require('puppeteer');
+const fs = require('fs');
 
 /**
  * Generate PDF report for completed assessment.
@@ -7,18 +8,26 @@ const puppeteer = require('puppeteer');
  */
 async function generateAssessmentPDF(assessmentData) {
   const html = buildHTMLReport(assessmentData);
+  const configuredExecutablePath = process.env.PUPPETEER_EXECUTABLE_PATH;
+  const executablePath = configuredExecutablePath &&
+    fs.existsSync(configuredExecutablePath)
+    ? configuredExecutablePath
+    : undefined;
+  const isLinux = process.platform === 'linux';
 
   const browser = await puppeteer.launch({
     headless: true,
-    executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || undefined,
-    args: [
-    '--no-sandbox',
-    '--disable-setuid-sandbox',
-    '--disable-dev-shm-usage',
-    '--disable-gpu',
-    '--no-zygote',
-    '--single-process'
-  ]
+    executablePath,
+    args: isLinux
+      ? [
+          '--no-sandbox',
+          '--disable-setuid-sandbox',
+          '--disable-dev-shm-usage',
+          '--disable-gpu',
+          '--no-zygote',
+          '--single-process'
+        ]
+      : ['--disable-gpu']
   });
 
   try {
