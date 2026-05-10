@@ -17,7 +17,7 @@ import { assessmentService } from '@services';
 import mainVideo from '../assets/waving.mp4';
 import ideaIcon from '../assets/idea.png';
 import signatureIcon from '../assets/signature.png';
-import booksIcon from '../assets/book.png';
+import booksIcon from '../assets/books.png';
 import typingIcon from '../assets/typing.png';
 import alzheimerIcon from '../assets/alzheimer.png';
 
