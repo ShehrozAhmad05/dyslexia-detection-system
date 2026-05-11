@@ -131,15 +131,17 @@ function Navbar() {
                   variant="outlined"
                   sx={{
                     borderRadius: '999px',
-                    borderColor: 'rgba(0,0,0,0.45)',
+                    // borderColor: 'rgba(0,0,0,0.45)',
+                    backgroundColor: '#b41e1e',
+                    boxShadow:"0px 3px 1px -2px rgba(0,0,0,0.2),0px 2px 2px 0px rgba(0,0,0,0.14),0px 1px 5px 0px rgba(0,0,0,0.12)",
                     color: '#111111',
                     textTransform: 'none',
                     fontWeight: 700,
                     fontFamily: contentFont,
                     px: 2,
                     '&:hover': {
-                      borderColor: '#111111',
-                      backgroundColor: 'rgba(255,255,255,0.24)'
+                      // borderColor: '#111111',
+                      backgroundColor: '#df4848'
                     }
                   }}
                 >

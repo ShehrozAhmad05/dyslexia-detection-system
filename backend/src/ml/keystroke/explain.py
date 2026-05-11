@@ -44,7 +44,10 @@ def explain_anomaly(features, explain=True):
                     'feature': feat,
                     'shapValue': val,
                     'featureValue': float(X[0][i]),
-                    'direction': 'increases_anomaly' if val > 0 else 'decreases_anomaly',
+                    # score_samples: lower score => more anomalous.
+                    # Positive SHAP pushes score up (toward normal),
+                    # negative SHAP pushes score down (toward anomaly).
+                    'direction': 'decreases_anomaly' if val > 0 else 'increases_anomaly',
                     'impact': (
                         'HIGH' if abs(val) > 0.15 else
                         'MEDIUM' if abs(val) > 0.05 else
