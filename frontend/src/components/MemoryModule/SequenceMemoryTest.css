@@ -18,15 +18,15 @@
    ===================================================== */
 .sequence-showing {
   position: fixed;
-  top: 64px;
+  top: 0;
   left: 0;
   right: 0;
-  background-size: 100% auto;
-  background-position: bottom center;
+  background-size: cover;
+  background-position: center;
   background-repeat: no-repeat;
   background-color: #efedf8;
-  height: calc(100vh - 64px);
-  padding: 2.5rem 4rem;
+  height: 100vh;
+  padding: calc(64px + 2.5rem) 4rem 2.5rem;
   justify-content: flex-start;
   align-items: center;
   gap: 1.5rem;
@@ -520,7 +520,7 @@ body.memory-intro-lock {
 /* Timer Styles */
 .timer-display {
   position: absolute;
-  top: 20px;
+  top: 40px;
   left: 20px;
   background-color: rgba(0, 35, 102, 0.8); /* Imperial Blue with opacity */
   color: #B9D9EB; /* Pale Sky */
@@ -533,7 +533,7 @@ body.memory-intro-lock {
 
 .circular-timer {
   position: absolute;
-  top: 20px;
+  top: 80px;
   left: 20px;
   width: 60px;
   height: 60px;
@@ -647,15 +647,15 @@ body.memory-intro-lock {
   background-size: cover;
   background-position: bottom center;
   position: fixed;
-  top: 64px; /* Adjust based on Navbar height */
+  top: 0;
   left: 0;
   width: 100%;
-  height: calc(100vh - 64px);
+  height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 20px;
+  padding: calc(64px + 20px) 20px 20px;
   box-sizing: border-box;
 }
 
@@ -669,7 +669,7 @@ body.memory-intro-lock {
 
 .sequence-input-screen .game-header {
   position: absolute;
-  top: 20px;
+  top: calc(64px + 20px);
   right: 20px;
   left: auto;
   width: auto;
@@ -698,6 +698,9 @@ body.memory-intro-lock {
 .sequence-input-screen .submit-button {
   padding: 15px 30px;
   font-size: 1.2rem;
+}
+.score-display{
+  color: #002366;
 }
 
 /* =====================================================
