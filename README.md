@@ -1,83 +1,108 @@
-# Multimodal AI System for Dyslexia Detection & Support
+
+# Multimodal Dyslexia Risk Screening System
 
 ## 🎯 Project Overview
 
-An AI-powered multimodal dyslexia detection system that analyzes:
-- **Handwriting** (letter reversals, spacing, stroke patterns)
-- **Keystroke dynamics** (typing behavior, timing patterns)
-- **Reading patterns** (simulated eye-tracking through web-based tests)
+A multimodal, explainable AI-based dyslexia risk screening platform delivered as a full-stack web application. The system analyzes four behavioral and cognitive domains associated with dyslexia:
+
+- **Handwriting** — letter reversal detection via OCR-based sentence comparison
+- **Reading behavior** — speed, pauses, revisits, and comprehension tracked via browser interaction
+- **Keystroke dynamics** — typing rhythm and anomaly detection
+- **Memory** — sequence recall and word recall sub-tests
 
 Combined with:
-- **Explainable AI (XAI)** - SHAP, LIME, Grad-CAM
-- **Personalized therapy modules** for continuous learning support
+- **Explainable AI (XAI)** — SHAP-based feature attribution, natural language narratives, threshold breakdowns, and weighted contribution charts
+- **Multimodal fusion** — module scores combined into a unified overall risk score with confidence estimation
+- **Longitudinal progress tracking** — assessment history, trend charts, and downloadable PDF reports
 
-## 📊 Datasets
+The system is positioned as a **screening and decision-support tool**, not a clinical diagnostic instrument.
+
+---
+
+## 📊 Datasets and Calibration Sources
 
 ### Handwriting Module
-- **Roboflow Dyslexia Dataset**: 19,862 character-level images (A-Z)
-- **Synthetic Handwriting (YOLO)**: 2,739 images with reversal labels
-- **Dysgraphia Dataset**: 249 Malaysian handwriting samples
+- **Kaggle Handwritten Letters Dataset** — used as reference for reversal pair mapping (b/d, p/q, n/u, m/w, s/z)
+- **Google Vision API** — production OCR engine for handwriting transcription
+- Two YOLO model variants (99.5% and 99.4% mAP@50) were trained on synthetic word images during development but were **not used in production** due to poor generalization on real handwriting samples; OCR-based comparison was adopted instead
 
-### Eye-Tracking Module
-- **ETDD70 Dataset**: 70 subjects (35 dyslexic, 35 non-dyslexic)
-- 210 recordings across 3 reading tasks
-- High-frequency (250 Hz) fixation, saccade, and metrics data
+### Reading Module
+- **ETDD70 Dataset** (Sedmidubsky et al., 2024) — used to calibrate behavioral thresholds for reading speed, pause frequency, pause duration, revisit count, and comprehension accuracy
+- Note: the system does **not** use hardware eye-tracking; ETDD70's population-level norms are used to calibrate passive, browser-based behavioral proxies instead
 
 ### Keystroke Module
-- **CMU DSL Dataset**: 20,400 keystroke records from 51 subjects
-- Used for anomaly detection of dyslexic typing patterns
+- **Aalto University Keystroke Dataset** (136M keystrokes) — used to train the Isolation Forest anomaly detection model and calibrate rule-based thresholds
+
+### Memory Module
+- Rule-based scoring only; no external dataset required
+
+---
 
 ## 🏗️ Architecture
 
 ```
-├── frontend/          # React.js web application
-├── backend/           # Node.js + Express API
-├── ml-models/         # Python ML/DL models
-│   ├── handwriting/   # CNN, YOLO for handwriting analysis
-│   ├── keystroke/     # Anomaly detection for typing patterns
-│   ├── eye-tracking/  # Reading behavior analysis
-│   ├── fusion/        # Multimodal risk score fusion
-│   └── xai/           # Explainable AI (SHAP, LIME, Grad-CAM)
-├── data/              # Dataset storage and processing
-└── docs/              # Documentation
+├── frontend/              # React + Vite web application
+├── backend/                # Node.js + Express API
+│   ├── src/routes/         # handwriting, reading, keystroke, memory, assessment, auth
+│   ├── src/models/         # Mongoose schemas
+│   ├── src/ml/keystroke/   # Isolation Forest inference + SHAP (Python subprocess)
+│   ├── src/utils/          # explainabilityEngine.js, pdfGenerator.js
+│   └── config/              # keystrokeConfig_Aalto.js, readingThresholds.js
+├── ml-models/               # FastAPI ML microservice
+│   ├── handwriting/         # OCR service, sentence comparator, risk calculator
+│   └── main.py               # FastAPI server
+└── docker-compose.yml
 ```
+
+**Three-tier architecture:** React frontend (port 3000) → Node.js/Express backend (port 5000) → FastAPI ML service (port 8000, handwriting only). Keystroke inference runs via Python subprocess spawned directly by the backend.
+
+---
 
 ## 🚀 Tech Stack
 
 ### Frontend
-- React.js
-- Material-UI / Tailwind CSS
-- Axios for API calls
-- Chart.js for visualizations
+- React + Vite
+- Material UI (MUI) + Tailwind CSS
+- Recharts (radar chart, progress line chart, weighted contribution chart)
+- `@react-oauth/google` for Google Sign-In
 
 ### Backend
 - Node.js + Express.js
-- MongoDB (Mongoose)
-- JWT Authentication
-- Python integration for ML inference
+- MongoDB + Mongoose (ODM)
+- JWT authentication + Google OAuth 2.0 (`google-auth-library`)
+- Puppeteer (server-side PDF report generation)
+- Multer (handwriting image upload handling)
 
-### ML/AI
-- **Frameworks**: TensorFlow, PyTorch, scikit-learn
-- **Models**: YOLOv8, ResNet, MobileNet, LSTM
-- **XAI**: SHAP, LIME, Grad-CAM
-- **Libraries**: OpenCV, pandas, numpy
+### ML / AI
+- **FastAPI** — handwriting OCR pipeline microservice
+- **Google Vision API** — handwriting OCR
+- **Isolation Forest** (scikit-learn) — keystroke anomaly detection
+- **SHAP** (TreeExplainer) — keystroke feature-level explainability
+- **NumPy / Pandas** — feature extraction and preprocessing
 
 ### Database
-- MongoDB - User data, test results, progress tracking
+- MongoDB — users, assessments, and per-module result collections
+
+### DevOps
+- Docker + Docker Compose (frontend, backend, ML API, MongoDB)
+- Deployed on AWS
+
+---
 
 ## 📦 Installation
 
 ### Prerequisites
 - Node.js (v18+)
-- Python (3.9+)
+- Python (3.11+)
 - MongoDB
-- Git
+- Docker (optional, for containerized setup)
+- Google Cloud Vision API credentials
 
 ### Setup Instructions
 
 1. **Clone the repository**
 ```bash
-git clone https://github.com/your-username/dyslexia-detection-system.git
+git clone https://github.com/ShehrozAhmad05/dyslexia-detection-system.git
 cd dyslexia-detection-system
 ```
 
@@ -86,7 +111,7 @@ cd dyslexia-detection-system
 cd backend
 npm install
 cp .env.example .env
-# Configure your .env file
+# Configure your .env file (see Configuration section below)
 npm run dev
 ```
 
@@ -94,98 +119,127 @@ npm run dev
 ```bash
 cd frontend
 npm install
-npm start
+npm run dev
 ```
 
-4. **ML Models Setup**
+4. **ML Service Setup**
 ```bash
 cd ml-models
+python -m venv .venv
+.venv\Scripts\activate    # Windows
 pip install -r requirements.txt
+uvicorn main:app --reload --port 8000
 ```
 
-## 🔧 Configuration
+5. **Or run everything with Docker**
+```bash
+docker-compose up --build
+```
 
-Create `.env` files in backend and frontend directories:
+---
+
+## 🔧 Configuration
 
 **Backend `.env`:**
 ```
 PORT=5000
 MONGODB_URI=mongodb://localhost:27017/dyslexia_db
 JWT_SECRET=your_jwt_secret
+JWT_EXPIRE=7d
+GOOGLE_CLIENT_ID=your_google_client_id
+GOOGLE_CLIENT_SECRET=your_google_client_secret
 ML_API_URL=http://localhost:8000
+PYTHON_PATH=/path/to/.venv/Scripts/python.exe
 ```
 
 **Frontend `.env`:**
 ```
-REACT_APP_API_URL=http://localhost:5000/api
+VITE_API_URL=http://localhost:5000/api
+VITE_GOOGLE_CLIENT_ID=your_google_client_id
 ```
+
+**ML Service `.env`:**
+```
+GOOGLE_APPLICATION_CREDENTIALS=ml-models/credentials/google_vision_key.json
+```
+
+---
 
 ## 📖 Usage
 
-1. **User Registration/Login**
-2. **Complete Assessment Tests**:
-   - Upload handwriting samples
-   - Complete typing test
-   - Complete reading comprehension test
-3. **View Results**:
-   - Individual module scores
-   - Combined risk assessment
-   - XAI explanations
-4. **Access Therapy Modules** based on assessment results
+1. **Register or sign in** via email/password or Google OAuth
+2. **Start an assessment** — proceeds sequentially through all four modules:
+   - Handwriting: photograph a handwritten screening sentence
+   - Reading: read a 3-section passage and answer comprehension questions
+   - Keystroke: complete a standardized typing task
+   - Memory: complete sequence recall and word recall sub-tests
+3. **View results**:
+   - Individual module scores with feature-level breakdowns
+   - Overall fused risk score (Low / Moderate / High) with confidence
+   - Multi-level explainability: SHAP charts, natural language narratives, threshold tables
+4. **Track progress** via dashboard — radar chart, progress-over-time chart, assessment history
+5. **Download PDF report** for any completed assessment
+
+---
+
+## 📊 Module Scoring Overview
+
+| Module | Method | Key Reference |
+|---|---|---|
+| Handwriting | OCR + Levenshtein alignment + reversal-weighted scoring | Brooks et al. (2011), Isa et al. (2019) |
+| Reading | Threshold-based scoring on 5 behavioral features | ETDD70 (Sedmidubsky et al., 2024) |
+| Keystroke | Isolation Forest (60%) + rule-based thresholds (40%) + SHAP | Aalto Keystroke Dataset |
+| Memory | Rule-based scoring across 4 risk dimensions | — |
+| Fusion | Equal-weighted average (25% per module) | — |
+
+---
 
 ## 🧪 Testing
 
-```bash
-# Backend tests
-cd backend
-npm test
+Fifteen structured functional test cases were executed covering authentication, the full assessment lifecycle, all four module pipelines, fusion, explainability, and PDF generation. See `docs/testing.md` for the complete test case documentation.
 
-# Frontend tests
-cd frontend
-npm test
-
-# ML model tests
-cd ml-models
-pytest tests/
-```
-
-## 📊 Model Performance
-
-| Module | Accuracy | Dataset Size |
-|--------|----------|--------------|
-| Handwriting | 88-93% | 22,000+ images |
-| Eye-Tracking | 85-90% | 210 recordings |
-| Keystroke | Anomaly-based | 20,400 records |
+---
 
 ## 🤝 Contributing
 
-This is a Final Year Project (FYP). For collaboration inquiries, please contact the project author.
+This is a Final Year Project (FYP). For collaboration inquiries, please contact the project authors.
+
+---
 
 ## 📄 License
 
-This project is developed as part of academic research. All rights reserved.
+This project is developed as part of academic research at UET Lahore. All rights reserved.
 
-## 👨‍💻 Author
+---
 
-[Your Name]  
-[Your University]  
-Academic Year: 2024-2025
+## 👨‍💻 Team
+
+**Shehroz Ahmad**, **Fatima Safdar**, **Laiba Sehar**   
+Department of Computer Science, University of Engineering and Technology (UET), Lahore   
+Supervised by **Mr. Nazeef ul Haq**  
+Academic Year: 2025–2026
+
+---
 
 ## 📚 Citations
 
-If you use the datasets, please cite:
-- ETDD70: Dostalova et al. (2024) - Zenodo
-- Roboflow Dyslexia Dataset
-- CMU Keystroke Dynamics Dataset
+If you use the datasets or reference this work, please cite:
 
-## 🔮 Future Enhancements
+- **ETDD70**: Sedmidubsky, J. et al. (2024) — Eye-Tracking Dataset for Dyslexia Detection
+- **Aalto Keystroke Dataset**: Dhakal, V., Feit, A. M., Kristensson, P. O., & Oulasvirta, A. (2018) — *Observations on typing from 136 million keystrokes*, CHI 2018
+- **Kaggle Handwritten Letters Dataset**
 
-- [ ] Mobile app development
-- [ ] Real-time webcam eye-tracking
-- [ ] Multi-language support
-- [ ] Advanced therapy gamification
-- [ ] Teacher/parent dashboard
+---
 
-## 📞 Contact
+## 🔮 Future Work
 
-For questions or feedback, reach out at: [your.email@university.edu]
+- [ ] Formal clinical validation study
+- [ ] Urdu and multilingual support
+- [ ] Gamified therapy and intervention module
+- [ ] Supervised keystroke models with clinically labeled data
+- [ ] Teacher/institution-facing dashboard
+- [ ] Locally calibrated datasets (Pakistan school-age population)
+- [ ] Native mobile application (iOS/Android)
+- [ ] Integration with school management systems
+
+---
